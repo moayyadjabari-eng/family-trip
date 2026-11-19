@@ -139,3 +139,8 @@ textarea.i{min-height:90px;resize:vertical}
 .statement td:last-child{text-align:end;white-space:nowrap}
 [dir="rtl"] .flip{transform:scaleX(-1)}
 @media print{nav.tabs,header.top,.no-print,.fab{display:none!important}.sheet-bg{position:static;background:none}.sheet{max-height:none;box-shadow:none}}
+
+.avatar{overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.avatar-btn{position:relative;border:0;background:none;padding:0;cursor:pointer;flex:none}
+.cam{position:absolute;bottom:-2px;inset-inline-end:-2px;width:22px;height:22px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;border:2px solid var(--card)}

@@ -127,6 +127,8 @@ create table if not exists public.photos (
 
 alter table public.members add column if not exists email text not null default '';
 alter table public.members add column if not exists perms jsonb not null default '{}'::jsonb;
+alter table public.photos add column if not exists kind text not null default 'gallery';   -- 'gallery' or 'avatar'
+alter table public.members add column if not exists avatar uuid;                            -- photos.id of their profile photo
 alter table public.itinerary add column if not exists place_id uuid references public.places(id) on delete set null;
 
 create table if not exists public.settings (
@@ -279,9 +281,9 @@ begin
   if p_action = 'state' then
     return jsonb_build_object(
       'me', jsonb_build_object('id', me.id, 'username', me.username, 'name', me.name, 'role', me.role,
-              'household', me.household, 'email', me.email, 'perms', me.perms),
+              'household', me.household, 'email', me.email, 'perms', me.perms, 'avatar', me.avatar),
       'members', coalesce((select jsonb_agg(jsonb_build_object('id', id, 'username', username, 'name', name, 'role', role,
-              'household', household,
+              'household', household, 'avatar', avatar,
               'email', case when me.role = 'admin' or id = me.id then email else '' end,
               'perms', case when me.role = 'admin' or id = me.id then perms else '{}'::jsonb end) order by name) from members), '[]'),
       'itinerary', case when _can(me,'view_plan') then coalesce((select jsonb_agg(to_jsonb(i) order by day, nullif(time,'') nulls first, created_at) from itinerary i), '[]') else '[]' end,
@@ -299,13 +301,14 @@ begin
           where _can(me,'money_all') or t.from_member = me.id or t.to_member = me.id), '[]') end,
       'places', case when _can(me,'view_places') then coalesce((select jsonb_agg(to_jsonb(p) order by sort, created_at) from places p), '[]') else '[]' end,
       'photos', case when _can(me,'view_photos') or _can(me,'view_places') then coalesce((select jsonb_agg(jsonb_build_object('id', ph.id, 'caption', ph.caption, 'place_id', ph.place_id,
-          'day', ph.day, 'author', ph.author, 'created_at', ph.created_at) order by ph.created_at desc) from photos ph), '[]') else '[]' end,
+          'day', ph.day, 'author', ph.author, 'created_at', ph.created_at) order by ph.created_at desc) from photos ph where ph.kind = 'gallery'), '[]') else '[]' end,
       'settings', coalesce((select jsonb_object_agg(key, value) from settings), '{}')
     );
   end if;
 
   if p_action = 'photo' then
-    if not (_can(me,'view_photos') or _can(me,'view_places')) then raise exception 'not_allowed'; end if;
+    if not (_can(me,'view_photos') or _can(me,'view_places'))
+       and not exists (select 1 from photos where id = (d->>'id')::uuid and kind = 'avatar') then raise exception 'not_allowed'; end if;
     return coalesce((select jsonb_build_object('id', id, 'data', data) from photos where id = (d->>'id')::uuid), '{}'::jsonb);
   end if;
 
@@ -318,6 +321,24 @@ begin
       values (d->>'data', coalesce(d->>'caption',''), nullif(d->>'place_id','')::uuid, nullif(d->>'day','')::date, me.id)
       returning id into v_id;
     return jsonb_build_object('id', v_id);
+  end if;
+
+  -- ----- profile photo: everyone sets their own; the organizer can set anyone's -----
+  if p_action = 'set_avatar' then
+    v_id := coalesce(nullif(d->>'member_id','')::uuid, me.id);
+    if v_id <> me.id and me.role <> 'admin' then raise exception 'not_allowed'; end if;
+    if coalesce(d->>'data','') <> '' then
+      if d->>'data' not like 'data:image/%' then raise exception 'bad_photo'; end if;
+      if length(d->>'data') > 600000 then raise exception 'photo_too_big'; end if;
+    end if;
+    delete from photos where kind = 'avatar' and id = (select avatar from members where id = v_id);
+    if coalesce(d->>'data','') = '' then
+      update members set avatar = null where id = v_id;
+      return '{}'::jsonb;
+    end if;
+    insert into photos(data, kind, author) values (d->>'data', 'avatar', me.id) returning id into k;
+    update members set avatar = k::uuid where id = v_id;
+    return jsonb_build_object('id', k);
   end if;
 
   if p_action = 'delete_photo' then

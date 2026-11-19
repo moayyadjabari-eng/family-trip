@@ -50,7 +50,7 @@ const AR = {
   'Food':'أكل','Transport':'مواصلات','Tickets':'تذاكر','Hotel':'فندق','Shopping':'تسوق','Other':'أخرى','Display currency':'عملة العرض',
   'App not connected yet':'التطبيق غير متصل بعد','Refresh':'تحديث','Pay {a} to {b}':'ادفع {a} لـ {b}','{a} pays you {b}':'{a} يدفع لك {b}','by':'بواسطة','Hi {a},':'مرحباً {a}،',
   'Only you can see this.':'أنت فقط تستطيع رؤية هذا.','Your money':'مصاريفك','Ask the organizer who to pay at the end of the trip.':'سيخبرك المنظم لمن تدفع في نهاية الرحلة.','Tap Share then "Add to Home Screen" on iPhone, or the menu then "Install app" on Android.':'على الآيفون: اضغط مشاركة ثم "إضافة إلى الشاشة الرئيسية". على أندرويد: القائمة ثم "تثبيت التطبيق".',
-  'Need at least 6 characters':'6 أحرف على الأقل','Choose from photos':'اختر من الصور','Saving…':'جارٍ الحفظ…','you':'أنت','Weight':'الحصة','Bill for':'فاتورة','Shares':'الحصص','Visible to':'من يرى','Everything':'كل شيء'
+  'Need at least 6 characters':'6 أحرف على الأقل','Choose from photos':'اختر من الصور','Saving…':'جارٍ الحفظ…','you':'أنت','Weight':'الحصة','Add your photo':'أضف صورتك','So the family can see who is who.':'حتى تعرف العائلة من هو من.','Add':'إضافة','Change photo':'تغيير الصورة','Add photo':'إضافة صورة','Remove':'إزالة','Bill for':'فاتورة','Shares':'الحصص','Visible to':'من يرى','Everything':'كل شيء'
 };
 const t = (s, v) => { let r = S.lang === 'ar' ? (AR[s] || s) : s; if (v) for (const k in v) r = r.replace('{' + k + '}', v[k]); return r; };
 const ERR = {
@@ -82,7 +82,8 @@ const tripDays = () => { const out = []; const e = pd(trip().end); for (let d = 
 const member = id => D().members.find(m => m.id === id);
 const nameOf = id => member(id)?.name || '—';
 const hue = id => { let h = 0; for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
-const avatar = (id, cls = '') => { const n = nameOf(id); return `<span class="avatar ${cls}" style="background:hsl(${hue(id)} 55% 45%)" title="${esc(n)}">${esc(n.trim().charAt(0).toUpperCase())}</span>`; };
+const avatar = (id, cls = '') => { const n = nameOf(id); const ph = member(id)?.avatar;
+  return `<span class="avatar ${cls}" style="background:hsl(${hue(id)} 55% 45%)" title="${esc(n)}">${ph ? `<img data-photo="${esc(ph)}" alt="${esc(n)}">` : esc(n.trim().charAt(0).toUpperCase())}</span>`; };
 const DEF_ON = ['view_plan', 'view_places', 'view_ideas', 'view_money', 'view_photos', 'money_all', 'add_expense', 'suggest', 'comment', 'add_photos'];
 const canM = (m, k) => { if (!m) return false; if (m.role === 'admin') return true; const v = (m.perms || {})[k]; return v == null ? DEF_ON.includes(k) : !!v; };
 const can = k => canM(D()?.me, k);
@@ -172,6 +173,23 @@ function resizeImage(file, max = 1400, q = 0.82) {
     img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('bad_photo')); };
     img.src = url;
   });
+}
+function squarePhoto(file, size = 400) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => {
+      const s = Math.min(img.width, img.height); const c = document.createElement('canvas'); c.width = c.height = size;
+      c.getContext('2d').drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
+      URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('bad_photo')); };
+    img.src = url;
+  });
+}
+async function changeAvatar(memberId) {
+  const [f] = await pickFiles(false); if (!f) return;
+  toast(t('Uploading…'));
+  try { const data = await squarePhoto(f); await act('set_avatar', { member_id: memberId || '', data }, 'Saved'); rerenderSheet(); } catch (e) { toast(errText(e)); }
 }
 function pickFiles(multiple = true) {
   return new Promise(res => {
@@ -376,6 +394,7 @@ function homeView() {
     <div class="txt"><div class="big">${esc(big)}</div><div style="font-weight:700;font-size:18px">${esc(sub)}</div>
     <p class="small">${fmtDay(trip().start, { day: 'numeric', month: 'long' })} – ${fmtDay(trip().end, { day: 'numeric', month: 'long', year: 'numeric' })}</p></div></div>
   ${th.welcome ? `<div class="card"><div class="row"><span style="font-size:24px">👋</span><div class="grow pre">${linkify(th.welcome)}</div></div></div>` : ''}
+  ${!D().me.avatar ? `<div class="card tap" data-a="myavatar"><div class="row">${avatar(me(), 'lg')}<div class="grow"><b>📸 ${t('Add your photo')}</b><div class="small muted">${t('So the family can see who is who.')}</div></div><span class="btn sm">${t('Add')}</span></div></div>` : ''}
   ${briefs}
   ${bal}
   <div class="row between"><h2>${t('Announcements')}</h2>${can('announce') ? `<button class="btn sm" data-a="announce">${ico('plus', 16)} ${t('New announcement')}</button>` : ''}</div>
@@ -532,8 +551,9 @@ function moneyView() {
 /* ----- More ----- */
 function moreView() {
   const m = D().me; const ap = LS.get('appearance', 'auto');
-  return `<div class="card" style="margin-top:14px"><div class="row">${avatar(m.id, 'lg')}<div class="grow"><h3>${esc(m.name)}</h3><div class="small muted">@${esc(m.username)}${m.household ? ' · ' + esc(m.household) : ''} · ${m.role === 'admin' ? t('Organizer (full access)') : t('Member')}</div></div></div>
+  return `<div class="card" style="margin-top:14px"><div class="row"><button class="avatar-btn" data-a="myavatar" title="${t('Change photo')}">${avatar(m.id, 'lg')}<span class="cam">${ico('cam', 14)}</span></button><div class="grow"><h3>${esc(m.name)}</h3><div class="small muted">@${esc(m.username)}${m.household ? ' · ' + esc(m.household) : ''} · ${m.role === 'admin' ? t('Organizer (full access)') : t('Member')}</div></div></div>
     <div class="row wrap-r" style="margin-top:12px;gap:6px">
+      <button class="btn sec sm" data-a="myavatar">📸 ${m.avatar ? t('Change photo') : t('Add your photo')}</button>
       <button class="btn sec sm" data-a="profile">${t('Profile')}</button>
       <button class="btn sec sm" data-a="password">${t('Change password')}</button>
       <button class="btn danger sm" data-a="logout">${t('Log out')}</button></div></div>
@@ -841,6 +861,8 @@ function memberSheet(id) {
     perms: Object.fromEntries(PERMS.map(([k]) => [k, canM({ role: 'member', perms: m.perms || {} }, k)])) };
   const houses = [...new Set(D().members.map(x => x.household).filter(Boolean))];
   openSheet(() => `${sheetHead(id ? esc(m.name) : t('Add member'))}
+    ${id ? `<div class="row" style="margin-top:6px">${avatar(id, 'lg')}<button class="btn sec sm" data-a="memberavatar" data-k="${id}">📸 ${member(id)?.avatar ? t('Change photo') : t('Add photo')}</button>
+      ${member(id)?.avatar ? `<button class="btn danger sm" data-a="rmavatar" data-k="${id}">${t('Remove')}</button>` : ''}</div>` : ''}
     ${field(t('Name'), inp('name', F.name))}
     ${field(t('Username'), inp('username', F.username, `autocapitalize="none" spellcheck="false" ${id ? 'disabled' : ''}`))}
     ${field(id ? t('Set a new password (leave empty to keep)') : t('Password'), inp('password', F.password, 'type="text" autocomplete="off" placeholder="min 6"'))}
@@ -973,6 +995,9 @@ const H = {
   password: () => passwordSheet(),
   savepassword: el => busy(el, async () => { await act('change_password', F, 'Saved'); closeSheet(); }),
   csv: () => exportCsv(),
+  myavatar: () => changeAvatar(''),
+  memberavatar: el => changeAvatar(el.dataset.k),
+  rmavatar: el => act('set_avatar', { member_id: el.dataset.k, data: '' }, 'Saved').then(rerenderSheet).catch(() => {}),
   copy: async el => { try { await navigator.clipboard.writeText(el.dataset.text); toast(t('Copied')); } catch { toast('—'); } },
   print: () => window.print(),
   close: () => closeSheet(),
