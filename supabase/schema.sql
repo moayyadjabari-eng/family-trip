@@ -294,6 +294,7 @@ begin
 
   if p_action = 'state' then
     return jsonb_build_object(
+      'main_organizer', (select id from members where role = 'admin' order by created_at limit 1),
       'me', jsonb_build_object('id', me.id, 'username', me.username, 'name', me.name, 'role', me.role,
               'household', me.household, 'email', me.email, 'perms', me.perms, 'avatar', me.avatar),
       'members', coalesce((select jsonb_agg(jsonb_build_object('id', id, 'username', username, 'name', name, 'role', role,
@@ -675,12 +676,18 @@ begin
       if length(coalesce(d->>'password','')) < 6 then raise exception 'password_too_short'; end if;
       if coalesce(trim(d->>'username'),'') = '' or coalesce(trim(d->>'name'),'') = '' then raise exception 'missing_name'; end if;
       if exists (select 1 from members where username = lower(trim(d->>'username'))) then raise exception 'username_taken'; end if;
+      if coalesce(nullif(d->>'role',''),'member') = 'admin' and me.id <> (select id from members where role = 'admin' order by created_at limit 1)
+         then raise exception 'main_organizer_only'; end if;
       insert into members(username, name, household, role, pass_hash, email, perms)
         values (lower(trim(d->>'username')), trim(d->>'name'), coalesce(trim(d->>'household'),''),
                 coalesce(nullif(d->>'role',''),'member'), crypt(d->>'password', gen_salt('bf')),
                 coalesce(trim(d->>'email'),''), coalesce(d->'perms','{}'::jsonb));
     else
       if (d->>'id')::uuid = me.id and coalesce(d->>'role','admin') <> 'admin' then raise exception 'cannot_demote_self'; end if;
+      -- only the main organizer can make or remove co-organizers
+      if me.id <> (select id from members where role = 'admin' order by created_at limit 1)
+         and coalesce(nullif(d->>'role',''), (select role from members where id = (d->>'id')::uuid)) <> (select role from members where id = (d->>'id')::uuid)
+         then raise exception 'main_organizer_only'; end if;
       if (d->>'id')::uuid = (select id from members where role = 'admin' order by created_at limit 1) and (d->>'id')::uuid <> me.id
          and coalesce(nullif(d->>'role',''),'admin') <> 'admin' then raise exception 'cannot_change_main_organizer'; end if;
       update members set name = coalesce(nullif(trim(d->>'name'),''), name),
@@ -702,6 +709,8 @@ begin
     v_id := (d->>'id')::uuid;
     if v_id = me.id then raise exception 'cannot_delete_self'; end if;
     if v_id = (select id from members where role = 'admin' order by created_at limit 1) then raise exception 'cannot_change_main_organizer'; end if;
+    if exists (select 1 from members where id = v_id and role = 'admin') and me.id <> (select id from members where role = 'admin' order by created_at limit 1)
+       then raise exception 'main_organizer_only'; end if;
     if exists (select 1 from expenses where paid_by = v_id or shares ? v_id::text)
        or exists (select 1 from settlements where from_member = v_id or to_member = v_id) then
       raise exception 'member_has_expenses';

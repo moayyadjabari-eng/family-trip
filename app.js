@@ -57,7 +57,7 @@ const ERR = {
   bad_login: 'Wrong username or password', password_too_short: 'Need at least 6 characters', username_taken: 'That username is taken',
   not_allowed: 'You do not have permission for this', admin_only: 'Only the organizer can do this', shares_do_not_add_up: 'The split does not add up to the total',
   no_people: 'Choose who shares this', bad_amount: 'Enter an amount', missing_title: 'Add a title', member_has_expenses: 'This person has expenses. Delete those first.',
-  photo_too_big: 'Photo is too big', cannot_demote_self: 'You cannot remove your own organizer role', cannot_change_main_organizer: 'The main organizer cannot be removed', missing_name: 'Fill in name and username', already_set_up: 'Already set up. Please log in.'
+  photo_too_big: 'Photo is too big', cannot_demote_self: 'You cannot remove your own organizer role', cannot_change_main_organizer: 'The main organizer cannot be removed', main_organizer_only: 'Only the main organizer can do this', missing_name: 'Fill in name and username', already_set_up: 'Already set up. Please log in.'
 };
 Object.assign(AR, { 'Wrong username or password':'اسم المستخدم أو كلمة المرور غير صحيحة','That username is taken':'اسم المستخدم مستخدم','You do not have permission for this':'ليس لديك صلاحية','Only the organizer can do this':'فقط المنظم يستطيع ذلك','The split does not add up to the total':'التقسيم لا يساوي المجموع','Choose who shares this':'اختر من يشارك','Enter an amount':'أدخل المبلغ','Add a title':'أضف عنواناً','This person has expenses. Delete those first.':'لهذا الشخص مصاريف. احذفها أولاً.','Photo is too big':'الصورة كبيرة جداً','Fill in name and username':'أدخل الاسم واسم المستخدم' });
 
@@ -90,6 +90,7 @@ const canM = (m, k) => { if (!m) return false; if (m.role === 'admin') return tr
 const realAdmin = () => D()?.me?.role === 'admin';
 const can = k => S.preview && realAdmin() ? canM({ role: 'member', perms: {} }, k) : canM(D()?.me, k);
 const isAdmin = () => realAdmin() && !S.preview;
+const isMain = () => isAdmin() && D()?.main_organizer === D()?.me?.id;
 const me = () => D().me.id;
 const money = (x, cur = S.cur) => {
   const n = new Intl.NumberFormat(locale(), { minimumFractionDigits: cur === 'EGP' ? 0 : 2, maximumFractionDigits: 2 }).format(Math.abs(x) < 0.005 ? 0 : x);
@@ -889,7 +890,7 @@ function organizeHub() {
   <h3 class="sec-h">👨‍👩‍👧 ${t('People')}</h3>
   <div class="tiles">
     ${tile('➕', 'Add a family member', d.members.length + ' ' + t('people'), 'member', '', '#0ea5e9')}
-    ${tile('⭐', 'Co-organizers', orgs + ' ' + t('organizers'), 'organizers', '', '#eab308')}
+    ${isMain() ? tile('⭐', 'Co-organizers', orgs + ' ' + t('organizers'), 'organizers', '', '#eab308') : ''}
     ${tile('🚐', 'Cars, rooms & groups', d.arrangements.length + ' ' + t('groupings'), 'planseg', 'groups', '#8b5cf6')}
     ${tile('✅', 'To-dos', d.tasks.length + ' ' + t('to-dos'), 'planseg', 'todo', '#22c55e')}
   </div>
@@ -1282,8 +1283,8 @@ function memberSheet(id) {
     ${field(t('Email'), inp('email', F.email, 'type="email" autocapitalize="none"'))}
     ${field(t('Family / household'), inp('household', F.household, 'list="houses" placeholder="e.g. Abu Ahmad family"'))}
     <datalist id="houses">${houses.map(h => `<option value="${esc(h)}">`).join('')}</datalist>
-    <label class="f"><span>${t('Role')}</span></label>
-    <div class="two">${[['member', '🙂', 'Family member', 'Sees what you allow below'], ['admin', '⭐', 'Co-organizer', 'Same powers as you']].map(([k, e, l, sub]) => `<div class="card tap opt ${F.role === k ? 'on' : ''}" data-a="setrole" data-k="${k}" style="margin:0"><div style="font-size:26px">${e}</div><b>${t(l)}</b><div class="small muted">${t(sub)}</div></div>`).join('')}</div>
+    ${isMain() || F.role === 'admin' ? `<label class="f"><span>${t('Role')}</span></label>` : ''}
+    <div class="two" style="${isMain() ? '' : 'display:none'}">${[['member', '🙂', 'Family member', 'Sees what you allow below'], ['admin', '⭐', 'Co-organizer', 'Same powers as you']].map(([k, e, l, sub]) => `<div class="card tap opt ${F.role === k ? 'on' : ''}" data-a="setrole" data-k="${k}" style="margin:0"><div style="font-size:26px">${e}</div><b>${t(l)}</b><div class="small muted">${t(sub)}</div></div>`).join('')}</div>
     ${F.role === 'admin' ? `<p class="small muted">⭐ ${t('Co-organizers can do everything you can, except remove you.')}</p>` : `<h3 style="margin-top:16px">🔐 ${t('Permissions')}</h3>
       <div class="card" style="padding:4px 14px">${PERMS.map(([k, l]) => `<label class="perm"><span class="grow">${t(l)}</span><input type="checkbox" class="switch" data-bind="perms.${k}" ${F.perms[k] ? 'checked' : ''}></label>`).join('')}</div>`}
     <div class="actions">${id && id !== me() ? `<button class="btn danger" data-a="delmember">${t('Delete')}</button>` : ''}<button class="btn" data-a="savemember">${t('Save')}</button></div>`);
