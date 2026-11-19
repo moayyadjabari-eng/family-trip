@@ -73,9 +73,9 @@ const ago = ts => { const s = (Date.now() - new Date(ts)) / 1000; const rtf = ne
   if (s < 86400) return rtf.format(-Math.round(s / 3600), 'hour'); return rtf.format(-Math.round(s / 86400), 'day'); };
 const D = () => S.data;
 const trip = () => Object.assign({ name: 'Family Trip', start: '2026-12-18', end: '2026-12-25' }, D()?.settings?.trip);
-const OLD_SW = ['#0f766e', '#0e7490', '#1d4ed8', '#6d28d9', '#be185d', '#b45309', '#15803d', '#334155'];
-const SWATCHES = [['#0f5e6e', 'Nile'], ['#1b6f8a', 'Red Sea'], ['#2e4a8c', 'Lapis'], ['#6b4c9a', 'Lotus'], ['#b4536a', 'Rose'], ['#b7791f', 'Desert gold'], ['#2f7d4f', 'Palm'], ['#3b4252', 'Basalt']];
-const theme = () => { const th = Object.assign({ color: '#0f5e6e', welcome: '', cover: '' }, D()?.settings?.theme); if (!th.color || OLD_SW.includes(th.color.toLowerCase())) th.color = '#0f5e6e'; return th; };
+const OLD_SW = ['#0f766e', '#0e7490', '#1d4ed8', '#6d28d9', '#be185d', '#b45309', '#15803d', '#334155', '#0f5e6e', '#1b6f8a', '#2e4a8c', '#6b4c9a', '#b4536a', '#b7791f', '#2f7d4f', '#3b4252'];
+const SWATCHES = [['#0e6ba8', 'Nile'], ['#0d9488', 'Water'], ['#2f9e58', 'Palm'], ['#0a74da', 'Sea'], ['#e8705a', 'Sunset'], ['#4f46e5', 'Indigo'], ['#7c3aed', 'Violet'], ['#1e293b', 'Night']];
+const theme = () => { const th = Object.assign({ color: '#0e6ba8', welcome: '', cover: '' }, D()?.settings?.theme); if (!th.color || OLD_SW.includes(th.color.toLowerCase()) || th.color.toLowerCase() === '#0a74da') th.color = '#0e6ba8'; return th; };
 const rates = () => Object.assign({ JOD: 1, EGP: 68, USD: 1.41 }, D()?.settings?.rates);
 const CURS = ['JOD', 'EGP', 'USD'];
 const CATS = { food: '🍽️', transport: '🚐', tickets: '🎟️', hotel: '🏨', flights: '✈️', shopping: '🛍️', other: '💸' };
@@ -444,15 +444,17 @@ function startHere(full) {
   </div>`;
 }
 const EGYPT = `<svg class="scene" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset=".65" stop-color="#fde68a"/><stop offset="1" stop-color="#fdba74"/></linearGradient></defs>
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e6ba8"/><stop offset=".75" stop-color="#5ec8e5"/><stop offset="1" stop-color="#a7e8f0"/></linearGradient>
+  <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14b8a6"/><stop offset="1" stop-color="#0e6ba8"/></linearGradient></defs>
   <rect width="400" height="200" fill="url(#sky)"/>
-  <circle class="sun" cx="320" cy="58" r="26" fill="#fde047"/>
-  <g class="cloud" fill="#fff" opacity=".85"><ellipse cx="80" cy="40" rx="26" ry="9"/><ellipse cx="98" cy="34" rx="16" ry="9"/></g>
-  <path d="M120 150 175 82 230 150Z" fill="#d97706"/><path d="M175 82 230 150H190Z" fill="#b45309"/>
-  <path d="M215 150 250 108 285 150Z" fill="#f59e0b"/><path d="M250 108 285 150H262Z" fill="#d97706"/>
-  <path d="M0 150Q60 138 120 150T240 150T400 148V200H0Z" fill="#fcd34d"/>
-  <path class="wave" d="M0 172Q25 164 50 172T100 172T150 172T200 172T250 172T300 172T350 172T400 172T450 172V200H0Z" fill="#0ea5e9"/>
-  <g transform="translate(372 112)"><path d="M6 46C8 30 8 18 4 6" stroke="#78350f" stroke-width="4" fill="none"/><path d="M4 6C-10 0-20 6-24 12M4 6C16-2 26 2 30 8M4 6C-4-6-2-14 2-18M4 6C12-4 20-6 26-4" stroke="#16a34a" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+  <circle cx="300" cy="54" r="36" fill="#fff3c4" opacity=".3"/><circle class="sun" cx="300" cy="54" r="22" fill="#ffe08a"/>
+  <g class="cloud" fill="#fff" opacity=".9"><ellipse cx="80" cy="40" rx="26" ry="9"/><ellipse cx="98" cy="34" rx="16" ry="9"/></g>
+  <path d="M0 120Q50 113 100 120T200 120T300 120T400 120V200H0Z" fill="url(#sea)"/>
+  <path class="wave" d="M0 136Q25 129 50 136T100 136T150 136T200 136T250 136T300 136T350 136T400 136T450 136V200H0Z" fill="#2dd4bf" opacity=".45"/>
+  <g class="boat" transform="translate(200 96)"><path d="M0 22h40l-6 8H6z" fill="#fff"/><path d="M20 0v22M20 2l14 18H20z" stroke="#fff" stroke-width="2" fill="#ff8a65"/></g>
+  <path d="M0 168Q100 150 200 160T400 156V200H0Z" fill="#f7e3b5"/>
+  <path d="M0 176Q100 162 200 170T400 166" stroke="#fff" stroke-width="3" fill="none" opacity=".7"/>
+  <g transform="translate(352 104) scale(1)"><path d="M6 60C9 40 9 22 3 4" stroke="#7c4a1e" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M3 4C-14-3-26 5-30 13M3 4C18-6 30-1 35 7M3 4C-6-10-3-19 2-24M3 4C13-8 23-10 30-7M3 4C-8 4-14 14-14 22" stroke="#22a04b" stroke-width="6" fill="none" stroke-linecap="round"/></g><g transform="translate(392 118) scale(0.8)"><path d="M6 60C9 40 9 22 3 4" stroke="#7c4a1e" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M3 4C-14-3-26 5-30 13M3 4C18-6 30-1 35 7M3 4C-6-10-3-19 2-24M3 4C13-8 23-10 30-7M3 4C-8 4-14 14-14 22" stroke="#22a04b" stroke-width="6" fill="none" stroke-linecap="round"/></g>
 </svg>`;
 
 function annSection() {
