@@ -169,7 +169,7 @@ create table if not exists public.ann_comments (
   body text not null,
   created_at timestamptz not null default now()
 );
-alter table public.announcements add column if not exists poll jsonb;   -- list of option texts; null = no vote
+alter table public.announcements add column if not exists poll jsonb;   -- list of options: text, or {text, price, photos[]}; null = no vote
 create table if not exists public.ann_votes (
   announcement_id uuid not null references public.announcements(id) on delete cascade,
   member_id uuid not null references public.members(id) on delete cascade,
@@ -343,7 +343,7 @@ begin
 
   if p_action = 'photo' then
     if not (_can(me,'view_photos') or _can(me,'view_places'))
-       and not exists (select 1 from photos where id = (d->>'id')::uuid and (kind = 'avatar' or (kind = 'receipt' and _can(me,'view_money')))) then raise exception 'not_allowed'; end if;
+       and not exists (select 1 from photos where id = (d->>'id')::uuid and (kind in ('avatar','ann') or (kind = 'receipt' and _can(me,'view_money')))) then raise exception 'not_allowed'; end if;
     return coalesce((select jsonb_build_object('id', id, 'data', data) from photos where id = (d->>'id')::uuid), '{}'::jsonb);
   end if;
 
@@ -374,6 +374,15 @@ begin
     insert into photos(data, kind, author) values (d->>'data', 'avatar', me.id) returning id into k;
     update members set avatar = k::uuid where id = v_id;
     return jsonb_build_object('id', k);
+  end if;
+
+  -- ----- photos inside an announcement vote (organizer only; everyone can view) -----
+  if p_action = 'add_ann_photo' then
+    if not _can(me,'announce') then raise exception 'not_allowed'; end if;
+    if coalesce(d->>'data','') not like 'data:image/%' then raise exception 'bad_photo'; end if;
+    if length(d->>'data') > 1500000 then raise exception 'photo_too_big'; end if;
+    insert into photos(data, kind, author) values (d->>'data', 'ann', me.id) returning id into v_id;
+    return jsonb_build_object('id', v_id);
   end if;
 
   if p_action = 'add_receipt' then

@@ -376,6 +376,7 @@ Object.assign(AR, {"📊 Overview": "📊 نظرة عامة", "🧾 Bills": "�
 Object.assign(AR, {"You are seeing the app like a family member": "أنت ترى التطبيق كفرد من العائلة", "Back to organizer": "العودة للمنظم", "This is what your family sees": "هذا ما تراه عائلتك", "See the app like a family member": "شاهد التطبيق كفرد من العائلة", "Check exactly what your family sees, then come back.": "تحقق مما تراه عائلتك بالضبط ثم ارجع.", "See it as family": "شاهده كالعائلة", "Preview the member view": "معاينة واجهة الأعضاء", "You will get money back": "سيُعاد لك مال", "You need to pay": "عليك أن تدفع", "You are all settled 🎉": "حسابك مسوّى 🎉", "Your share": "حصتك", "You paid": "دفعت", "My full statement": "كشف حسابي الكامل", "What to do": "ماذا تفعل", "Pay": "ادفع لـ", "pays you": "يدفع لك", "Your bills": "فواتيرك", "No bills yet.": "لا توجد فواتير بعد.", "When the organizer adds a bill you are part of, it shows up here with your share.": "عندما يضيف المنظم فاتورة تخصك ستظهر هنا مع حصتك.", "Your share of every bill and who you need to pay. Tap a bill to see the details.": "حصتك من كل فاتورة ولمن تدفع. اضغط على الفاتورة لرؤية التفاصيل."});
 Object.assign(AR, {"Four quick questions. It takes less than a minute.": "أربعة أسئلة سريعة. أقل من دقيقة.", "Where do you want to go?": "إلى أين تريد الذهاب؟", "e.g. The kids would love to see the dolphins": "مثلاً: الأطفال سيحبون رؤية الدلافين", "Alone or with a group?": "وحدك أم مع مجموعة؟", "Send my idea": "أرسل اقتراحي", "Sent to the organizer": "تم الإرسال للمنظم", "Idea shared! The family can now like it": "تمت مشاركة الاقتراح! يمكن للعائلة الإعجاب به", "Have an idea? Suggest a place": "عندك فكرة؟ اقترح مكاناً", "Tell us where you want to go. The family can like it.": "أخبرنا أين تريد الذهاب. العائلة تستطيع الإعجاب به.", "Suggest": "اقترح"});
 Object.assign(AR, {"Add a vote": "أضف تصويتاً", "Everyone picks one option. They can change it any time. You see who chose what.": "كل شخص يختار خياراً واحداً ويمكنه تغييره في أي وقت. وأنت ترى من اختار ماذا.", "Option": "خيار", "Add option": "أضف خياراً", "Changing the options keeps the votes by number.": "تغيير الخيارات يحتفظ بالأصوات حسب الرقم.", "A vote needs at least 2 options": "التصويت يحتاج خيارين على الأقل", "Tap your choice": "اضغط على اختيارك", "Your vote is saved. Tap another to change it.": "تم حفظ صوتك. اضغط على خيار آخر لتغييره.", "voted": "صوّتوا", "Not voted yet": "لم يصوّت بعد"});
+Object.assign(AR, {"Price (optional), e.g. about $3,000": "السعر (اختياري)، مثلاً حوالي 3,000$", "Add photos": "أضف صوراً"});
 /* ----- guidance & joy ----- */
 const HINTS = {
   home: 'This is your trip home. The day brief, your to-dos, your groups and news from the organizer all show up here.',
@@ -539,6 +540,24 @@ function homeView() {
 }
 
 const ideaCTA = () => can('suggest') ? `<div class="card cta tap" data-a="newidea"><span class="cta-e">💡</span><div class="grow"><b>${t('Have an idea? Suggest a place')}</b><div class="small muted">${t('Tell us where you want to go. The family can like it.')}</div></div><span class="btn sm">${t('Suggest')}</span></div>` : '';
+const po = o => (o && typeof o === 'object') ? { text: o.text || '', price: o.price || '', photos: Array.isArray(o.photos) ? o.photos : [] } : { text: String(o || ''), price: '', photos: [] };
+const isUrl = x => /^https:\/\//.test(x || '');
+const pthumb = x => isUrl(x) ? `<img src="${esc(x)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : pimg(x);
+function optGallery(list, i, title) {
+  const x = list[i]; if (!x) return;
+  const root = document.createElement('div'); root.className = 'lightbox';
+  root.innerHTML = `<div class="row between" style="padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;color:#fff">
+      <span class="small">${esc(title || '')} · ${i + 1} / ${list.length}</span><button class="icon-btn" data-lb="x" style="background:#333;color:#fff">${ico('x', 18)}</button></div>
+    ${pthumb(x)}
+    <div class="cap"><div class="grow"></div>${i > 0 ? `<button class="icon-btn" data-lb="prev" style="background:#333;color:#fff"><span class="flip">‹</span></button>` : ''}
+      ${i < list.length - 1 ? `<button class="icon-btn" data-lb="next" style="background:#333;color:#fff"><span class="flip">›</span></button>` : ''}</div>`;
+  document.body.appendChild(root); hydratePhotos(root);
+  let x0 = null; root.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+  root.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; const rtl = S.lang === 'ar';
+    if (Math.abs(dx) > 60) { const n = (dx < 0) !== rtl ? i + 1 : i - 1; if (list[n]) { root.remove(); optGallery(list, n, title); } } x0 = null; });
+  root.addEventListener('click', e => { const b = e.target.closest('[data-lb]'); if (!b) return; const k = b.dataset.lb; root.remove();
+    if (k === 'prev') optGallery(list, i - 1, title); if (k === 'next') optGallery(list, i + 1, title); });
+}
 function pollBlock(a) {
   if (!a.poll || !a.poll.length) return '';
   const votes = a.votes || {}, mine = votes[me()], total = Object.keys(votes).length, org = can('announce');
@@ -547,11 +566,13 @@ function pollBlock(a) {
   const missing = aud.filter(id => votes[id] == null);
   return `<div class="poll"><div class="small muted" style="font-weight:700;margin-bottom:6px">🗳️ ${mine == null ? t('Tap your choice') : t('Your vote is saved. Tap another to change it.')}</div>
     ${a.poll.map((o, i) => { const n = who(i).length, pc = total ? Math.round(n / total * 100) : 0;
-      return `<button class="popt ${mine === i ? 'on' : ''}" data-a="pollvote" data-k="${a.id}" data-v="${i}"><i style="width:${pc}%"></i>
-        <span class="stepn">${i + 1}</span><span class="grow">${esc(trT(o))}</span>${mine === i ? '✅' : ''}<b>${n ? n + ' · ' + pc + '%' : ''}</b></button>
+      const q = po(o);
+      return `${q.photos.length ? `<div class="pgal">${q.photos.map((x, j) => `<div class="g" data-a="optphoto" data-k="${a.id}" data-v="${i}" data-i="${j}">${pthumb(x)}</div>`).join('')}</div>` : ''}
+        <button class="popt ${mine === i ? 'on' : ''} ${q.photos.length ? 'big' : ''}" data-a="pollvote" data-k="${a.id}" data-v="${i}"><i style="width:${pc}%"></i>
+        <span class="stepn">${i + 1}</span><span class="grow"><span class="ptext">${esc(trT(q.text))}</span>${q.price ? `<span class="pprice">${esc(trT(q.price))}</span>` : ''}</span>${mine === i ? '✅' : ''}<b>${n ? n + ' · ' + pc + '%' : ''}</b></button>
         ${org && n ? `<div class="row" style="gap:2px;margin:2px 0 6px 32px">${who(i).map(id => avatar(id, 'sm')).join('')}</div>` : ''}`; }).join('')}
     <div class="small muted" style="margin-top:6px">${total} ${t('voted')}${org && missing.length ? ` · ${t('Not voted yet')}: ${missing.map(id => esc(nameOf(id).split(' ')[0])).join(', ')}` : ''}</div>
-    ${trBtn(...a.poll)}</div>`;
+    ${trBtn(...a.poll.flatMap(o => { const q = po(o); return [q.text, q.price]; }))}</div>`;
 }
 const REACTS = ['❤️', '👍', '😂', '😮', '🙏', '🎉'];
 function annReactions(a) {
@@ -988,13 +1009,16 @@ function setPath(obj, path, val) { const ks = path.split('.'); let o = obj; for 
 /* announcement */
 function announceSheet(id) {
   const a = D().announcements.find(x => x.id === id) || { title: '', body: '', pinned: false };
-  F = { id: a.id || '', title: a.title, body: a.body, pinned: a.pinned, audience: [...(a.audience || [])], poll: a.poll ? [...a.poll] : null };
+  F = { id: a.id || '', title: a.title, body: a.body, pinned: a.pinned, audience: [...(a.audience || [])], poll: a.poll ? a.poll.map(o => { const q = po(o); return { ...q, photos: [...q.photos] }; }) : null };
   openSheet(() => `${sheetHead(id ? t('Edit') : t('New announcement'))}
     ${field(t('Title'), inp('title', F.title))}${field(t('Details'), txt('body', F.body))}
     <label class="row" style="margin-top:12px"><input type="checkbox" class="switch" data-bind="pinned" ${F.pinned ? 'checked' : ''}> ${t('Pinned')}</label>
     <div class="card" style="margin-top:14px"><label class="row"><input type="checkbox" class="switch" data-a2="polltoggle" ${F.poll ? 'checked' : ''}> <b>🗳️ ${t('Add a vote')}</b></label>
       ${F.poll ? `<p class="small muted" style="margin:6px 0">${t('Everyone picks one option. They can change it any time. You see who chose what.')}</p>
-        ${F.poll.map((o, i) => `<div class="row" style="margin-top:6px"><span class="stepn">${i + 1}</span><input class="i grow" data-bind="poll.${i}" value="${esc(o)}" placeholder="${t('Option')} ${i + 1}">${F.poll.length > 2 ? `<button class="btn danger sm" data-a="pollrm" data-k="${i}">×</button>` : ''}</div>`).join('')}
+        ${F.poll.map((o, i) => `<div class="popted"><div class="row"><span class="stepn">${i + 1}</span><input class="i grow" data-bind="poll.${i}.text" value="${esc(o.text)}" placeholder="${t('Option')} ${i + 1}">${F.poll.length > 2 ? `<button class="btn danger sm" data-a="pollrm" data-k="${i}">×</button>` : ''}</div>
+          <input class="i" style="margin-top:6px" data-bind="poll.${i}.price" value="${esc(o.price)}" placeholder="${t('Price (optional), e.g. about $3,000')}">
+          <div class="row wrap-r" style="gap:6px;margin-top:6px">${o.photos.map((x, j) => `<div class="pthumb">${pthumb(x)}<button data-a="pollphrm" data-k="${i}" data-v="${j}">×</button></div>`).join('')}
+            <button class="btn ghost sm" data-a="pollph" data-k="${i}">${ico('cam', 16)} ${t('Add photos')}</button></div></div>`).join('')}
         <button class="btn ghost sm" style="margin-top:6px" data-a="polladd">${ico('plus', 16)} ${t('Add option')}</button>${id ? `<p class="small muted">${t('Changing the options keeps the votes by number.')}</p>` : ''}` : ''}</div>
     <label class="f"><span>👁️ ${t('Who can see this announcement')}</span></label>${audiencePicker('audience')}
     <div class="actions">${id ? `<button class="btn danger" data-a="delann">${t('Delete')}</button>` : ''}<button class="btn" data-a="saveann">${t('Save')}</button></div>`);
@@ -1412,9 +1436,15 @@ const H = {
   newidea: () => ideaSheet(),
   saveidea: el => busy(el, async () => { if (!F.title.trim()) { toast(t('Write the name of the place')); return; } const vis = F.visibility; await act('add_suggestion', F); closeSheet(); confetti(50); toast(vis === 'private' ? '🔒 ' + t('Sent to the organizer') : '🎉 ' + t('Idea shared! The family can now like it')); }),
   announce: el => announceSheet(el.dataset.k),
-  saveann: el => busy(el, async () => { const data = { ...F, poll: F.poll ? F.poll.map(x => String(x || '').trim()).filter(Boolean) : null };
+  saveann: el => busy(el, async () => { const data = { ...F, poll: F.poll ? F.poll.map(o => ({ text: String(o.text || '').trim(), price: String(o.price || '').trim(), photos: o.photos }))
+      .filter(o => o.text).map(o => (o.price || o.photos.length) ? o : o.text) : null };
     if (data.poll && data.poll.length < 2) { toast(t('A vote needs at least 2 options')); return; } await act('save_announcement', data, 'Saved'); closeSheet(); }),
-  polladd: () => { F.poll.push(''); rerenderSheet(); },
+  polladd: () => { F.poll.push({ text: '', price: '', photos: [] }); rerenderSheet(); },
+  pollph: async el => { const i = +el.dataset.k, saved = F, fn = sheetRender; const files = await pickFiles(true); if (!files.length) return; toast(t('Uploading…'));
+    for (const f of files) { try { const data = await resizeImage(f, 1400, 0.8); const r = await api('add_ann_photo', { data }); saved.poll[i].photos.push(r.id); } catch (e) { toast(errText(e)); } }
+    F = saved; sheetRender = fn; rerenderSheet(); },
+  pollphrm: el => { F.poll[+el.dataset.k].photos.splice(+el.dataset.v, 1); rerenderSheet(); },
+  optphoto: el => { const a = D().announcements.find(x => x.id === el.dataset.k); if (!a) return; const q = po(a.poll[+el.dataset.v]); optGallery(q.photos, +el.dataset.i, (+el.dataset.v + 1) + '. ' + q.text); },
   pollrm: el => { F.poll.splice(+el.dataset.k, 1); rerenderSheet(); },
   pollvote: el => { const a = D().announcements.find(x => x.id === el.dataset.k); const c = +el.dataset.v; const cur = (a.votes || {})[me()];
     const v = cur === c ? null : c; a.votes = Object.assign({}, a.votes); if (v == null) delete a.votes[me()]; else a.votes[me()] = v; render(); if (v != null) confetti(25);
@@ -1545,7 +1575,7 @@ document.addEventListener('change', ev => {
   if (el.dataset.a2 === 'q') { S.q = el.value; render(); const i = document.querySelector('[data-a2=q]'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
   if (el.dataset.a2 === 'fpayer') { S.fPayer = el.value; render(); }
   if (el.dataset.a2 === 'fmethod') { S.fMethod = el.value; render(); }
-  if (el.dataset.a2 === 'polltoggle') { F.poll = el.checked ? (F.poll && F.poll.length ? F.poll : ['', '', '']) : null; rerenderSheet(); }
+  if (el.dataset.a2 === 'polltoggle') { F.poll = el.checked ? (F.poll && F.poll.length ? F.poll : [0, 1, 2].map(() => ({ text: '', price: '', photos: [] }))) : null; rerenderSheet(); }
   if (el.dataset.a2 === 'orgtoggle') { const id = el.dataset.k; act('save_member', { id, role: el.checked ? 'admin' : 'member' }, el.checked ? '⭐ ' + t('Co-organizer added') : 'Saved').then(() => rerenderSheet()).catch(() => rerenderSheet()); }
   if (el.dataset.a2 === 'tasktoggle') { if (el.checked) confetti(30); act('toggle_task', { id: el.dataset.k, member_id: el.dataset.m || '', done: el.checked }).then(() => rerenderSheet()).catch(() => {}); }
   if (el.dataset.a2 === 'pplbox') { const k = el.dataset.k; F.people = el.checked ? [...new Set([...F.people, k])] : F.people.filter(i => i !== k); $('#preview').innerHTML = previewHtml(); }
