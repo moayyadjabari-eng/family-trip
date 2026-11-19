@@ -312,6 +312,7 @@ function render() {
   <header class="top"><div class="in">
     <div class="logo">${esc(trip().name.trim().charAt(0) || '✈')}</div>
     <h1>${esc(trip().name)}</h1>
+    ${realAdmin() ? `<button class="icon-btn eye ${S.preview ? 'on' : ''}" data-a="preview" title="${t('See the app like a family member')}">👁️</button>` : ''}
     <button class="icon-btn" data-a="lang" title="${t('Language')}" style="font-weight:800">${S.lang === 'ar' ? 'EN' : 'ع'}</button>
     <button class="icon-btn" data-a="refresh" title="${t('Refresh')}">${ico('refresh')}</button>
   </div></header>

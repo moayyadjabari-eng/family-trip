@@ -265,3 +265,4 @@ nav.tabs button.on .ti{background:color-mix(in srgb,var(--brand) 14%,transparent
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--brand-text:color-mix(in srgb,var(--brand) 40%,#fff)}}
 :root[data-theme="dark"]{--brand-text:color-mix(in srgb,var(--brand) 40%,#fff)}
 .seg button.on,nav.tabs button.on,.btn.ghost,.trbtn,.badge.brand,a{color:var(--brand-text,var(--brand))}
+.icon-btn.eye{font-size:18px}.icon-btn.eye.on{background:var(--brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 30%,transparent)}
