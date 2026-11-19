@@ -50,7 +50,7 @@ const AR = {
   'Food':'أكل','Transport':'مواصلات','Tickets':'تذاكر','Hotel':'فندق','Shopping':'تسوق','Other':'أخرى','Display currency':'عملة العرض',
   'App not connected yet':'التطبيق غير متصل بعد','Refresh':'تحديث','Pay {a} to {b}':'ادفع {a} لـ {b}','{a} pays you {b}':'{a} يدفع لك {b}','by':'بواسطة','Hi {a},':'مرحباً {a}،',
   'Only you can see this.':'أنت فقط تستطيع رؤية هذا.','Your money':'مصاريفك','Ask the organizer who to pay at the end of the trip.':'سيخبرك المنظم لمن تدفع في نهاية الرحلة.','Tap Share then "Add to Home Screen" on iPhone, or the menu then "Install app" on Android.':'على الآيفون: اضغط مشاركة ثم "إضافة إلى الشاشة الرئيسية". على أندرويد: القائمة ثم "تثبيت التطبيق".',
-  'Need at least 6 characters':'6 أحرف على الأقل','Choose from photos':'اختر من الصور','Saving…':'جارٍ الحفظ…','you':'أنت','Weight':'الحصة','Add your photo':'أضف صورتك','So the family can see who is who.':'حتى تعرف العائلة من هو من.','Add':'إضافة','Change photo':'تغيير الصورة','Add photo':'إضافة صورة','Remove':'إزالة','Bill for':'فاتورة','Shares':'الحصص','Visible to':'من يرى','Everything':'كل شيء'
+  'Need at least 6 characters':'6 أحرف على الأقل','Choose from photos':'اختر من الصور','Saving…':'جارٍ الحفظ…','you':'أنت','Weight':'الحصة','Payment method':'طريقة الدفع','Cash':'نقداً','Card':'بطاقة','Bank transfer':'تحويل بنكي','Receipt photo':'صورة الإيصال','Add receipt':'إضافة إيصال','Flights':'طيران','bills':'فواتير','Days':'الأيام','Groups':'المجموعات','To-dos':'المهام','New grouping (cars, rooms, activity)':'تقسيم جديد (سيارات، غرف، نشاط)','No groups yet.':'لا توجد مجموعات بعد.','New to-do for the family':'مهمة جديدة للعائلة','Nothing to do yet.':'لا توجد مهام بعد.','Cars':'السيارات','Hotel rooms':'غرف الفندق','Activity':'نشاط','You are in':'أنت في','done':'تم','Due date':'آخر موعد','Who must do it':'من عليه القيام بها','Who has done it':'من أنجزها','Split by family':'قسّم حسب العائلة','Notes':'ملاحظات','tap a group, then tap people to put them in it':'اختر مجموعة ثم اضغط على الأشخاص لإضافتهم','Add group':'إضافة مجموعة','Note (driver, phone, room number…)':'ملاحظة (السائق، الهاتف، رقم الغرفة…)','Not placed yet':'لم يُوزّع بعد','Everyone is placed':'تم توزيع الجميع','Car':'سيارة','Room':'غرفة','Group':'مجموعة','copy':'نسخة','Copied. Change the day and save.':'تم النسخ. غيّر اليوم واحفظ.','Add trip info':'إضافة معلومة','Your to-dos':'مهامك','See all':'عرض الكل','Your groups':'مجموعاتك','Trip info':'معلومات الرحلة','Add flights, hotel addresses, emergency numbers and anything the family should be able to find quickly.':'أضف الرحلات وعناوين الفنادق وأرقام الطوارئ وكل ما تحتاجه العائلة بسرعة.','Who can see this announcement':'من يرى هذا الإعلان','Most liked':'الأكثر دعماً','Shared with everyone':'للجميع','Private to me':'خاصة بي','Mine':'اقتراحاتي','Alone':'وحدي','With a group':'مع مجموعة','Only the organizer sees this':'يراها المنظم فقط','Why':'لماذا','Organizer reply':'رد المنظم','Support':'أدعم','Reply / status':'رد / حالة','Suggest a place':'اقترح مكاناً','Name of the place':'اسم المكان','Why do you want to go?':'لماذا تريد الذهاب؟','Do you want to do it alone or with a group?':'تريد الذهاب وحدك أم مع مجموعة؟','Who should see it?':'من يرى الاقتراح؟','Only the organizer':'المنظم فقط','A private request just for the organizer':'طلب خاص للمنظم فقط','The family can see it, support it and comment':'العائلة تراه وتدعمه وتعلّق عليه','Your reply (everyone who can see the idea will read it)':'ردك (يراه كل من يرى الاقتراح)','Write the name of the place':'اكتب اسم المكان','Address':'العنوان','Opening hours':'ساعات العمل','Tickets & prices':'التذاكر والأسعار','Phone':'الهاتف','Website':'الموقع','Booking / reservation':'الحجز','How long we stay':'مدة البقاء','Best time to go':'أفضل وقت','How we get there':'كيف نصل','Dress code':'اللباس','For the kids':'للأطفال','Food & drinks':'الأكل والشرب','Walking / accessibility':'المشي وسهولة الوصول','Rules & warnings':'قواعد وتحذيرات','Our contact person':'الشخص المسؤول','Map':'الخريطة','Links':'روابط','(leave empty what you do not need)':'(اترك الفارغ إن لم تحتجه)','Your own fields':'حقول إضافية','Label':'العنوان','Value':'القيمة','Add field':'إضافة حقل','Add link':'إضافة رابط','Add your photo':'أضف صورتك','So the family can see who is who.':'حتى تعرف العائلة من هو من.','Add':'إضافة','Change photo':'تغيير الصورة','Add photo':'إضافة صورة','Remove':'إزالة','Bill for':'فاتورة','Shares':'الحصص','Visible to':'من يرى','Everything':'كل شيء'
 };
 const t = (s, v) => { let r = S.lang === 'ar' ? (AR[s] || s) : s; if (v) for (const k in v) r = r.replace('{' + k + '}', v[k]); return r; };
 const ERR = {
@@ -76,8 +76,9 @@ const trip = () => Object.assign({ name: 'Family Trip', start: '2026-12-18', end
 const theme = () => Object.assign({ color: '#0f766e', welcome: '', cover: '' }, D()?.settings?.theme);
 const rates = () => Object.assign({ JOD: 1, EGP: 68, USD: 1.41 }, D()?.settings?.rates);
 const CURS = ['JOD', 'EGP', 'USD'];
-const CATS = { food: '🍽️', transport: '🚐', tickets: '🎟️', hotel: '🏨', shopping: '🛍️', other: '💸' };
-const CAT_NAME = { food: 'Food', transport: 'Transport', tickets: 'Tickets', hotel: 'Hotel', shopping: 'Shopping', other: 'Other' };
+const CATS = { food: '🍽️', transport: '🚐', tickets: '🎟️', hotel: '🏨', flights: '✈️', shopping: '🛍️', other: '💸' };
+const METHODS = { cash: ['💵', 'Cash'], card: ['💳', 'Card'], cliq: ['📲', 'CliQ'], transfer: ['🏦', 'Bank transfer'], instapay: ['📱', 'InstaPay'], other: ['🔹', 'Other'] };
+const CAT_NAME = { flights: 'Flights', food: 'Food', transport: 'Transport', tickets: 'Tickets', hotel: 'Hotel', shopping: 'Shopping', other: 'Other' };
 const tripDays = () => { const out = []; const e = pd(trip().end); for (let d = pd(trip().start); d <= e; d.setDate(d.getDate() + 1)) out.push(iso(d)); return out; };
 const member = id => D().members.find(m => m.id === id);
 const nameOf = id => member(id)?.name || '—';
@@ -396,16 +397,107 @@ function homeView() {
   ${th.welcome ? `<div class="card"><div class="row"><span style="font-size:24px">👋</span><div class="grow pre">${linkify(th.welcome)}</div></div></div>` : ''}
   ${!D().me.avatar ? `<div class="card tap" data-a="myavatar"><div class="row">${avatar(me(), 'lg')}<div class="grow"><b>📸 ${t('Add your photo')}</b><div class="small muted">${t('So the family can see who is who.')}</div></div><span class="btn sm">${t('Add')}</span></div></div>` : ''}
   ${briefs}
+  ${(() => { const open = myTasks().filter(tk => !tk.done[me()]); return open.length ? `<div class="row between"><h2>✅ ${t('Your to-dos')}</h2><button class="btn ghost sm" data-a="planseg" data-k="todo">${t('See all')}</button></div><div class="card list">${open.slice(0, 4).map(taskRow).join('')}</div>` : ''; })()}
+  ${(() => { const up = D().arrangements.filter(a => myGroup(a) && (!a.day || a.day >= today())).slice(0, 3); return up.length ? `<div class="row between"><h2>👥 ${t('Your groups')}</h2><button class="btn ghost sm" data-a="planseg" data-k="groups">${t('See all')}</button></div>${up.map(a => arrangementCard(a, true)).join('')}` : ''; })()}
+  ${D().info.length || can('announce') ? `<div class="row between"><h2>📌 ${t('Trip info')}</h2>${can('announce') ? `<button class="btn sm" data-a="editinfo">${ico('plus', 16)} ${t('Add')}</button>` : ''}</div>
+    ${D().info.map(ic => `<details class="card"><summary class="row" style="cursor:pointer;list-style:none"><span style="font-size:22px">${esc(ic.icon)}</span><b class="grow">${esc(ic.title)}</b>${can('announce') ? `<button class="btn ghost sm" data-a="editinfo" data-k="${ic.id}">${t('Edit')}</button>` : '›'}</summary><div class="pre" style="margin-top:8px">${linkify(ic.body)}</div></details>`).join('') || `<p class="small muted">${t('Add flights, hotel addresses, emergency numbers and anything the family should be able to find quickly.')}</p>`}` : ''}
   ${bal}
   <div class="row between"><h2>${t('Announcements')}</h2>${can('announce') ? `<button class="btn sm" data-a="announce">${ico('plus', 16)} ${t('New announcement')}</button>` : ''}</div>
   ${anns.length ? anns.map(a => `<div class="card">
       <div class="row between"><h3>${a.pinned ? '📌 ' : ''}${esc(a.title)}</h3>${a.created_at > seen && a.author !== me() ? `<span class="badge new">${t('NEW')}</span>` : ''}</div>
       ${a.body ? `<div class="pre" style="margin-top:4px">${linkify(a.body)}</div>` : ''}
-      <div class="row between" style="margin-top:8px"><span class="small muted">${esc(nameOf(a.author))} · ${ago(a.created_at)}</span>
+      <div class="row between" style="margin-top:8px"><span class="small muted">${esc(nameOf(a.author))} · ${ago(a.created_at)}${(a.audience || []).length ? ` · 👁️ ${(a.audience || []).length} ${t('people')}` : ''}</span>
       ${can('announce') ? `<button class="btn ghost sm" data-a="announce" data-k="${a.id}">${t('Edit')}</button>` : ''}</div></div>`).join('')
     : `<div class="empty card"><div class="e">📣</div>${t('No announcements yet.')}</div>`}
   <h2>${t('Who is coming')} <span class="muted small">${D().members.length} ${t('people')}</span></h2>
   <div class="card"><div class="row wrap-r" style="gap:12px">${D().members.map(m => `<div style="text-align:center;width:62px">${avatar(m.id, 'lg')}<div class="small" style="margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.name.split(' ')[0])}</div></div>`).join('')}</div></div>`;
+}
+
+/* ----- groups, to-dos, info helpers ----- */
+const KINDS = { car: ['🚐', 'Cars'], room: ['🏨', 'Hotel rooms'], activity: ['🎯', 'Activity'], other: ['👥', 'Other'] };
+function myGroup(ar) { return (ar.groups || []).find(g => (g.members || []).includes(me())); }
+function myTasks() { return D().tasks.filter(tk => !tk.assignees.length || tk.assignees.includes(me())); }
+function taskPeople(tk) { return tk.assignees.length ? tk.assignees : D().members.map(m => m.id); }
+function taskRow(tk) {
+  const ppl = taskPeople(tk); const doneN = ppl.filter(id => tk.done[id]).length; const mineDone = !!tk.done[me()]; const assigned = ppl.includes(me());
+  const overdue = tk.due && tk.due < today() && !mineDone && assigned;
+  return `<div class="li">
+    ${assigned ? `<input type="checkbox" class="switch" data-a2="tasktoggle" data-k="${tk.id}" ${mineDone ? 'checked' : ''}>` : '<span style="width:44px"></span>'}
+    <div class="grow ${can('edit_plan') ? 'tap' : ''}" ${can('edit_plan') ? `data-a="edittask" data-k="${tk.id}" style="cursor:pointer"` : ''}>
+      <b style="${mineDone ? 'text-decoration:line-through;opacity:.6' : ''}">${esc(tk.title)}</b>
+      ${tk.notes ? `<div class="small muted pre">${linkify(tk.notes)}</div>` : ''}
+      <div class="small ${overdue ? 'bad' : 'muted'}">${tk.due ? '⏰ ' + fmtDay(tk.due) + ' · ' : ''}${doneN}/${ppl.length} ${t('done')}</div>
+      ${can('edit_plan') ? `<div class="bar" style="margin-top:4px"><i style="width:${ppl.length ? doneN / ppl.length * 100 : 0}%"></i></div>` : ''}
+    </div></div>`;
+}
+function arrSheet(id) {
+  const ar = D().arrangements.find(x => x.id === id) || { kind: 'car', title: '', day: '', notes: '', groups: [] };
+  F = { id: ar.id || '', kind: ar.kind, title: ar.title, day: ar.day || '', notes: ar.notes, groups: JSON.parse(JSON.stringify(ar.groups || [])), cur: 0 };
+  if (!F.groups.length) F.groups.push({ name: t('Car') + ' 1', note: '', members: [] });
+  openSheet(() => {
+    const assigned = new Set(F.groups.flatMap(g => g.members)); const free = D().members.filter(m => !assigned.has(m.id));
+    const g = F.groups[F.cur];
+    return `${sheetHead(id ? t('Edit') : t('New grouping (cars, rooms, activity)'))}
+    <div class="chips wrapc">${Object.entries(KINDS).map(([k, [ic, l]]) => `<span class="chip ${F.kind === k ? 'on' : ''}" data-a="arrkind" data-k="${k}">${ic} ${t(l)}</span>`).join('')}</div>
+    ${field(t('Title'), inp('title', F.title, 'placeholder="e.g. Airport → Hotel, Rooms at the Hurghada resort, Desert safari"'))}
+    <div class="two">${field(t('Day'), `<select class="i" data-bind="day"><option value="">—</option>${tripDays().map(d => `<option value="${d}" ${F.day === d ? 'selected' : ''}>${fmtDay(d)}</option>`).join('')}</select>`)}
+    <div style="display:flex;align-items:flex-end;gap:6px"><button class="btn sec sm" data-a="byfamily">👪 ${t('Split by family')}</button></div></div>
+    ${field(t('Notes'), txt('notes', F.notes, 'rows="2"'))}
+    <label class="f"><span>${t('Groups')} · ${t('tap a group, then tap people to put them in it')}</span></label>
+    <div class="chips wrapc">${F.groups.map((x, n) => `<span class="chip ${F.cur === n ? 'on' : ''}" data-a="arrgroup" data-n="${n}">${esc(x.name)} · ${x.members.length}</span>`).join('')}
+      <span class="chip" data-a="addgroup">＋ ${t('Add group')}</span></div>
+    ${g ? `<div class="item-row"><div class="row"><input class="i grow" data-bind="groups.${F.cur}.name" value="${esc(g.name)}"><button class="icon-btn" data-a="delgroup" data-n="${F.cur}">${ico('x', 16)}</button></div>
+      <input class="i" style="margin-top:6px" placeholder="${t('Note (driver, phone, room number…)')}" data-bind="groups.${F.cur}.note" value="${esc(g.note || '')}">
+      <div class="chips wrapc" style="margin-top:8px">${D().members.map(m => { const inG = g.members.includes(m.id); const other = !inG && assigned.has(m.id);
+        return `<span class="chip ${inG ? 'on' : ''}" style="${other ? 'opacity:.45' : ''}" data-a="arrmember" data-k="${m.id}">${esc(m.name.split(' ')[0])}</span>`; }).join('')}</div></div>` : ''}
+    ${free.length ? `<p class="small muted">${t('Not placed yet')}: ${free.map(m => esc(m.name.split(' ')[0])).join(', ')}</p>` : `<p class="small good">✓ ${t('Everyone is placed')}</p>`}
+    <div class="actions">${id ? `<button class="btn danger" data-a="delarr">${t('Delete')}</button><button class="btn sec" data-a="copyarr">${t('Copy')}</button>` : ''}<button class="btn" data-a="savearr">${t('Save')}</button></div>`;
+  });
+}
+function infoSheet(id) {
+  const ic = D().info.find(x => x.id === id) || { icon: 'ℹ️', title: '', body: '', sort: D().info.length + 1 };
+  F = { id: ic.id || '', icon: ic.icon, title: ic.title, body: ic.body, sort: ic.sort };
+  const icons = ['ℹ️', '✈️', '🏨', '🚐', '📞', '🆘', '🛂', '💊', '💵', '🧳', '📶', '🕌', '🍽️', '⚠️'];
+  openSheet(() => `${sheetHead(id ? t('Edit') : t('Add trip info'))}
+    <div class="chips wrapc">${icons.map(x => `<span class="chip ${F.icon === x ? 'on' : ''}" data-a="infoicon" data-k="${x}">${x}</span>`).join('')}</div>
+    ${field(t('Title'), inp('title', F.title, 'placeholder="e.g. Flights, Hotel addresses, Emergency numbers"'))}
+    ${field(t('Details'), txt('body', F.body, 'rows="6"'))}
+    <div class="actions">${id ? `<button class="btn danger" data-a="delinfo">${t('Delete')}</button>` : ''}<button class="btn" data-a="saveinfo">${t('Save')}</button></div>`);
+}
+function taskSheet(id) {
+  const tk = D().tasks.find(x => x.id === id) || { title: '', notes: '', due: '', assignees: [], done: {} };
+  F = { id: tk.id || '', title: tk.title, notes: tk.notes, due: tk.due || '', assignees: [...tk.assignees] };
+  openSheet(() => {
+    const cur = D().tasks.find(x => x.id === id) || tk;
+    return `${sheetHead(id ? t('Edit') : t('New to-do for the family'))}
+    ${field(t('Title'), inp('title', F.title, 'placeholder="e.g. Send me a photo of your passport"'))}
+    ${field(t('Details'), txt('notes', F.notes, 'rows="2"'))}
+    ${field(t('Due date'), inp('due', F.due, 'type="date"'))}
+    <label class="f"><span>${t('Who must do it')}</span></label>${audiencePicker('assignees')}
+    ${id ? `<h3 style="margin-top:16px">${t('Who has done it')}</h3><div class="card list">${taskPeople(cur).map(pid => `<div class="li">${avatar(pid)}<span class="grow">${esc(nameOf(pid))}</span>
+      ${isAdmin() ? `<input type="checkbox" class="switch" data-a2="tasktoggle" data-k="${cur.id}" data-m="${pid}" ${cur.done[pid] ? 'checked' : ''}>` : (cur.done[pid] ? '✅' : '⏳')}</div>`).join('')}</div>` : ''}
+    <div class="actions">${id ? `<button class="btn danger" data-a="deltask">${t('Delete')}</button>` : ''}<button class="btn" data-a="savetask">${t('Save')}</button></div>`;
+  });
+}
+/* audience/assignee picker: F[key] = [] means everyone */
+function audiencePicker(key) {
+  const sel = F[key]; const houses = [...new Set(D().members.map(m => m.household).filter(Boolean))];
+  return `<div class="chips wrapc"><span class="chip ${!sel.length ? 'on' : ''}" data-a="aud" data-f="${key}" data-k="__all">👥 ${t('Everyone')}</span>
+    ${houses.map(h => `<span class="chip" data-a="aud" data-f="${key}" data-k="h:${esc(h)}">👪 ${esc(h)}</span>`).join('')}</div>
+    <div class="chips wrapc">${D().members.map(m => `<span class="chip ${sel.includes(m.id) ? 'on' : ''}" data-a="aud" data-f="${key}" data-k="${m.id}">${esc(m.name.split(' ')[0])}</span>`).join('')}</div>
+    <div class="small muted">${sel.length ? sel.length + ' ' + t('people') : t('Everyone')}</div>`;
+}
+function arrangementCard(ar, compact = false) {
+  const mine = myGroup(ar); const [icon, kindName] = KINDS[ar.kind] || KINDS.other;
+  return `<div class="card">
+    <div class="row between"><div class="grow"><span class="badge brand">${icon} ${t(kindName)}</span>${ar.day ? ` <span class="small muted">${fmtDay(ar.day)}</span>` : ''}<h3 style="margin-top:6px">${esc(ar.title)}</h3></div>
+      ${can('edit_plan') ? `<button class="icon-btn" data-a="editarr" data-k="${ar.id}">${ico('edit', 18)}</button>` : ''}</div>
+    ${ar.notes ? `<div class="small pre muted">${linkify(ar.notes)}</div>` : ''}
+    ${mine ? `<div class="comment" style="border-inline-start:4px solid var(--brand);margin-top:8px"><b>⭐ ${t('You are in')}: ${esc(mine.name)}</b>${mine.note ? `<div class="small pre">${linkify(mine.note)}</div>` : ''}</div>` : ''}
+    ${compact ? '' : (ar.groups || []).map(g => `<div style="margin-top:10px"><div class="row between"><b>${esc(g.name)}</b><span class="small muted">${(g.members || []).length} ${t('people')}</span></div>
+      ${g.note ? `<div class="small muted pre">${linkify(g.note)}</div>` : ''}
+      <div class="row wrap-r" style="gap:8px;margin-top:6px">${(g.members || []).map(id => `<div style="text-align:center;width:52px">${avatar(id)}<div class="small" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${id === me() ? 'font-weight:800' : ''}">${esc(nameOf(id).split(' ')[0])}</div></div>`).join('')}</div></div>`).join('')}
+  </div>`;
 }
 
 /* ----- Plan ----- */
@@ -424,6 +516,8 @@ function dayBlock(day) {
       ${d.meet_time || d.meet_place ? `<div><div class="k">${t('Meet at')}</div><b>${esc(d.meet_time)}</b> ${esc(d.meet_place)}</div>` : ''}
       ${d.wear ? `<div><div class="k">${t('Wear')}</div>${esc(d.wear)}</div>` : ''}
       ${d.bring ? `<div style="grid-column:1/-1"><div class="k">${t('Bring')}</div>${esc(d.bring)}</div>` : ''}</div>` : ''}
+    ${D().arrangements.filter(a => a.day === day).map(ar => { const g = myGroup(ar); const [ic] = KINDS[ar.kind] || KINDS.other;
+      return `<div class="comment tap" data-a="planseg" data-k="groups" style="margin-top:8px">${ic} <b>${esc(ar.title)}</b>${g ? ` · ${t('You are in')} <b>${esc(g.name)}</b>` : ''}</div>`; }).join('')}
     <div class="timeline">${items.map(i => {
       const pl = i.place_id && D().places.find(p => p.id === i.place_id);
       return `<div class="tl"><div class="row between"><div class="grow"><span class="time">${esc(i.time)}</span> <b>${esc(i.title)}</b></div>
@@ -439,8 +533,20 @@ function dayBlock(day) {
   </div>`;
 }
 function planView() {
+  const seg = S.planSeg || 'days';
+  const head = `<div class="seg"><button class="${seg === 'days' ? 'on' : ''}" data-a="planseg" data-k="days">🗓️ ${t('Days')}</button><button class="${seg === 'groups' ? 'on' : ''}" data-a="planseg" data-k="groups">👥 ${t('Groups')}</button><button class="${seg === 'todo' ? 'on' : ''}" data-a="planseg" data-k="todo">✅ ${t('To-dos')}</button></div>`;
+  if (seg === 'groups') {
+    const list = D().arrangements;
+    return head + (can('edit_plan') ? `<button class="btn block" data-a="editarr">${ico('plus', 18)} ${t('New grouping (cars, rooms, activity)')}</button>` : '') +
+      (list.length ? list.map(ar => arrangementCard(ar)).join('') : `<div class="empty"><div class="e">🚐</div>${t('No groups yet.')}</div>`);
+  }
+  if (seg === 'todo') {
+    const list = can('edit_plan') ? D().tasks : myTasks();
+    return head + (can('edit_plan') ? `<button class="btn block" data-a="edittask">${ico('plus', 18)} ${t('New to-do for the family')}</button>` : '') +
+      (list.length ? `<div class="card list">${list.map(taskRow).join('')}</div>` : `<div class="empty"><div class="e">✅</div>${t('Nothing to do yet.')}</div>`);
+  }
   const days = tripDays(); const sel = S.planDay;
-  return `<div class="chips" style="margin-top:12px">
+  return head + `<div class="chips">
     <span class="chip ${sel === 'all' ? 'on' : ''}" data-a="planday" data-k="all">${t('All days')}</span>
     ${days.map((d, i) => `<span class="chip ${sel === d ? 'on' : ''}" data-a="planday" data-k="${d}">${i + 1} · ${fmtDay(d, { weekday: 'short', day: 'numeric' })}</span>`).join('')}
   </div>${(sel === 'all' ? days : [sel]).map(dayBlock).join('')}`;
@@ -471,30 +577,42 @@ function placesView() {
 /* ----- Ideas ----- */
 const score = s => Object.values(s.votes || {}).reduce((a, b) => a + b, 0);
 function ideasView() {
+  const org = can('edit_plan');
   let list = [...D().suggestions];
+  if (S.ideasFilter === 'private') list = list.filter(x => x.visibility === 'private');
+  if (S.ideasFilter === 'public') list = list.filter(x => x.visibility !== 'private');
+  if (S.ideasFilter === 'mine') list = list.filter(x => x.author === me());
   if (S.ideasSort === 'top') list.sort((a, b) => score(b) - score(a) || (b.created_at > a.created_at ? 1 : -1));
   const st = { open: ['', 'Open'], planned: ['good', 'Planned'], declined: ['bad', 'Declined'] };
-  return `<div class="seg"><button class="${S.ideasSort === 'top' ? 'on' : ''}" data-a="isort" data-k="top">${t('Top')}</button><button class="${S.ideasSort === 'new' ? 'on' : ''}" data-a="isort" data-k="new">${t('Newest')}</button></div>
+  const filters = [['all', 'All'], ['public', 'Shared with everyone'], [org ? 'private' : 'mine', org ? 'Private to me' : 'Mine']];
+  return `<div class="seg"><button class="${S.ideasSort === 'top' ? 'on' : ''}" data-a="isort" data-k="top">❤️ ${t('Most liked')}</button><button class="${S.ideasSort === 'new' ? 'on' : ''}" data-a="isort" data-k="new">${t('Newest')}</button></div>
+  <div class="chips">${filters.map(([k, l]) => `<span class="chip ${(S.ideasFilter || 'all') === k ? 'on' : ''}" data-a="ifilter" data-k="${k}">${t(l)}</span>`).join('')}</div>
   ${list.length ? list.map(s => {
-    const mine = (s.votes || {})[me()] || 0; const open = S.openIdeas.has(s.id);
-    return `<div class="card"><div class="row" style="align-items:flex-start">
-      <div class="vote"><button class="${mine === 1 ? 'on' : ''}" data-a="vote" data-k="${s.id}" data-v="1" aria-label="up">▲</button><b>${score(s)}</b><button class="${mine === -1 ? 'on' : ''}" data-a="vote" data-k="${s.id}" data-v="-1" aria-label="down">▼</button></div>
-      <div class="grow">
-        <div class="row between"><h3>${esc(s.title)}</h3>${s.status !== 'open' ? `<span class="badge ${st[s.status][0]}">${t(st[s.status][1])}</span>` : ''}</div>
-        ${s.body ? `<div class="pre small">${linkify(s.body)}</div>` : ''}
-        <div class="small muted" style="margin-top:4px">${esc(nameOf(s.author))} · ${ago(s.created_at)}${s.day ? ' · ' + fmtDay(s.day) : ''}</div>
-        <div class="row wrap-r" style="gap:4px;margin-top:6px">
-          <button class="btn ghost sm" data-a="toggleidea" data-k="${s.id}">💬 ${s.comments.length} ${t('comments')}</button>
-          ${can('edit_plan') ? `<select class="i" style="width:auto;padding:4px 8px;font-size:14px" data-a2="istatus" data-k="${s.id}">${Object.keys(st).map(k => `<option value="${k}" ${s.status === k ? 'selected' : ''}>${t(st[k][1])}</option>`).join('')}</select>
-            <button class="btn ghost sm" data-a="idea2plan" data-k="${s.id}">${t('Add to plan')}</button>` : ''}
-          ${s.author === me() || isAdmin() ? `<button class="btn danger sm" data-a="delidea" data-k="${s.id}">${t('Delete')}</button>` : ''}
-        </div>
-        ${open ? `<div>${s.comments.map(c => `<div class="comment"><b>${esc(nameOf(c.author))}</b> <span class="muted small">${ago(c.created_at)}</span>
-            ${c.author === me() || isAdmin() ? `<button class="btn danger sm" style="float:inline-end;min-height:0;padding:0 4px" data-a="delcomment" data-k="${c.id}">×</button>` : ''}<div class="pre">${linkify(c.body)}</div></div>`).join('')}
-          ${can('comment') ? `<form class="row" style="margin-top:8px" data-form="comment" data-k="${s.id}"><input class="i grow" name="body" placeholder="${t('Write a comment…')}" required><button class="btn sm">${t('Send')}</button></form>` : ''}</div>` : ''}
-      </div></div></div>`;
+    const liked = (s.votes || {})[me()] === 1; const open = S.openIdeas.has(s.id); const priv = s.visibility === 'private';
+    const likers = Object.entries(s.votes || {}).filter(([, v]) => v === 1).map(([k]) => k);
+    return `<div class="card">
+      <div class="row between" style="align-items:flex-start"><div class="grow"><div class="small muted">📍 ${t('Place')}</div><h3 style="font-size:18px">${esc(s.title)}</h3></div>
+        ${s.status !== 'open' ? `<span class="badge ${st[s.status][0]}">${t(st[s.status][1])}</span>` : ''}</div>
+      <div class="row wrap-r" style="gap:6px;margin:6px 0">
+        <span class="badge">${s.mode === 'alone' ? '🧍 ' + t('Alone') : '👨‍👩‍👧 ' + t('With a group')}</span>
+        ${priv ? `<span class="badge bad">🔒 ${t('Only the organizer sees this')}</span>` : `<span class="badge brand">👥 ${t('Shared with everyone')}</span>`}
+        ${s.day ? `<span class="badge">🗓️ ${fmtDay(s.day)}</span>` : ''}</div>
+      ${s.body ? `<div class="small muted" style="font-weight:700">${t('Why')}</div><div class="pre">${linkify(s.body)}</div>` : ''}
+      ${s.reply ? `<div class="comment" style="border-inline-start:4px solid var(--brand)"><b>💬 ${t('Organizer reply')}</b><div class="pre">${linkify(s.reply)}</div></div>` : ''}
+      <div class="row" style="margin-top:8px">${avatar(s.author)}<span class="small muted grow">${esc(nameOf(s.author))} · ${ago(s.created_at)}</span></div>
+      <div class="row wrap-r" style="gap:4px;margin-top:8px">
+        ${!priv ? `<button class="btn ${liked ? '' : 'sec'} sm" data-a="like" data-k="${s.id}">${liked ? '❤️' : '🤍'} ${t('Support')} · ${likers.length}</button>` : ''}
+        <button class="btn ghost sm" data-a="toggleidea" data-k="${s.id}">💬 ${s.comments.length}</button>
+        ${org ? `<button class="btn ghost sm" data-a="ideareply" data-k="${s.id}">${t('Reply / status')}</button><button class="btn ghost sm" data-a="idea2plan" data-k="${s.id}">${t('Add to plan')}</button>` : ''}
+        ${s.author === me() || isAdmin() ? `<button class="btn danger sm" data-a="delidea" data-k="${s.id}">${t('Delete')}</button>` : ''}
+      </div>
+      ${likers.length && !priv ? `<div class="row" style="gap:2px;margin-top:6px">${likers.slice(0, 12).map(id => avatar(id, 'sm')).join('')}</div>` : ''}
+      ${open ? `<div>${s.comments.map(c => `<div class="comment"><b>${esc(nameOf(c.author))}</b> <span class="muted small">${ago(c.created_at)}</span>
+          ${c.author === me() || isAdmin() ? `<button class="btn danger sm" style="float:inline-end;min-height:0;padding:0 4px" data-a="delcomment" data-k="${c.id}">×</button>` : ''}<div class="pre">${linkify(c.body)}</div></div>`).join('')}
+        ${can('comment') ? `<form class="row" style="margin-top:8px" data-form="comment" data-k="${s.id}"><input class="i grow" name="body" placeholder="${t('Write a comment…')}" required><button class="btn sm">${t('Send')}</button></form>` : ''}</div>` : ''}
+    </div>`;
   }).join('') : `<div class="empty"><div class="e">💡</div>${t('No ideas yet. Be the first!')}</div>`}
-  ${can('suggest') ? `<button class="btn fab" data-a="newidea">${ico('plus', 18)} ${t('New idea')}</button>` : ''}`;
+  ${can('suggest') ? `<button class="btn fab" data-a="newidea">${ico('plus', 18)} ${t('Suggest a place')}</button>` : ''}`;
 }
 
 /* ----- Money ----- */
@@ -511,14 +629,18 @@ function moneyView() {
   if (!segs.find(s => s[0] === S.moneyTab)) S.moneyTab = 'expenses';
   let body = '';
   if (S.moneyTab === 'expenses') {
-    const ex = D().expenses;
+    const ex = D().expenses.filter(e => (!S.fPayer || e.paid_by === S.fPayer) && (!S.fMethod || e.method === S.fMethod));
+    const tot = ex.reduce((a, e) => a + toBase(e.amount, e.currency), 0);
+    body += `<div class="row wrap-r" style="gap:6px;margin-top:4px"><select class="i" style="width:auto;flex:1" data-a2="fpayer"><option value="">${t('Paid by')}: ${t('Everyone')}</option>${D().members.map(m => `<option value="${m.id}" ${S.fPayer === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>
+      <select class="i" style="width:auto;flex:1" data-a2="fmethod"><option value="">${t('Payment method')}: ${t('All')}</option>${Object.entries(METHODS).map(([k, [ic, l]]) => `<option value="${k}" ${S.fMethod === k ? 'selected' : ''}>${ic} ${t(l)}</option>`).join('')}</select></div>
+      <div class="small muted" style="margin:6px 0">${ex.length} ${t('bills')} · ${t('Total')}: <b>${money(fromBase(tot))}</b></div>`;
     let lastDay = '';
-    body = ex.length ? ex.map(e => {
+    body += ex.length ? ex.map(e => {
       const head = e.spent_on !== lastDay ? `<h3 class="muted small" style="margin:14px 0 0">${fmtDay(e.spent_on, { weekday: 'long', day: 'numeric', month: 'short' })}</h3>` : ''; lastDay = e.spent_on;
       const my = e.shares[me()];
       return head + `<div class="card tap" data-a="expense" data-k="${e.id}" style="margin:6px 0"><div class="row">
         <span style="font-size:24px">${CATS[e.category] || '💸'}</span>
-        <div class="grow"><b>${esc(e.title)}</b><div class="small muted">${t('paid')}: ${esc(nameOf(e.paid_by))} · ${Object.keys(e.shares).length} ${t('people')}</div></div>
+        <div class="grow"><b>${esc(e.title)}</b><div class="small muted">${t('paid')}: ${esc(nameOf(e.paid_by))}${e.method && METHODS[e.method] ? ' ' + METHODS[e.method][0] : ''}${e.receipt ? ' 🧾' : ''} · ${Object.keys(e.shares).length} ${t('people')}</div></div>
         <div style="text-align:end"><div class="amount">${money(e.amount, e.currency)}</div>${my ? `<div class="small muted">${t('your share')}: ${money(my, e.currency)}</div>` : ''}</div>
       </div></div>`;
     }).join('') : `<div class="empty"><div class="e">🧾</div>${t('No expenses yet.')}</div>`;
@@ -600,10 +722,11 @@ function setPath(obj, path, val) { const ks = path.split('.'); let o = obj; for 
 /* announcement */
 function announceSheet(id) {
   const a = D().announcements.find(x => x.id === id) || { title: '', body: '', pinned: false };
-  F = { id: a.id || '', title: a.title, body: a.body, pinned: a.pinned };
+  F = { id: a.id || '', title: a.title, body: a.body, pinned: a.pinned, audience: [...(a.audience || [])] };
   openSheet(() => `${sheetHead(id ? t('Edit') : t('New announcement'))}
     ${field(t('Title'), inp('title', F.title))}${field(t('Details'), txt('body', F.body))}
     <label class="row" style="margin-top:12px"><input type="checkbox" class="switch" data-bind="pinned" ${F.pinned ? 'checked' : ''}> ${t('Pinned')}</label>
+    <label class="f"><span>👁️ ${t('Who can see this announcement')}</span></label>${audiencePicker('audience')}
     <div class="actions">${id ? `<button class="btn danger" data-a="delann">${t('Delete')}</button>` : ''}<button class="btn" data-a="saveann">${t('Save')}</button></div>`);
 }
 /* day */
@@ -638,6 +761,16 @@ function itemSheet(id, preset = {}) {
     <div class="actions">${id ? `<button class="btn danger" data-a="delitem">${t('Delete')}</button>` : ''}<button class="btn" data-a="saveitem">${t('Save')}</button></div>`);
 }
 /* place */
+const PLACE_FIELDS = [['address', '📍', 'Address'], ['hours', '🕘', 'Opening hours'], ['price', '🎟️', 'Tickets & prices'], ['phone', '📞', 'Phone'],
+  ['website', '🌐', 'Website'], ['booking', '🧾', 'Booking / reservation'], ['duration', '⏱️', 'How long we stay'], ['best_time', '🌤️', 'Best time to go'],
+  ['getting_there', '🚐', 'How we get there'], ['dress', '👗', 'Dress code'], ['bring', '🎒', 'What to bring'], ['kids', '🧒', 'For the kids'],
+  ['food', '🍽️', 'Food & drinks'], ['accessibility', '♿', 'Walking / accessibility'], ['rules', '⚠️', 'Rules & warnings'], ['contact', '🙋', 'Our contact person']];
+function detailValue(k, v) {
+  if (k === 'phone') return v.split(/[,\n]/).map(x => x.trim()).filter(Boolean).map(x => `<a href="tel:${esc(x.replace(/[^+\d]/g, ''))}">${esc(x)}</a>`).join(', ');
+  if (k === 'website' && /^https?:/.test(v)) return `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(v.replace(/^https?:\/\//, ''))}</a>`;
+  if (k === 'address') return `${nl2br(v)} · <a href="https://maps.google.com/?q=${encodeURIComponent(v)}" target="_blank" rel="noopener">${t('Map')}</a>`;
+  return linkify(v);
+}
 function placeSheet(id) {
   sheetRender = null; F = null;
   openSheet(() => {
@@ -648,7 +781,11 @@ function placeSheet(id) {
       ${cover ? `<div class="day-cover" style="height:220px;margin:0" data-a="lightbox" data-list="place:${id}" data-i="${Math.max(0, photos.findIndex(x => x.id === cover))}">${pimg(cover)}</div>` : ''}
       <p class="muted small" style="margin:10px 0 0">📍 ${esc(p.city)}</p>
       ${p.summary ? `<p style="font-size:17px">${linkify(p.summary)}</p>` : ''}
+      ${(() => { const dt = p.details || {}; const rows = PLACE_FIELDS.filter(([k]) => (dt[k] || '').trim()).map(([k, ic, l]) => `<div class="li" style="align-items:flex-start"><span style="font-size:20px">${ic}</span><div class="grow"><div class="small muted" style="font-weight:700">${t(l)}</div><div class="pre">${detailValue(k, dt[k])}</div></div></div>`);
+        (dt.fields || []).filter(f => (f.label || f.value)).forEach(f => rows.push(`<div class="li" style="align-items:flex-start"><span style="font-size:20px">▪️</span><div class="grow"><div class="small muted" style="font-weight:700">${esc(f.label)}</div><div class="pre">${linkify(f.value)}</div></div></div>`));
+        return rows.length ? `<div class="card list">${rows.join('')}</div>` : ''; })()}
       ${p.info ? `<div class="card"><b>💡 ${t('Good to know')}</b><div class="pre" style="margin-top:4px">${linkify(p.info)}</div></div>` : ''}
+      ${(p.details?.links || []).filter(l => l.url).length ? `<div class="card"><b>🔗 ${t('Links')}</b>${p.details.links.filter(l => l.url).map(l => `<div style="margin-top:6px"><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label || l.url)}</a></div>`).join('')}</div>` : ''}
       ${when.length ? `<div class="card"><b>🗓️ ${t('When we go')}</b>${when.map(i => `<div class="small" style="margin-top:4px">${fmtDay(i.day)} ${esc(i.time)} · ${esc(i.title)}</div>`).join('')}</div>` : ''}
       <div class="row wrap-r" style="gap:6px;margin:10px 0">
         ${p.map_url ? `<a class="btn sec sm" href="${esc(p.map_url)}" target="_blank" rel="noopener">${ico('map', 16)} ${t('Open in Maps')}</a>` : ''}
@@ -661,12 +798,23 @@ function placeSheet(id) {
 }
 function placeEditSheet(id) {
   const p = D().places.find(x => x.id === id) || { name: '', city: '', summary: '', info: '', map_url: '', cover: '', sort: D().places.length + 1 };
-  F = { id: p.id || '', name: p.name, city: p.city, summary: p.summary, info: p.info, map_url: p.map_url, cover: p.cover || '', sort: p.sort };
+  const dt = Object.assign({}, p.details || {}); dt.fields = [...(dt.fields || [])]; dt.links = [...(dt.links || [])];
+  F = { id: p.id || '', name: p.name, city: p.city, summary: p.summary, info: p.info, map_url: p.map_url, cover: p.cover || '', sort: p.sort, details: dt };
   openSheet(() => `${sheetHead(id ? t('Edit') : t('New place'))}
     ${field(t('Name'), inp('name', F.name))}${field(t('City'), inp('city', F.city, 'list="cities"'))}
     <datalist id="cities">${[...new Set(D().places.map(p => p.city))].map(c => `<option value="${esc(c)}">`).join('')}</datalist>
     ${field(t('Short description'), txt('summary', F.summary, 'rows="3"'))}${field(t('Good to know'), txt('info', F.info, 'rows="5"'))}
     ${field(t('Map link'), inp('map_url', F.map_url, 'type="url" placeholder="https://maps.google.com/…"'))}
+    <h3 style="margin-top:18px">📋 ${t('Details')} <span class="small muted">${t('(leave empty what you do not need)')}</span></h3>
+    ${PLACE_FIELDS.map(([k, ic, l]) => field(ic + ' ' + t(l), ['address', 'hours', 'price', 'getting_there', 'bring', 'kids', 'food', 'rules', 'booking'].includes(k) ? txt('details.' + k, F.details[k], 'rows="2"') : inp('details.' + k, F.details[k]))).join('')}
+    <h3 style="margin-top:18px">➕ ${t('Your own fields')}</h3>
+    ${F.details.fields.map((f, n) => `<div class="item-row"><div class="row"><input class="i grow" placeholder="${t('Label')}" data-bind="details.fields.${n}.label" value="${esc(f.label)}"><button class="icon-btn" data-a="delfield" data-n="${n}">${ico('x', 16)}</button></div>
+      <textarea class="i" style="margin-top:6px;min-height:60px" placeholder="${t('Value')}" data-bind="details.fields.${n}.value">${esc(f.value)}</textarea></div>`).join('')}
+    <button class="btn sec sm" style="margin-top:8px" data-a="addfield">${ico('plus', 16)} ${t('Add field')}</button>
+    <h3 style="margin-top:18px">🔗 ${t('Links')}</h3>
+    ${F.details.links.map((l, n) => `<div class="item-row"><div class="row"><input class="i grow" placeholder="${t('Label')}" data-bind="details.links.${n}.label" value="${esc(l.label)}"><button class="icon-btn" data-a="dellink" data-n="${n}">${ico('x', 16)}</button></div>
+      <input class="i" style="margin-top:6px" type="url" placeholder="https://…" data-bind="details.links.${n}.url" value="${esc(l.url)}"></div>`).join('')}
+    <button class="btn sec sm" style="margin-top:8px" data-a="addlink">${ico('plus', 16)} ${t('Add link')}</button>
     ${id ? coverPicker(D().photos.filter(x => x.place_id === id), { place_id: id }) : ''}
     <div class="actions">${id ? `<button class="btn danger" data-a="delplace">${t('Delete')}</button>` : ''}<button class="btn" data-a="saveplace">${t('Save')}</button></div>`);
 }
@@ -698,11 +846,27 @@ function lightbox(key, i) {
 }
 /* ideas */
 function ideaSheet() {
-  F = { title: '', body: '', day: '' };
-  openSheet(() => `${sheetHead(t('Suggest something'))}
-    ${field(t('Title'), inp('title', F.title, 'placeholder="🐬 …"'))}${field(t('Details'), txt('body', F.body))}
-    ${field(t('For which day? (optional)'), `<select class="i" data-bind="day"><option value="">${t('Any day')}</option>${tripDays().map(d => `<option value="${d}" ${F.day === d ? 'selected' : ''}>${fmtDay(d)}</option>`).join('')}</select>`)}
+  F = { title: '', body: '', day: '', mode: 'group', visibility: 'public' };
+  const opt = (k, v, icon, label, sub) => `<div class="card tap" data-a="ideaopt" data-k="${k}" data-v="${v}" style="margin:6px 0;${F[k] === v ? 'border-color:var(--brand);box-shadow:0 0 0 2px var(--brand)' : ''}">
+    <div class="row"><span style="font-size:24px">${icon}</span><div class="grow"><b>${t(label)}</b>${sub ? `<div class="small muted">${t(sub)}</div>` : ''}</div>${F[k] === v ? '✅' : ''}</div></div>`;
+  openSheet(() => `${sheetHead(t('Suggest a place'))}
+    ${field('📍 ' + t('Name of the place'), inp('title', F.title, 'placeholder="e.g. Dolphin House, El Gouna, Al-Azhar Park"'))}
+    ${field('💭 ' + t('Why do you want to go?'), txt('body', F.body, 'rows="3"'))}
+    <label class="f"><span>${t('Do you want to do it alone or with a group?')}</span></label>
+    <div class="two">${opt('mode', 'alone', '🧍', 'Alone')}${opt('mode', 'group', '👨‍👩‍👧', 'With a group')}</div>
+    <label class="f"><span>${t('Who should see it?')}</span></label>
+    ${opt('visibility', 'private', '🔒', 'Only the organizer', 'A private request just for the organizer')}
+    ${opt('visibility', 'public', '👥', 'Everyone', 'The family can see it, support it and comment')}
+    ${field('🗓️ ' + t('For which day? (optional)'), `<select class="i" data-bind="day"><option value="">${t('Any day')}</option>${tripDays().map(d => `<option value="${d}" ${F.day === d ? 'selected' : ''}>${fmtDay(d)}</option>`).join('')}</select>`)}
     <div class="actions"><button class="btn" data-a="saveidea">${t('Send')}</button></div>`);
+}
+function ideaReplySheet(id) {
+  const s0 = D().suggestions.find(x => x.id === id); F = { id, status: s0.status, reply: s0.reply || '' };
+  const st = { open: 'Open', planned: 'Planned', declined: 'Declined' };
+  openSheet(() => `${sheetHead(esc(s0.title))}
+    <div class="chips wrapc">${Object.keys(st).map(k => `<span class="chip ${F.status === k ? 'on' : ''}" data-a="ideastatus" data-k="${k}">${t(st[k])}</span>`).join('')}</div>
+    ${field(t('Your reply (everyone who can see the idea will read it)'), txt('reply', F.reply))}
+    <div class="actions"><button class="btn" data-a="saveideareply">${t('Save')}</button></div>`);
 }
 /* expenses */
 function expenseForm(id) {
@@ -710,13 +874,13 @@ function expenseForm(id) {
   const everyone = D().members.map(m => m.id);
   if (e) {
     const sp = e.split || {};
-    F = { id: e.id, title: e.title, amount: String(e.amount), currency: e.currency, category: e.category, paid_by: e.paid_by, spent_on: e.spent_on, note: e.note,
+    F = { id: e.id, title: e.title, amount: String(e.amount), currency: e.currency, category: e.category, paid_by: e.paid_by, spent_on: e.spent_on, note: e.note, method: e.method || '', receipt: e.receipt || '',
       mode: sp.mode || 'exact', people: sp.people || Object.keys(e.shares), weights: sp.weights || {}, items: sp.items || [{ name: '', price: '', people: [] }],
       exact: sp.exact || Object.fromEntries(Object.entries(e.shares).map(([k, v]) => [k, String(v)])) };
     if (F.mode === 'items' && !sp.total) F.amount = '';
   } else {
     const td = today();
-    F = { id: '', title: '', amount: '', currency: LS.get('lastCur', 'EGP'), category: 'food', paid_by: me(), spent_on: td, note: '',
+    F = { id: '', title: '', amount: '', currency: LS.get('lastCur', 'EGP'), category: 'food', paid_by: me(), spent_on: td, note: '', method: LS.get('lastMethod', 'cash'), receipt: '',
       mode: 'equal', people: everyone, weights: Object.fromEntries(everyone.map(i => [i, 1])), items: [{ name: '', price: '', people: [] }], exact: {} };
   }
   openSheet(expenseFormView);
@@ -750,6 +914,10 @@ function expenseFormView() {
     ${field(t('Currency'), `<select class="i" data-bind="currency">${CURS.map(c => `<option ${F.currency === c ? 'selected' : ''}>${c}</option>`).join('')}</select>`)}</div>
     <div class="two">${field(t('Paid by'), `<select class="i" data-bind="paid_by">${D().members.map(m => `<option value="${m.id}" ${F.paid_by === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>`)}
     ${field(t('Date'), inp('spent_on', F.spent_on, 'type="date"'))}</div>
+    ${field('💳 ' + t('Payment method'), `<div class="chips wrapc">${Object.entries(METHODS).map(([k, [ic, l]]) => `<span class="chip ${F.method === k ? 'on' : ''}" data-a="method" data-k="${k}">${ic} ${t(l)}</span>`).join('')}</div>`)}
+    <label class="f"><span>🧾 ${t('Receipt photo')}</span></label>
+    <div class="row">${F.receipt ? `<div class="g" style="width:72px;height:72px;border-radius:10px;overflow:hidden" data-a="receiptview" data-k="${F.receipt}">${pimg(F.receipt)}</div>` : ''}
+      <button class="btn sec sm" data-a="receipt">${ico('cam', 16)} ${F.receipt ? t('Change photo') : t('Add receipt')}</button>${F.receipt ? `<button class="btn danger sm" data-a="rmreceipt">${t('Remove')}</button>` : ''}</div>
     ${field(t('Category'), `<div class="chips wrapc">${Object.keys(CATS).map(k => `<span class="chip ${F.category === k ? 'on' : ''}" data-a="cat" data-k="${k}">${CATS[k]} ${t(CAT_NAME[k])}</span>`).join('')}</div>`)}
     <label class="f"><span>${t('Split')}</span></label>
     <div class="seg" style="margin-top:0">${[['equal', 'Equally'], ['items', 'Who ate what'], ['weights', 'By shares'], ['exact', 'Exact amounts']].map(([k, l]) => `<button class="${F.mode === k ? 'on' : ''}" data-a="mode" data-k="${k}" style="font-size:13px;padding:8px 2px">${t(l)}</button>`).join('')}</div>
@@ -775,7 +943,8 @@ function expenseSheet(id) {
     return `${sheetHead(`${CATS[e.category] || ''} ${esc(e.title)}`)}
       <div class="card"><div class="money-big">${money(e.amount, e.currency)}</div>
       <div class="small muted">${e.currency !== S.cur ? '≈ ' + money(fromBase(toBase(e.amount, e.currency))) + ' · ' : ''}${fmtDay(e.spent_on, { weekday: 'long', day: 'numeric', month: 'long' })}</div>
-      <div style="margin-top:6px">${t('Paid by')}: <b>${esc(nameOf(e.paid_by))}</b></div>${e.note ? `<div class="small pre" style="margin-top:4px">${linkify(e.note)}</div>` : ''}</div>
+      <div class="row" style="margin-top:8px">${avatar(e.paid_by)}<div class="grow">${t('Paid by')}: <b>${esc(nameOf(e.paid_by))}</b>${e.method && METHODS[e.method] ? `<div class="small muted">${METHODS[e.method][0]} ${t(METHODS[e.method][1])}</div>` : ''}</div></div>
+      ${e.receipt ? `<div class="day-cover" style="margin-top:10px;height:180px;cursor:pointer" data-a="receiptview" data-k="${e.receipt}">${pimg(e.receipt)}</div>` : ''}${e.note ? `<div class="small pre" style="margin-top:4px">${linkify(e.note)}</div>` : ''}</div>
       ${sp.mode === 'items' && sp.items ? `<div class="card"><b>🧾 ${t('Who ate what')}</b>${sp.items.filter(i => num(i.price)).map(i => `<div class="row small" style="margin-top:6px"><span class="grow">${esc(i.name || t('Item'))} <span class="muted">· ${i.people.map(p => esc(nameOf(p).split(' ')[0])).join(', ')}</span></span><b>${money(num(i.price), e.currency)}</b></div>`).join('')}</div>` : ''}
       <div class="card list">${Object.entries(e.shares).sort((a, b) => b[1] - a[1]).map(([pid, v]) => `<div class="li">${avatar(pid)}<span class="grow">${esc(nameOf(pid))}</span><span class="amount">${money(v, e.currency)}</span>
         ${isAdmin() || e.paid_by === me() ? billLinks(pid, billText(e, pid)) : ''}</div>`).join('')}</div>
@@ -906,8 +1075,8 @@ function passwordSheet() {
     <div class="actions"><button class="btn" data-a="savepassword">${t('Save')}</button></div>`);
 }
 function exportCsv() {
-  const rows = [['date', 'title', 'category', 'amount', 'currency', 'paid_by', ...D().members.map(m => m.name)]];
-  for (const e of D().expenses) rows.push([e.spent_on, e.title, e.category, e.amount, e.currency, nameOf(e.paid_by), ...D().members.map(m => e.shares[m.id] ?? '')]);
+  const rows = [['date', 'title', 'category', 'amount', 'currency', 'paid_by', 'payment_method', 'note', ...D().members.map(m => m.name)]];
+  for (const e of D().expenses) rows.push([e.spent_on, e.title, e.category, e.amount, e.currency, nameOf(e.paid_by), e.method || '', e.note || '', ...D().members.map(m => e.shares[m.id] ?? '')]);
   const csv = '﻿' + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'trip-expenses.csv'; a.click();
 }
@@ -923,6 +1092,7 @@ const H = {
   logout: async () => { try { await api('logout'); } catch {} logoutLocal(); },
   goday: el => { S.tab = 'plan'; S.planDay = el.dataset.k; render(); scrollTo(0, 0); },
   planday: el => { S.planDay = el.dataset.k; render(); },
+  planseg: el => { S.tab = 'plan'; S.planSeg = el.dataset.k; render(); scrollTo(0, 0); },
   pseg: el => { S.placesSeg = el.dataset.k; render(); },
   city: el => { S.city = el.dataset.k; render(); },
   isort: el => { S.ideasSort = el.dataset.k; render(); },
@@ -930,11 +1100,17 @@ const H = {
   cur: el => { S.cur = el.dataset.k; LS.set('cur', S.cur); render(); },
   toggleidea: el => { const k = el.dataset.k; S.openIdeas.has(k) ? S.openIdeas.delete(k) : S.openIdeas.add(k); render(); },
   vote: el => { const s = D().suggestions.find(x => x.id === el.dataset.k); const v = +el.dataset.v; act('vote', { id: s.id, value: (s.votes || {})[me()] === v ? 0 : v }).catch(() => {}); },
+  like: el => { const s = D().suggestions.find(x => x.id === el.dataset.k); act('vote', { id: s.id, value: (s.votes || {})[me()] === 1 ? 0 : 1 }).catch(() => {}); },
+  ifilter: el => { S.ideasFilter = el.dataset.k; render(); },
+  ideaopt: el => { F[el.dataset.k] = el.dataset.v; rerenderSheet(); },
+  ideareply: el => ideaReplySheet(el.dataset.k),
+  ideastatus: el => { F.status = el.dataset.k; rerenderSheet(); },
+  saveideareply: el => busy(el, async () => { await act('set_suggestion_status', F, 'Saved'); closeSheet(); }),
   delidea: el => confirmSheet(t('Delete') + '?', () => act('delete_suggestion', { id: el.dataset.k }, 'Deleted')),
   delcomment: el => confirmSheet(t('Delete') + '?', () => act('delete_comment', { id: el.dataset.k }, 'Deleted')),
   idea2plan: el => { const s = D().suggestions.find(x => x.id === el.dataset.k); itemSheet(null, { title: s.title, details: s.body, day: s.day || trip().start }); F.__idea = s.id; },
   newidea: () => ideaSheet(),
-  saveidea: el => busy(el, async () => { await act('add_suggestion', F, 'Saved'); closeSheet(); }),
+  saveidea: el => busy(el, async () => { if (!F.title.trim()) { toast(t('Write the name of the place')); return; } await act('add_suggestion', F, 'Saved'); closeSheet(); }),
   announce: el => announceSheet(el.dataset.k),
   saveann: el => busy(el, async () => { await act('save_announcement', F, 'Saved'); closeSheet(); }),
   delann: () => { const id = F.id; confirmSheet(t('Delete') + '?', () => act('delete_announcement', { id }, 'Deleted')); },
@@ -970,7 +1146,8 @@ const H = {
     const shares = Object.fromEntries(Object.entries(r.shares).map(([k, v]) => [k, v / 100]));
     const split = { mode: F.mode, people: F.people, weights: F.weights, items: F.items.filter(i => num(i.price)), exact: F.exact, total: F.mode === 'items' ? num(F.amount) : undefined };
     LS.set('lastCur', F.currency);
-    await act('save_expense', { id: F.id, title: F.title, amount: r.total / 100, currency: F.currency, category: F.category, paid_by: F.paid_by, spent_on: F.spent_on, note: F.note, split, shares }, 'Saved');
+    await act('save_expense', { id: F.id, title: F.title, amount: r.total / 100, currency: F.currency, category: F.category, paid_by: F.paid_by, spent_on: F.spent_on, note: F.note, method: F.method, receipt: F.receipt, split, shares }, 'Saved');
+    LS.set('lastMethod', F.method);
     closeSheet();
   }),
   delexpense: () => { const id = F.id; confirmSheet(t('Delete') + '?', () => act('delete_expense', { id }, 'Deleted')); },
@@ -995,6 +1172,39 @@ const H = {
   password: () => passwordSheet(),
   savepassword: el => busy(el, async () => { await act('change_password', F, 'Saved'); closeSheet(); }),
   csv: () => exportCsv(),
+  method: el => { F.method = el.dataset.k; rerenderSheet(); },
+  receipt: async () => { const saved = F, fn = sheetRender; const [f] = await pickFiles(false); if (!f) return; toast(t('Uploading…'));
+    try { const data = await resizeImage(f, 1600, 0.8); const r = await api('add_receipt', { data }); F = saved; sheetRender = fn; F.receipt = r.id; rerenderSheet(); } catch (e) { toast(errText(e)); } },
+  rmreceipt: () => { F.receipt = ''; rerenderSheet(); },
+  receiptview: async el => { try { const src = await getPhoto(el.dataset.k); const w = document.createElement('div'); w.className = 'lightbox'; w.innerHTML = `<div class="row" style="justify-content:flex-end;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px"><button class="icon-btn" style="background:#333;color:#fff">${ico('x', 18)}</button></div><img src="${src}" alt="">`; w.onclick = () => w.remove(); document.body.appendChild(w); } catch {} },
+  edittask: el => taskSheet(el.dataset.k),
+  savetask: el => busy(el, async () => { await act('save_task', F, 'Saved'); closeSheet(); }),
+  deltask: () => { const id = F.id; confirmSheet(t('Delete') + '?', () => act('delete_task', { id }, 'Deleted')); },
+  aud: el => { const key = el.dataset.f, k = el.dataset.k; let sel = F[key];
+    if (k === '__all') sel = [];
+    else if (k.startsWith('h:')) { const hs = D().members.filter(m => m.household === k.slice(2)).map(m => m.id); sel = hs.every(i => sel.includes(i)) ? sel.filter(i => !hs.includes(i)) : [...new Set([...sel, ...hs])]; }
+    else sel = sel.includes(k) ? sel.filter(i => i !== k) : [...sel, k];
+    F[key] = sel; rerenderSheet(); },
+  editarr: el => arrSheet(el.dataset.k),
+  arrkind: el => { F.kind = el.dataset.k; rerenderSheet(); },
+  arrgroup: el => { F.cur = +el.dataset.n; rerenderSheet(); },
+  arrmember: el => { const id = el.dataset.k; const g = F.groups[F.cur]; if (!g) return;
+    const inThis = g.members.includes(id); F.groups.forEach(x => { x.members = x.members.filter(m => m !== id); }); if (!inThis) g.members.push(id); rerenderSheet(); },
+  addgroup: () => { const [, kn] = KINDS[F.kind] || KINDS.other; F.groups.push({ name: (F.kind === 'car' ? t('Car') : F.kind === 'room' ? t('Room') : t('Group')) + ' ' + (F.groups.length + 1), note: '', members: [] }); F.cur = F.groups.length - 1; rerenderSheet(); },
+  delgroup: el => { F.groups.splice(+el.dataset.n, 1); F.cur = 0; rerenderSheet(); },
+  byfamily: () => { const houses = {}; D().members.forEach(m => { const k = m.household || m.name; (houses[k] ||= []).push(m.id); });
+    F.groups = Object.entries(houses).map(([k, ids]) => ({ name: k, note: '', members: ids })); F.cur = 0; rerenderSheet(); },
+  copyarr: () => { F.id = ''; F.title = F.title + ' (' + t('copy') + ')'; F.groups = F.groups.map(g => ({ ...g, members: [...g.members] })); rerenderSheet(); toast(t('Copied. Change the day and save.')); },
+  savearr: el => busy(el, async () => { const { cur, ...data } = F; await act('save_arrangement', data, 'Saved'); closeSheet(); }),
+  delarr: () => { const id = F.id; confirmSheet(t('Delete') + '?', () => act('delete_arrangement', { id }, 'Deleted')); },
+  editinfo: el => infoSheet(el.dataset.k),
+  saveinfo: el => busy(el, async () => { await act('save_info', F, 'Saved'); closeSheet(); }),
+  delinfo: () => { const id = F.id; confirmSheet(t('Delete') + '?', () => act('delete_info', { id }, 'Deleted')); },
+  infoicon: el => { F.icon = el.dataset.k; rerenderSheet(); },
+  addfield: () => { F.details.fields.push({ label: '', value: '' }); rerenderSheet(); },
+  delfield: el => { F.details.fields.splice(+el.dataset.n, 1); rerenderSheet(); },
+  addlink: () => { F.details.links.push({ label: '', url: '' }); rerenderSheet(); },
+  dellink: el => { F.details.links.splice(+el.dataset.n, 1); rerenderSheet(); },
   myavatar: () => changeAvatar(''),
   memberavatar: el => changeAvatar(el.dataset.k),
   rmavatar: el => act('set_avatar', { member_id: el.dataset.k, data: '' }, 'Saved').then(rerenderSheet).catch(() => {}),
@@ -1026,6 +1236,9 @@ document.addEventListener('change', ev => {
   }
   if (el.dataset.a2 === 'byhouse') { S.byHouse = el.checked; LS.set('byHouse', S.byHouse); render(); }
   if (el.dataset.a2 === 'istatus') act('set_suggestion_status', { id: el.dataset.k, status: el.value }, 'Saved').catch(() => {});
+  if (el.dataset.a2 === 'fpayer') { S.fPayer = el.value; render(); }
+  if (el.dataset.a2 === 'fmethod') { S.fMethod = el.value; render(); }
+  if (el.dataset.a2 === 'tasktoggle') act('toggle_task', { id: el.dataset.k, member_id: el.dataset.m || '', done: el.checked }).then(() => rerenderSheet()).catch(() => {});
   if (el.dataset.a2 === 'pplbox') { const k = el.dataset.k; F.people = el.checked ? [...new Set([...F.people, k])] : F.people.filter(i => i !== k); $('#preview').innerHTML = previewHtml(); }
 });
 document.addEventListener('submit', async ev => {

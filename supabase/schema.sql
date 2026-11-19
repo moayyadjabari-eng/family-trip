@@ -127,6 +127,52 @@ create table if not exists public.photos (
 
 alter table public.members add column if not exists email text not null default '';
 alter table public.members add column if not exists perms jsonb not null default '{}'::jsonb;
+alter table public.places add column if not exists details jsonb not null default '{}'::jsonb;  -- address, hours, prices, contacts, links, custom fields
+alter table public.suggestions add column if not exists mode text not null default 'group';        -- 'alone' or 'group'
+alter table public.suggestions add column if not exists visibility text not null default 'public'; -- 'private' (organizer only) or 'public'
+alter table public.suggestions add column if not exists reply text not null default '';            -- organizer's answer
+
+create table if not exists public.info_cards (
+  id uuid primary key default gen_random_uuid(),
+  icon text not null default 'ℹ️',
+  title text not null,
+  body text not null default '',
+  sort int not null default 0,
+  created_at timestamptz not null default now()
+);
+create table if not exists public.tasks (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  notes text not null default '',
+  due date,
+  assignees jsonb not null default '[]'::jsonb,   -- member ids; empty = everyone
+  created_at timestamptz not null default now()
+);
+create table if not exists public.task_done (
+  task_id uuid not null references public.tasks(id) on delete cascade,
+  member_id uuid not null references public.members(id) on delete cascade,
+  done_at timestamptz not null default now(),
+  primary key (task_id, member_id)
+);
+alter table public.expenses add column if not exists method text not null default '';   -- cash, card, cliq, transfer, instapay, other
+alter table public.expenses add column if not exists receipt uuid;                        -- photos.id (kind 'receipt')
+alter table public.announcements add column if not exists audience jsonb not null default '[]'::jsonb;  -- member ids; empty = everyone
+create table if not exists public.arrangements (
+  id uuid primary key default gen_random_uuid(),
+  kind text not null default 'car',        -- car, room, activity, other
+  title text not null,
+  day date,
+  notes text not null default '',
+  groups jsonb not null default '[]'::jsonb,  -- [{name, note, members:[ids]}]
+  created_at timestamptz not null default now()
+);
+alter table public.arrangements enable row level security;
+revoke all on public.arrangements from anon, authenticated;
+alter table public.info_cards enable row level security;
+alter table public.tasks enable row level security;
+alter table public.task_done enable row level security;
+revoke all on public.info_cards, public.tasks, public.task_done from anon, authenticated;
+
 alter table public.photos add column if not exists kind text not null default 'gallery';   -- 'gallery' or 'avatar'
 alter table public.members add column if not exists avatar uuid;                            -- photos.id of their profile photo
 alter table public.itinerary add column if not exists place_id uuid references public.places(id) on delete set null;
@@ -160,54 +206,6 @@ revoke all on public.places, public.days, public.photos from anon, authenticated
 revoke all on public.members, public.sessions, public.itinerary, public.announcements,
   public.suggestions, public.votes, public.comments, public.expenses, public.settlements,
   public.settings from anon, authenticated;
-
--- Starter itinerary (only if the plan is empty)
-insert into public.itinerary(day, time, title, details, place)
-select * from (values
-  ('2026-12-18'::date, '12:15', 'Fly Amman → Hurghada', 'Direct flight about 1h15. Meet at the airport 3 hours before. Check in at the resort.', 'Queen Alia Airport'),
-  ('2026-12-19'::date, '', 'Resort day', 'Rest, pool and beach. Settle in.', 'Hurghada'),
-  ('2026-12-20'::date, '08:30', 'Giftun Island boat day', 'Snorkeling and beach on the island. Bring swimsuits, towels, sunscreen.', 'Hurghada Marina'),
-  ('2026-12-21'::date, '10:00', 'Glass-bottom boat or submarine', 'Great for the kids. Marina walk and dinner in the evening.', 'Hurghada Marina'),
-  ('2026-12-22'::date, '14:00', 'Desert safari + Bedouin dinner', 'Quad bikes / jeep, sunset in the desert, dinner and show. Bring a jacket, evenings are cold.', 'Eastern Desert'),
-  ('2026-12-23'::date, '12:00', 'Fly Hurghada → Cairo', 'Check in at the Cairo hotel, then dinner at Khan el-Khalili.', 'Hurghada Airport'),
-  ('2026-12-24'::date, '08:00', 'Pyramids, Sphinx + Grand Egyptian Museum', 'Felucca ride on the Nile at sunset.', 'Giza'),
-  ('2026-12-25'::date, '09:00', 'Old Cairo, then fly home to Amman', 'Morning visit if the flight is in the afternoon.', 'Cairo')
-) v(day, time, title, details, place)
-where not exists (select 1 from public.itinerary);
-
--- Starter places and day briefs (only if empty)
-insert into public.places(name, city, summary, info, map_url, sort)
-select * from (values
-  ('Giftun Island', 'Hurghada', 'Protected island with white beaches and coral reefs, about 45 minutes by boat.', 'Boat leaves in the morning, back around 4 pm. Lunch is usually on board. Reef-safe sunscreen, snorkel gear is provided. Kids need life jackets.', 'https://maps.google.com/?q=Giftun+Island', 1),
-  ('Hurghada Marina', 'Hurghada', 'Seafront promenade with restaurants, cafes and the boats.', 'Nice for an evening walk and dinner. Glass-bottom boats and the submarine leave from here.', 'https://maps.google.com/?q=Hurghada+Marina', 2),
-  ('Eastern Desert safari', 'Hurghada', 'Quad bikes or jeeps into the desert, a Bedouin village, sunset and dinner.', 'Pickup from the hotel around 2 pm. Wear closed shoes, bring a scarf for dust and a warm jacket for after sunset.', '', 3),
-  ('Khan el-Khalili', 'Cairo', 'Historic bazaar from the 14th century, full of lanterns, spices and souvenirs.', 'Bargain politely, start around half the asking price. Keep bags in front. El Fishawy cafe is the famous tea stop.', 'https://maps.google.com/?q=Khan+el-Khalili', 4),
-  ('Pyramids of Giza and the Sphinx', 'Cairo', 'The last standing wonder of the ancient world.', 'Go early to beat heat and crowds. Ignore camel touts, our guide arranges rides. Bring water, hats and cash for small tips.', 'https://maps.google.com/?q=Giza+Pyramids', 5),
-  ('Grand Egyptian Museum', 'Cairo', 'The new giant museum next to the pyramids, home of the full Tutankhamun collection.', 'Allow 3 hours. Tickets are booked for the group. Comfortable shoes.', 'https://maps.google.com/?q=Grand+Egyptian+Museum', 6),
-  ('Old Cairo', 'Cairo', 'Coptic quarter, the Hanging Church and Amr Ibn Al-As Mosque.', 'Modest clothing: shoulders and knees covered.', 'https://maps.google.com/?q=Coptic+Cairo', 7)
-) v(name, city, summary, info, map_url, sort)
-where not exists (select 1 from public.places);
-
-insert into public.days(day, title, brief, meet_time, meet_place, wear, bring)
-select * from (values
-  ('2026-12-18'::date, 'Travel day to Hurghada', 'We fly from Amman to Hurghada, then check in and relax at the resort.', '09:00', 'Queen Alia Airport, departures', 'Comfortable clothes', 'Passports, tickets, chargers'),
-  ('2026-12-19'::date, 'Resort day', 'No plans: pool, beach and rest.', '', '', 'Swimwear', 'Sunscreen'),
-  ('2026-12-20'::date, 'Giftun Island', 'Full day boat trip with snorkeling and beach time.', '08:00', 'Hotel lobby', 'Swimwear under clothes', 'Towel, sunscreen, hat, cash for tips'),
-  ('2026-12-21'::date, 'Boats and marina', 'Glass-bottom boat or submarine for the kids, marina dinner at night.', '09:30', 'Hotel lobby', 'Light clothes', 'Cash, sunglasses'),
-  ('2026-12-22'::date, 'Desert safari', 'Afternoon desert trip with sunset and a Bedouin dinner.', '13:45', 'Hotel lobby', 'Closed shoes, jacket for the evening', 'Scarf, water'),
-  ('2026-12-23'::date, 'To Cairo', 'Fly to Cairo, check in, dinner at Khan el-Khalili.', '09:00', 'Hotel lobby with bags', 'Comfortable', 'Passports'),
-  ('2026-12-24'::date, 'Pyramids day', 'Pyramids and Sphinx, Grand Egyptian Museum, felucca at sunset.', '07:30', 'Hotel lobby', 'Walking shoes, hat', 'Water, cash for tips'),
-  ('2026-12-25'::date, 'Old Cairo and home', 'Morning in Old Cairo, then the flight home.', '08:30', 'Hotel lobby with bags', 'Modest clothes', 'Passports, everything packed')
-) v(day, title, brief, meet_time, meet_place, wear, bring)
-where not exists (select 1 from public.days);
-
-update public.itinerary i set place_id = p.id from public.places p
-where i.place_id is null and (
-  (p.name = 'Giftun Island' and i.title like 'Giftun%') or
-  (p.name = 'Hurghada Marina' and i.title like 'Glass-bottom%') or
-  (p.name = 'Eastern Desert safari' and i.title like 'Desert safari%') or
-  (p.name = 'Pyramids of Giza and the Sphinx' and i.title like 'Pyramids%') or
-  (p.name = 'Old Cairo' and i.title like 'Old Cairo%'));
 
 -- ---------- permissions ----------
 -- Per-member switches stored in members.perms. Admins always have everything.
@@ -288,11 +286,18 @@ begin
               'perms', case when me.role = 'admin' or id = me.id then perms else '{}'::jsonb end) order by name) from members), '[]'),
       'itinerary', case when _can(me,'view_plan') then coalesce((select jsonb_agg(to_jsonb(i) order by day, nullif(time,'') nulls first, created_at) from itinerary i), '[]') else '[]' end,
       'days', case when _can(me,'view_plan') then coalesce((select jsonb_agg(to_jsonb(dd) order by day) from days dd), '[]') else '[]' end,
-      'announcements', coalesce((select jsonb_agg(to_jsonb(a) order by pinned desc, created_at desc) from announcements a), '[]'),
+      'announcements', coalesce((select jsonb_agg(to_jsonb(a) order by pinned desc, created_at desc) from announcements a
+          where a.audience = '[]'::jsonb or a.audience ? me.id::text or a.author = me.id or _can(me,'announce')), '[]'),
+      'arrangements', coalesce((select jsonb_agg(to_jsonb(ar) order by ar.day nulls last, ar.created_at) from arrangements ar), '[]'),
       'suggestions', case when _can(me,'view_ideas') then coalesce((select jsonb_agg(to_jsonb(s) || jsonb_build_object(
           'votes', coalesce((select jsonb_object_agg(v.member_id, v.value) from votes v where v.suggestion_id = s.id), '{}'),
           'comments', coalesce((select jsonb_agg(to_jsonb(c) order by c.created_at) from comments c where c.suggestion_id = s.id), '[]')
-        ) order by s.created_at desc) from suggestions s), '[]') else '[]' end,
+        ) order by s.created_at desc) from suggestions s
+          where s.visibility = 'public' or s.author = me.id or _can(me,'edit_plan')), '[]') else '[]' end,
+      'info', coalesce((select jsonb_agg(to_jsonb(ic) order by sort, created_at) from info_cards ic), '[]'),
+      'tasks', coalesce((select jsonb_agg(to_jsonb(tk) || jsonb_build_object('done',
+          coalesce((select jsonb_object_agg(td.member_id, td.done_at) from task_done td where td.task_id = tk.id), '{}'))
+          order by tk.due nulls last, tk.created_at) from tasks tk), '[]'),
       'expenses', case when not _can(me,'view_money') then '[]'::jsonb
         else coalesce((select jsonb_agg(to_jsonb(e) order by spent_on desc, created_at desc) from expenses e
           where _can(me,'money_all') or e.paid_by = me.id or e.shares ? me.id::text or e.created_by = me.id), '[]') end,
@@ -308,7 +313,7 @@ begin
 
   if p_action = 'photo' then
     if not (_can(me,'view_photos') or _can(me,'view_places'))
-       and not exists (select 1 from photos where id = (d->>'id')::uuid and kind = 'avatar') then raise exception 'not_allowed'; end if;
+       and not exists (select 1 from photos where id = (d->>'id')::uuid and (kind = 'avatar' or (kind = 'receipt' and _can(me,'view_money')))) then raise exception 'not_allowed'; end if;
     return coalesce((select jsonb_build_object('id', id, 'data', data) from photos where id = (d->>'id')::uuid), '{}'::jsonb);
   end if;
 
@@ -341,6 +346,14 @@ begin
     return jsonb_build_object('id', k);
   end if;
 
+  if p_action = 'add_receipt' then
+    if not _can(me,'add_expense') then raise exception 'not_allowed'; end if;
+    if coalesce(d->>'data','') not like 'data:image/%' then raise exception 'bad_photo'; end if;
+    if length(d->>'data') > 1500000 then raise exception 'photo_too_big'; end if;
+    insert into photos(data, kind, author) values (d->>'data', 'receipt', me.id) returning id into v_id;
+    return jsonb_build_object('id', v_id);
+  end if;
+
   if p_action = 'delete_photo' then
     delete from photos where id = (d->>'id')::uuid and (author = me.id or me.role = 'admin') returning id into v_id;
     if v_id is null then raise exception 'not_allowed'; end if;
@@ -364,8 +377,10 @@ begin
   if p_action = 'add_suggestion' then
     if not _can(me,'suggest') then raise exception 'not_allowed'; end if;
     if coalesce(trim(d->>'title'),'') = '' then raise exception 'missing_title'; end if;
-    insert into suggestions(title, body, day, author)
-      values (trim(d->>'title'), coalesce(d->>'body',''), nullif(d->>'day','')::date, me.id) returning id into v_id;
+    insert into suggestions(title, body, day, author, mode, visibility)
+      values (trim(d->>'title'), coalesce(d->>'body',''), nullif(d->>'day','')::date, me.id,
+              case when d->>'mode' = 'alone' then 'alone' else 'group' end,
+              case when d->>'visibility' = 'private' then 'private' else 'public' end) returning id into v_id;
     return jsonb_build_object('id', v_id);
   end if;
 
@@ -376,6 +391,7 @@ begin
 
   if p_action = 'vote' then
     if not _can(me,'view_ideas') then raise exception 'not_allowed'; end if;
+    if not exists (select 1 from suggestions where id = (d->>'id')::uuid and (visibility = 'public' or author = me.id or _can(me,'edit_plan'))) then raise exception 'not_allowed'; end if;
     if coalesce((d->>'value')::int, 0) = 0 then
       delete from votes where suggestion_id = (d->>'id')::uuid and member_id = me.id;
     else
@@ -387,6 +403,7 @@ begin
 
   if p_action = 'comment' then
     if not _can(me,'comment') then raise exception 'not_allowed'; end if;
+    if not exists (select 1 from suggestions where id = (d->>'id')::uuid and (visibility = 'public' or author = me.id or _can(me,'edit_plan'))) then raise exception 'not_allowed'; end if;
     if coalesce(trim(d->>'body'),'') = '' then raise exception 'missing_text'; end if;
     insert into comments(suggestion_id, author, body) values ((d->>'id')::uuid, me.id, trim(d->>'body'));
     return '{}'::jsonb;
@@ -412,16 +429,16 @@ begin
     if abs(v_sum - v_amount) > 0.05 then raise exception 'shares_do_not_add_up'; end if;
     if not exists (select 1 from members where id = (d->>'paid_by')::uuid) then raise exception 'unknown_member'; end if;
     if nullif(d->>'id','') is null then
-      insert into expenses(title, category, amount, currency, paid_by, spent_on, split, shares, note, created_by)
+      insert into expenses(title, category, amount, currency, paid_by, spent_on, split, shares, note, created_by, method, receipt)
         values (trim(d->>'title'), coalesce(d->>'category','other'), v_amount, coalesce(d->>'currency','EGP'),
                 (d->>'paid_by')::uuid, coalesce(nullif(d->>'spent_on','')::date, current_date),
-                coalesce(d->'split','{}'), d->'shares', coalesce(d->>'note',''), me.id)
+                coalesce(d->'split','{}'), d->'shares', coalesce(d->>'note',''), me.id, coalesce(d->>'method',''), nullif(d->>'receipt','')::uuid)
         returning id into v_id;
     else
       update expenses set title = trim(d->>'title'), category = coalesce(d->>'category','other'), amount = v_amount,
           currency = coalesce(d->>'currency','EGP'), paid_by = (d->>'paid_by')::uuid,
           spent_on = coalesce(nullif(d->>'spent_on','')::date, spent_on), split = coalesce(d->'split','{}'),
-          shares = d->'shares', note = coalesce(d->>'note','')
+          shares = d->'shares', note = coalesce(d->>'note',''), method = coalesce(d->>'method',''), receipt = nullif(d->>'receipt','')::uuid
         where id = (d->>'id')::uuid and (created_by = me.id or paid_by = me.id or me.role = 'admin')
         returning id into v_id;
       if v_id is null then raise exception 'not_allowed'; end if;
@@ -455,19 +472,30 @@ begin
     return '{}'::jsonb;
   end if;
 
+  if p_action = 'toggle_task' then
+    v_id := coalesce(nullif(d->>'member_id','')::uuid, me.id);
+    if v_id <> me.id and me.role <> 'admin' then raise exception 'not_allowed'; end if;
+    if coalesce((d->>'done')::boolean, true) then
+      insert into task_done(task_id, member_id) values ((d->>'id')::uuid, v_id) on conflict do nothing;
+    else
+      delete from task_done where task_id = (d->>'id')::uuid and member_id = v_id;
+    end if;
+    return '{}'::jsonb;
+  end if;
+
   -- ----- helper roles (see _can) -----
   if p_action = 'save_place' then
     if not _can(me,'edit_places') then raise exception 'not_allowed'; end if;
     if coalesce(trim(d->>'name'),'') = '' then raise exception 'missing_title'; end if;
     if nullif(d->>'id','') is null then
-      insert into places(name, city, summary, info, map_url, cover, sort)
+      insert into places(name, city, summary, info, map_url, cover, sort, details)
         values (trim(d->>'name'), coalesce(d->>'city',''), coalesce(d->>'summary',''), coalesce(d->>'info',''),
-                coalesce(d->>'map_url',''), nullif(d->>'cover','')::uuid, coalesce((d->>'sort')::int, 0))
+                coalesce(d->>'map_url',''), nullif(d->>'cover','')::uuid, coalesce((d->>'sort')::int, 0), coalesce(d->'details','{}'))
         returning id into v_id;
     else
       update places set name = trim(d->>'name'), city = coalesce(d->>'city',''), summary = coalesce(d->>'summary',''),
           info = coalesce(d->>'info',''), map_url = coalesce(d->>'map_url',''), cover = nullif(d->>'cover','')::uuid,
-          sort = coalesce((d->>'sort')::int, sort)
+          sort = coalesce((d->>'sort')::int, sort), details = coalesce(d->'details', details)
         where id = (d->>'id')::uuid returning id into v_id;
     end if;
     return jsonb_build_object('id', v_id);
@@ -510,15 +538,77 @@ begin
     return '{}'::jsonb;
   end if;
 
+  if p_action = 'save_info' then
+    if not _can(me,'announce') then raise exception 'not_allowed'; end if;
+    if coalesce(trim(d->>'title'),'') = '' then raise exception 'missing_title'; end if;
+    if nullif(d->>'id','') is null then
+      insert into info_cards(icon, title, body, sort) values (coalesce(nullif(d->>'icon',''),'ℹ️'), trim(d->>'title'), coalesce(d->>'body',''), coalesce((d->>'sort')::int, 0));
+    else
+      update info_cards set icon = coalesce(nullif(d->>'icon',''),'ℹ️'), title = trim(d->>'title'), body = coalesce(d->>'body',''),
+          sort = coalesce((d->>'sort')::int, sort) where id = (d->>'id')::uuid;
+    end if;
+    return '{}'::jsonb;
+  end if;
+
+  if p_action = 'delete_info' then
+    if not _can(me,'announce') then raise exception 'not_allowed'; end if;
+    delete from info_cards where id = (d->>'id')::uuid;
+    return '{}'::jsonb;
+  end if;
+
+  if p_action = 'save_task' then
+    if not _can(me,'edit_plan') then raise exception 'not_allowed'; end if;
+    if coalesce(trim(d->>'title'),'') = '' then raise exception 'missing_title'; end if;
+    if nullif(d->>'id','') is null then
+      insert into tasks(title, notes, due, assignees) values (trim(d->>'title'), coalesce(d->>'notes',''), nullif(d->>'due','')::date, coalesce(d->'assignees','[]'));
+    else
+      update tasks set title = trim(d->>'title'), notes = coalesce(d->>'notes',''), due = nullif(d->>'due','')::date,
+          assignees = coalesce(d->'assignees','[]') where id = (d->>'id')::uuid;
+    end if;
+    return '{}'::jsonb;
+  end if;
+
+  if p_action = 'delete_task' then
+    if not _can(me,'edit_plan') then raise exception 'not_allowed'; end if;
+    delete from tasks where id = (d->>'id')::uuid;
+    return '{}'::jsonb;
+  end if;
+
+  if p_action = 'save_arrangement' then
+    if not _can(me,'edit_plan') then raise exception 'not_allowed'; end if;
+    if coalesce(trim(d->>'title'),'') = '' then raise exception 'missing_title'; end if;
+    if nullif(d->>'id','') is null then
+      insert into arrangements(kind, title, day, notes, groups)
+        values (coalesce(nullif(d->>'kind',''),'other'), trim(d->>'title'), nullif(d->>'day','')::date, coalesce(d->>'notes',''), coalesce(d->'groups','[]'))
+        returning id into v_id;
+    else
+      update arrangements set kind = coalesce(nullif(d->>'kind',''),'other'), title = trim(d->>'title'), day = nullif(d->>'day','')::date,
+          notes = coalesce(d->>'notes',''), groups = coalesce(d->'groups','[]') where id = (d->>'id')::uuid returning id into v_id;
+    end if;
+    return jsonb_build_object('id', v_id);
+  end if;
+
+  if p_action = 'delete_arrangement' then
+    if not _can(me,'edit_plan') then raise exception 'not_allowed'; end if;
+    delete from arrangements where id = (d->>'id')::uuid;
+    return '{}'::jsonb;
+  end if;
+
+  if p_action = 'clear_plan' then
+    if me.role <> 'admin' then raise exception 'admin_only'; end if;
+    delete from itinerary; delete from days;
+    return '{}'::jsonb;
+  end if;
+
   if p_action = 'save_announcement' then
     if not _can(me,'announce') then raise exception 'not_allowed'; end if;
     if coalesce(trim(d->>'title'),'') = '' then raise exception 'missing_title'; end if;
     if nullif(d->>'id','') is null then
-      insert into announcements(title, body, pinned, author)
-        values (trim(d->>'title'), coalesce(d->>'body',''), coalesce((d->>'pinned')::boolean, false), me.id);
+      insert into announcements(title, body, pinned, author, audience)
+        values (trim(d->>'title'), coalesce(d->>'body',''), coalesce((d->>'pinned')::boolean, false), me.id, coalesce(d->'audience','[]'));
     else
       update announcements set title = trim(d->>'title'), body = coalesce(d->>'body',''),
-          pinned = coalesce((d->>'pinned')::boolean, false) where id = (d->>'id')::uuid;
+          pinned = coalesce((d->>'pinned')::boolean, false), audience = coalesce(d->'audience','[]') where id = (d->>'id')::uuid;
     end if;
     return '{}'::jsonb;
   end if;
@@ -531,7 +621,7 @@ begin
 
   if p_action = 'set_suggestion_status' then
     if not _can(me,'edit_plan') then raise exception 'not_allowed'; end if;
-    update suggestions set status = d->>'status' where id = (d->>'id')::uuid;
+    update suggestions set status = coalesce(nullif(d->>'status',''), status), reply = coalesce(d->>'reply', reply) where id = (d->>'id')::uuid;
     return '{}'::jsonb;
   end if;
 
