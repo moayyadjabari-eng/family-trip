@@ -85,7 +85,7 @@ const nameOf = id => member(id)?.name || '—';
 const hue = id => { let h = 0; for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
 const avatar = (id, cls = '') => { const n = nameOf(id); const ph = member(id)?.avatar;
   return `<span class="avatar ${cls}" style="background:hsl(${hue(id)} 55% 45%)" title="${esc(n)}">${ph ? `<img data-photo="${esc(ph)}" alt="${esc(n)}">` : esc(n.trim().charAt(0).toUpperCase())}</span>`; };
-const DEF_ON = ['view_plan', 'view_places', 'view_ideas', 'view_money', 'view_photos', 'money_all', 'add_expense', 'suggest', 'comment', 'add_photos'];
+const DEF_ON = ['view_plan', 'view_places', 'view_ideas', 'view_money', 'view_photos', 'money_all', 'suggest', 'comment', 'add_photos'];
 const canM = (m, k) => { if (!m) return false; if (m.role === 'admin') return true; const v = (m.perms || {})[k]; return v == null ? DEF_ON.includes(k) : !!v; };
 const can = k => canM(D()?.me, k);
 const isAdmin = () => D()?.me?.role === 'admin';

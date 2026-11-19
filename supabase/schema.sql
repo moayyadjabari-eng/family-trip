@@ -211,12 +211,12 @@ revoke all on public.members, public.sessions, public.itinerary, public.announce
 -- Per-member switches stored in members.perms. Admins always have everything.
 --   view_plan, view_places, view_ideas, view_money, view_photos  (default on)
 --   money_all      see every expense and everyone's balance (default on; off = only their own)
---   add_expense, suggest, comment, add_photos                    (default on)
+--   suggest, comment, add_photos                    (default on)
 --   edit_plan, edit_places, announce                             (default off: helper roles)
 create or replace function public._can(m public.members, k text)
 returns boolean language sql stable set search_path = public as $$
   select m.role = 'admin' or coalesce((m.perms->>k)::boolean,
-    k in ('view_plan','view_places','view_ideas','view_money','view_photos','money_all','add_expense','suggest','comment','add_photos'));
+    k in ('view_plan','view_places','view_ideas','view_money','view_photos','money_all','suggest','comment','add_photos'));
 $$;
 revoke all on function public._can(public.members, text) from public, anon, authenticated;
 
