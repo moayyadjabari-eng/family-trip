@@ -73,7 +73,9 @@ const ago = ts => { const s = (Date.now() - new Date(ts)) / 1000; const rtf = ne
   if (s < 86400) return rtf.format(-Math.round(s / 3600), 'hour'); return rtf.format(-Math.round(s / 86400), 'day'); };
 const D = () => S.data;
 const trip = () => Object.assign({ name: 'Family Trip', start: '2026-12-18', end: '2026-12-25' }, D()?.settings?.trip);
-const theme = () => Object.assign({ color: '#0f766e', welcome: '', cover: '' }, D()?.settings?.theme);
+const OLD_SW = ['#0f766e', '#0e7490', '#1d4ed8', '#6d28d9', '#be185d', '#b45309', '#15803d', '#334155'];
+const SWATCHES = [['#0f5e6e', 'Nile'], ['#1b6f8a', 'Red Sea'], ['#2e4a8c', 'Lapis'], ['#6b4c9a', 'Lotus'], ['#b4536a', 'Rose'], ['#b7791f', 'Desert gold'], ['#2f7d4f', 'Palm'], ['#3b4252', 'Basalt']];
+const theme = () => { const th = Object.assign({ color: '#0f5e6e', welcome: '', cover: '' }, D()?.settings?.theme); if (!th.color || OLD_SW.includes(th.color.toLowerCase())) th.color = '#0f5e6e'; return th; };
 const rates = () => Object.assign({ JOD: 1, EGP: 68, USD: 1.41 }, D()?.settings?.rates);
 const CURS = ['JOD', 'EGP', 'USD'];
 const CATS = { food: '🍽️', transport: '🚐', tickets: '🎟️', hotel: '🏨', flights: '✈️', shopping: '🛍️', other: '💸' };
@@ -279,7 +281,7 @@ const personOf = k => k.startsWith('h:') ? (D().members.find(m => 'h:' + m.house
 
 /* ---------------- theme ---------------- */
 function applyTheme() {
-  const c = theme().color || '#0f766e'; document.documentElement.style.setProperty('--brand', c);
+  const c = theme().color; document.documentElement.style.setProperty('--brand', c);
   $('meta[name=theme-color]').setAttribute('content', c);
   document.documentElement.lang = S.lang; document.documentElement.dir = S.lang === 'ar' ? 'rtl' : 'ltr';
   const ap = LS.get('appearance', 'auto'); if (ap === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = ap;
@@ -371,6 +373,7 @@ async function translateText(x, to) {
 Object.assign(AR, {"Show original": "عرض النص الأصلي", "Translate": "ترجمة", "Translating…": "جارٍ الترجمة…", "Translation is not available right now": "الترجمة غير متاحة الآن", "Nothing here yet": "لا يوجد شيء بعد", "Add what the family needs to know before coming: internet and SIM cards, money and cash, visa and passports, weather and clothes, power plugs, emergency numbers.": "أضف ما تحتاج العائلة معرفته قبل السفر: الإنترنت وشرائح الاتصال، المال والكاش، التأشيرة والجوازات، الطقس والملابس، القوابس الكهربائية، أرقام الطوارئ.", "Add the first card": "أضف أول بطاقة", "Before you travel & trip info": "قبل السفر ومعلومات الرحلة", "Before you travel": "قبل السفر", "Write \"Before you travel\" (internet, money, visa…)": "اكتب \"قبل السفر\" (الإنترنت، المال، التأشيرة…)"});
 Object.assign(AR, {"📊 Overview": "📊 نظرة عامة", "🧾 Bills": "🧾 الفواتير", "⚖️ Balances": "⚖️ الأرصدة", "🤝 Settle up": "🤝 التسوية", "Search bills…": "ابحث في الفواتير…", "Add every bill: who paid, how they paid, and who it was for. The app works out who owes whom.": "أضف كل فاتورة: من دفع، وكيف دفع، ولمن كانت. التطبيق يحسب من يدين لمن.", "Green = gets money back. Red = still has to pay. Tap a person to see their full statement.": "الأخضر = له مال. الأحمر = عليه أن يدفع. اضغط على الشخص لرؤية كشف حسابه.", "Send a reminder": "أرسل تذكيراً", "Copy all": "نسخ الكل", "The fewest payments that settle everyone. Tap ✓ when a payment is made, or 🔔 to send a reminder.": "أقل عدد من الدفعات لتسوية الجميع. اضغط ✓ عند الدفع، أو 🔔 لإرسال تذكير.", "Trip total": "مجموع الرحلة", "Per person": "للشخص", "Bills": "فواتير", "Spent today": "مصروف اليوم", "Budget": "الميزانية", "Set a budget": "حدد ميزانية", "of": "من", "Over budget by {a}": "تجاوزنا الميزانية بـ {a}", "{a} left": "متبقٍ {a}", "Set a total budget (and per category if you like) to see how much is left at a glance.": "حدد ميزانية إجمالية (ولكل فئة إن أردت) لترى المتبقي بلمحة.", "No budget set yet.": "لم تُحدد ميزانية بعد.", "Where the money goes": "أين تذهب الأموال", "Spending by day": "المصروف حسب اليوم", "Before": "قبل", "After": "بعد", "Who paid so far": "من دفع حتى الآن", "Trip budget": "ميزانية الرحلة", "Total budget": "الميزانية الإجمالية", "Per category (optional)": "لكل فئة (اختياري)", "Hi {a}, a friendly reminder from the {trip} app: please pay {b} {c}. Thank you!": "مرحباً {a}، تذكير لطيف من تطبيق {trip}: الرجاء دفع {c} لـ {b}. شكراً!", "Copied. Paste it in WhatsApp.": "تم النسخ. الصقه في واتساب.", "Food": "طعام", "Transport": "مواصلات", "Tickets": "تذاكر", "Hotel": "فندق", "Flights": "طيران", "Shopping": "تسوق", "Other": "أخرى"});
 Object.assign(AR, {"You are seeing the app like a family member": "أنت ترى التطبيق كفرد من العائلة", "Back to organizer": "العودة للمنظم", "This is what your family sees": "هذا ما تراه عائلتك", "See the app like a family member": "شاهد التطبيق كفرد من العائلة", "Check exactly what your family sees, then come back.": "تحقق مما تراه عائلتك بالضبط ثم ارجع.", "See it as family": "شاهده كالعائلة", "Preview the member view": "معاينة واجهة الأعضاء", "You will get money back": "سيُعاد لك مال", "You need to pay": "عليك أن تدفع", "You are all settled 🎉": "حسابك مسوّى 🎉", "Your share": "حصتك", "You paid": "دفعت", "My full statement": "كشف حسابي الكامل", "What to do": "ماذا تفعل", "Pay": "ادفع لـ", "pays you": "يدفع لك", "Your bills": "فواتيرك", "No bills yet.": "لا توجد فواتير بعد.", "When the organizer adds a bill you are part of, it shows up here with your share.": "عندما يضيف المنظم فاتورة تخصك ستظهر هنا مع حصتك.", "Your share of every bill and who you need to pay. Tap a bill to see the details.": "حصتك من كل فاتورة ولمن تدفع. اضغط على الفاتورة لرؤية التفاصيل."});
+Object.assign(AR, {"Four quick questions. It takes less than a minute.": "أربعة أسئلة سريعة. أقل من دقيقة.", "Where do you want to go?": "إلى أين تريد الذهاب؟", "e.g. The kids would love to see the dolphins": "مثلاً: الأطفال سيحبون رؤية الدلافين", "Alone or with a group?": "وحدك أم مع مجموعة؟", "Send my idea": "أرسل اقتراحي", "Sent to the organizer": "تم الإرسال للمنظم", "Idea shared! The family can now like it": "تمت مشاركة الاقتراح! يمكن للعائلة الإعجاب به", "Have an idea? Suggest a place": "عندك فكرة؟ اقترح مكاناً", "Tell us where you want to go. The family can like it.": "أخبرنا أين تريد الذهاب. العائلة تستطيع الإعجاب به.", "Suggest": "اقترح"});
 /* ----- guidance & joy ----- */
 const HINTS = {
   home: 'This is your trip home. The day brief, your to-dos, your groups and news from the organizer all show up here.',
@@ -520,7 +523,7 @@ function homeView() {
   ${th.welcome ? `<div class="card"><div class="row"><span style="font-size:24px">👋</span><div class="grow"><div class="pre">${linkify(trT(th.welcome))}</div>${trBtn(th.welcome)}</div></div></div>` : ''}
   ${!D().me.avatar ? `<div class="card tap" data-a="myavatar"><div class="row">${avatar(me(), 'lg')}<div class="grow"><b>📸 ${t('Add your photo')}</b><div class="small muted">${t('So the family can see who is who.')}</div></div><span class="btn sm">${t('Add')}</span></div></div>` : ''}
   ${briefs}
-  ${!isAdmin() ? annSection() : ''}
+  ${!isAdmin() ? annSection() + ideaCTA() : ''}
   ${(() => { const open = myTasks().filter(tk => !tk.done[me()]); return open.length ? `<div class="row between"><h2>✅ ${t('Your to-dos')}</h2><button class="btn ghost sm" data-a="planseg" data-k="todo">${t('See all')}</button></div><div class="card list">${open.slice(0, 4).map(taskRow).join('')}</div>` : ''; })()}
   ${(() => { const up = D().arrangements.filter(a => myGroup(a) && (!a.day || a.day >= today())).slice(0, 3); return up.length ? `<div class="row between"><h2>👥 ${t('Your groups')}</h2><button class="btn ghost sm" data-a="planseg" data-k="groups">${t('See all')}</button></div>${up.map(a => arrangementCard(a, true)).join('')}` : ''; })()}
   ${D().info.length || can('announce') ? `<div class="row between"><h2>🧳 ${t('Before you travel & trip info')}</h2>${can('announce') ? `<button class="btn sm" data-a="editinfo">${ico('plus', 16)} ${t('Add')}</button>` : ''}</div>
@@ -531,6 +534,7 @@ function homeView() {
   <div class="card"><div class="row wrap-r" style="gap:12px">${D().members.map(m => `<div style="text-align:center;width:62px">${avatar(m.id, 'lg')}<div class="small" style="margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.name.split(' ')[0])}</div></div>`).join('')}</div></div>`;
 }
 
+const ideaCTA = () => can('suggest') ? `<div class="card cta tap" data-a="newidea"><span class="cta-e">💡</span><div class="grow"><b>${t('Have an idea? Suggest a place')}</b><div class="small muted">${t('Tell us where you want to go. The family can like it.')}</div></div><span class="btn sm">${t('Suggest')}</span></div>` : '';
 const REACTS = ['❤️', '👍', '😂', '😮', '🙏', '🎉'];
 function annReactions(a) {
   const r = a.reactions || {}, mine = r[me()], cs = a.comments || [], open = S.openAnn.has(a.id);
@@ -721,7 +725,7 @@ function ideasView() {
   if (S.ideasSort === 'top') list.sort((a, b) => score(b) - score(a) || (b.created_at > a.created_at ? 1 : -1));
   const st = { open: ['', 'Open'], planned: ['good', 'Planned'], declined: ['bad', 'Declined'] };
   const filters = [['all', 'All'], ['public', 'Shared with everyone'], [org ? 'private' : 'mine', org ? 'Private to me' : 'Mine']];
-  return `<div class="seg"><button class="${S.ideasSort === 'top' ? 'on' : ''}" data-a="isort" data-k="top">❤️ ${t('Most liked')}</button><button class="${S.ideasSort === 'new' ? 'on' : ''}" data-a="isort" data-k="new">${t('Newest')}</button></div>
+  return `${ideaCTA()}<div class="seg"><button class="${S.ideasSort === 'top' ? 'on' : ''}" data-a="isort" data-k="top">❤️ ${t('Most liked')}</button><button class="${S.ideasSort === 'new' ? 'on' : ''}" data-a="isort" data-k="new">${t('Newest')}</button></div>
   <div class="chips">${filters.map(([k, l]) => `<span class="chip ${(S.ideasFilter || 'all') === k ? 'on' : ''}" data-a="ifilter" data-k="${k}">${t(l)}</span>`).join('')}</div>
   ${list.length ? list.map(s => {
     const liked = (s.votes || {})[me()] === 1; const open = S.openIdeas.has(s.id); const priv = s.visibility === 'private';
@@ -747,8 +751,7 @@ function ideasView() {
           ${c.author === me() || isAdmin() ? `<button class="btn danger sm" style="float:inline-end;min-height:0;padding:0 4px" data-a="delcomment" data-k="${c.id}">×</button>` : ''}<div class="pre">${linkify(c.body)}</div></div>`).join('')}
         ${can('comment') ? `<form class="row" style="margin-top:8px" data-form="comment" data-k="${s.id}"><input class="i grow" name="body" placeholder="${t('Write a comment…')}" required><button class="btn sm">${t('Send')}</button></form>` : ''}</div>` : ''}
     </div>`;
-  }).join('') : emptyState('💡', t('No ideas yet. Be the first!'), t('Tell us a place you would love to visit and why.'))}
-  ${can('suggest') ? `<button class="btn fab" data-a="newidea">${ico('plus', 18)} ${t('Suggest a place')}</button>` : ''}`;
+  }).join('') : emptyState('💡', t('No ideas yet. Be the first!'), t('Tell us a place you would love to visit and why.'))}`;
 }
 
 /* ----- Money ----- */
@@ -887,33 +890,33 @@ function organizeHub() {
   const orgs = d.members.filter(x => x.role === 'admin').length;
   return `<h2 style="margin-top:14px">🧭 ${t('Organize the trip')}</h2>
   ${startHere(true)}
-  <h3 class="sec-h">👨‍👩‍👧 ${t('People')}</h3>
+  <h3 class="sec-h" style="--c:var(--c-people)">👨‍👩‍👧 ${t('People')}</h3>
   <div class="tiles">
-    ${tile('➕', 'Add a family member', d.members.length + ' ' + t('people'), 'member', '', '#0ea5e9')}
-    ${isMain() ? tile('⭐', 'Co-organizers', orgs + ' ' + t('organizers'), 'organizers', '', '#eab308') : ''}
-    ${tile('🚐', 'Cars, rooms & groups', d.arrangements.length + ' ' + t('groupings'), 'planseg', 'groups', '#8b5cf6')}
-    ${tile('✅', 'To-dos', d.tasks.length + ' ' + t('to-dos'), 'planseg', 'todo', '#22c55e')}
+    ${tile('➕', 'Add a family member', d.members.length + ' ' + t('people'), 'member', '', 'var(--c-people)')}
+    ${isMain() ? tile('⭐', 'Co-organizers', orgs + ' ' + t('organizers'), 'organizers', '', 'var(--c-people)') : ''}
+    ${tile('🚐', 'Cars, rooms & groups', d.arrangements.length + ' ' + t('groupings'), 'planseg', 'groups', 'var(--c-people)')}
+    ${tile('✅', 'To-dos', d.tasks.length + ' ' + t('to-dos'), 'planseg', 'todo', 'var(--c-people)')}
   </div>
-  <h3 class="sec-h">🗓️ ${t('Plan')}</h3>
+  <h3 class="sec-h" style="--c:var(--c-plan)">🗓️ ${t('Plan')}</h3>
   <div class="tiles">
-    ${tile('🗓️', 'Days & activities', d.itinerary.length + ' ' + t('activities'), 'planseg', 'days', '#f97316')}
-    ${tile('📍', 'Places', d.places.length + ' ' + t('places'), 'planseg', 'places', '#ef4444')}
-    ${tile('🧳', 'Before you travel', d.info.length + ' ' + t('cards'), 'editinfo', '', '#14b8a6')}
+    ${tile('🗓️', 'Days & activities', d.itinerary.length + ' ' + t('activities'), 'planseg', 'days', 'var(--c-plan)')}
+    ${tile('📍', 'Places', d.places.length + ' ' + t('places'), 'planseg', 'places', 'var(--c-plan)')}
+    ${tile('🧳', 'Before you travel', d.info.length + ' ' + t('cards'), 'editinfo', '', 'var(--c-plan)')}
   </div>
-  <h3 class="sec-h">💬 ${t('Talk to the family')}</h3>
+  <h3 class="sec-h" style="--c:var(--c-talk)">💬 ${t('Talk to the family')}</h3>
   <div class="tiles">
-    ${tile('📣', 'New announcement', d.announcements.length + ' ' + t('sent'), 'announce', '', '#f59e0b')}
-    ${tile('💡', 'Ideas inbox', openIdeas + ' ' + t('waiting for you'), 'tab', 'ideas', '#a855f7')}
+    ${tile('📣', 'New announcement', d.announcements.length + ' ' + t('sent'), 'announce', '', 'var(--c-talk)')}
+    ${tile('💡', 'Ideas inbox', openIdeas + ' ' + t('waiting for you'), 'tab', 'ideas', 'var(--c-talk)')}
   </div>
-  <h3 class="sec-h">💰 ${t('Money')}</h3>
+  <h3 class="sec-h" style="--c:var(--c-money)">💰 ${t('Money')}</h3>
   <div class="tiles">
-    ${tile('🧾', 'Add a bill', d.expenses.length + ' ' + t('bills'), 'expenseform', '', '#16a34a')}
-    ${tile('📧', 'Final statements', '', 'finalbills', '', '#0284c7')}
-    ${tile('💱', 'Exchange rates', '', 'rates', '', '#64748b')}
-    ${tile('📄', 'Export CSV', '', 'csv', '', '#78716c')}
+    ${tile('🧾', 'Add a bill', d.expenses.length + ' ' + t('bills'), 'expenseform', '', 'var(--c-money)')}
+    ${tile('📧', 'Final statements', '', 'finalbills', '', 'var(--c-money)')}
+    ${tile('💱', 'Exchange rates', '', 'rates', '', 'var(--c-money)')}
+    ${tile('📄', 'Export CSV', '', 'csv', '', 'var(--c-money)')}
   </div>
-  <h3 class="sec-h">⚙️ ${t('Trip')}</h3>
-  <div class="tiles">${tile('🎨', 'Trip settings', t('Name, dates, colours, cover'), 'tripsettings', '', '#db2777')}${tile('👁️', 'See it as family', t('Preview the member view'), 'preview', '', '#0891b2')}</div>
+  <h3 class="sec-h" style="--c:var(--c-trip)">⚙️ ${t('Trip')}</h3>
+  <div class="tiles">${tile('🎨', 'Trip settings', t('Name, dates, colours, cover'), 'tripsettings', '', 'var(--c-trip)')}${tile('👁️', 'See it as family', t('Preview the member view'), 'preview', '', 'var(--c-trip)')}</div>
   <h2>👤 ${t('My account')}</h2>`;
 }
 function organizersSheet() {
@@ -1094,16 +1097,18 @@ function ideaSheet() {
   F = { title: '', body: '', day: '', mode: 'group', visibility: 'public' };
   const opt = (k, v, icon, label, sub) => `<div class="card tap" data-a="ideaopt" data-k="${k}" data-v="${v}" style="margin:6px 0;${F[k] === v ? 'border-color:var(--brand);box-shadow:0 0 0 2px var(--brand)' : ''}">
     <div class="row"><span style="font-size:24px">${icon}</span><div class="grow"><b>${t(label)}</b>${sub ? `<div class="small muted">${t(sub)}</div>` : ''}</div>${F[k] === v ? '✅' : ''}</div></div>`;
-  openSheet(() => `${sheetHead(t('Suggest a place'))}
-    ${field('📍 ' + t('Name of the place'), inp('title', F.title, 'placeholder="e.g. Dolphin House, El Gouna, Al-Azhar Park"'))}
-    ${field('💭 ' + t('Why do you want to go?'), txt('body', F.body, 'rows="3"'))}
-    <label class="f"><span>${t('Do you want to do it alone or with a group?')}</span></label>
+  const n = x => `<span class="stepn">${x}</span>`;
+  openSheet(() => `${sheetHead('💡 ' + t('Suggest a place'))}
+    <p class="small muted" style="margin:0 0 4px">${t('Four quick questions. It takes less than a minute.')}</p>
+    ${field(n(1) + t('Where do you want to go?'), inp('title', F.title, 'placeholder="e.g. Dolphin House, El Gouna, Al-Azhar Park"'))}
+    ${field(n(2) + t('Why do you want to go?'), txt('body', F.body, `rows="3" placeholder="${t('e.g. The kids would love to see the dolphins')}"`))}
+    <label class="f"><span>${n(3)}${t('Alone or with a group?')}</span></label>
     <div class="two">${opt('mode', 'alone', '🧍', 'Alone')}${opt('mode', 'group', '👨‍👩‍👧', 'With a group')}</div>
-    <label class="f"><span>${t('Who should see it?')}</span></label>
-    ${opt('visibility', 'private', '🔒', 'Only the organizer', 'A private request just for the organizer')}
+    <label class="f"><span>${n(4)}${t('Who should see it?')}</span></label>
     ${opt('visibility', 'public', '👥', 'Everyone', 'The family can see it, support it and comment')}
+    ${opt('visibility', 'private', '🔒', 'Only the organizer', 'A private request just for the organizer')}
     ${field('🗓️ ' + t('For which day? (optional)'), `<select class="i" data-bind="day"><option value="">${t('Any day')}</option>${tripDays().map(d => `<option value="${d}" ${F.day === d ? 'selected' : ''}>${fmtDay(d)}</option>`).join('')}</select>`)}
-    <div class="actions"><button class="btn" data-a="saveidea">${t('Send')}</button></div>`);
+    <div class="actions"><button class="btn" data-a="saveidea">🚀 ${t('Send my idea')}</button></div>`);
 }
 function ideaReplySheet(id) {
   const s0 = D().suggestions.find(x => x.id === id); F = { id, status: s0.status, reply: s0.reply || '' };
@@ -1292,7 +1297,7 @@ function memberSheet(id) {
 function tripSettingsSheet() {
   const th = theme(), tr = trip();
   F = { name: tr.name, start: tr.start, end: tr.end, welcome: th.welcome, color: th.color, cover: th.cover || '' };
-  const sw = ['#0f766e', '#0e7490', '#1d4ed8', '#6d28d9', '#be185d', '#b45309', '#15803d', '#334155'];
+  const sw = SWATCHES.map(x => x[0]);
   openSheet(() => `${sheetHead(t('Trip settings'))}
     ${field(t('Trip name'), inp('name', F.name))}
     <div class="two">${field(t('Start date'), inp('start', F.start, 'type="date"'))}${field(t('End date'), inp('end', F.end, 'type="date"'))}</div>
@@ -1383,7 +1388,7 @@ const H = {
   delcomment: el => confirmSheet(t('Delete') + '?', () => act('delete_comment', { id: el.dataset.k }, 'Deleted')),
   idea2plan: el => { const s = D().suggestions.find(x => x.id === el.dataset.k); itemSheet(null, { title: s.title, details: s.body, day: s.day || trip().start }); F.__idea = s.id; },
   newidea: () => ideaSheet(),
-  saveidea: el => busy(el, async () => { if (!F.title.trim()) { toast(t('Write the name of the place')); return; } await act('add_suggestion', F, 'Saved'); closeSheet(); confetti(50); }),
+  saveidea: el => busy(el, async () => { if (!F.title.trim()) { toast(t('Write the name of the place')); return; } const vis = F.visibility; await act('add_suggestion', F); closeSheet(); confetti(50); toast(vis === 'private' ? '🔒 ' + t('Sent to the organizer') : '🎉 ' + t('Idea shared! The family can now like it')); }),
   announce: el => announceSheet(el.dataset.k),
   saveann: el => busy(el, async () => { await act('save_announcement', F, 'Saved'); closeSheet(); }),
   delann: () => { const id = F.id; confirmSheet(t('Delete') + '?', () => act('delete_announcement', { id }, 'Deleted')); },
@@ -1535,5 +1540,5 @@ setInterval(() => { if (document.visibilityState === 'visible' && S.token && !F)
 /* ---------------- start ---------------- */
 applyTheme(); render();
 if (S.token && CFG.supabaseUrl) refresh().catch(e => { if (e.message !== 'not_logged_in') { $('#app').innerHTML = `<div class="login"><div class="box card"><p>${esc(errText(e))}</p><button class="btn" data-a="refresh">${t('Refresh')}</button></div></div>`; } });
-if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => r.update()).catch(() => {});
 })();
