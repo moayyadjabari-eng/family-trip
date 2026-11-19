@@ -195,3 +195,11 @@ nav.tabs button.on .ti{background:color-mix(in srgb,var(--brand) 16%,transparent
 .toast{border-radius:999px;font-weight:700;padding:12px 20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 .trbtn{border:0;background:none;color:var(--brand);font-weight:700;font-size:13px;padding:6px 0 0;cursor:pointer;display:inline-flex;gap:4px}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.stat span{font-size:22px}.stat b{font-size:18px;margin-top:2px}.stat small{color:var(--muted)}
+.daychart{display:flex;align-items:flex-end;gap:6px;height:130px;margin-top:10px}
+.dc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;min-width:0}
+.dc i{display:block;width:100%;max-width:34px;min-height:3px;border-radius:8px 8px 3px 3px;background:linear-gradient(to top,var(--brand),color-mix(in srgb,var(--brand) 55%,#f59e0b));transition:height .6s ease}
+.dc small{font-size:11px;color:var(--muted);white-space:nowrap}
+.dc.today i{background:linear-gradient(to top,#f59e0b,#facc15)}

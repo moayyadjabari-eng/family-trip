@@ -669,7 +669,7 @@ begin
   end if;
 
   if p_action = 'save_setting' then
-    if d->>'key' not in ('trip','rates','theme') then raise exception 'unknown_setting'; end if;
+    if d->>'key' not in ('trip','rates','theme','budget') then raise exception 'unknown_setting'; end if;
     insert into settings(key, value) values (d->>'key', d->'value')
       on conflict (key) do update set value = excluded.value;
     return '{}'::jsonb;

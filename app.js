@@ -13,7 +13,7 @@ const LS = {
 
 const S = {
   token: LS.get('token', null), lang: LS.get('lang', 'en'), tab: LS.get('tab', 'home'), data: null,
-  cur: LS.get('cur', 'JOD'), moneyTab: 'expenses', ideasSort: 'top', city: 'all', placesSeg: 'places',
+  cur: LS.get('cur', 'JOD'), moneyTab: 'overview', q: '', ideasSort: 'top', city: 'all', placesSeg: 'places',
   byHouse: LS.get('byHouse', false), trOn: new Set(), planDay: 'all', openIdeas: new Set(), mode: 'login', status: null
 };
 let F = null;            // the form currently open in a sheet
@@ -367,6 +367,7 @@ async function translateText(x, to) {
 }
 
 Object.assign(AR, {"Show original": "عرض النص الأصلي", "Translate": "ترجمة", "Translating…": "جارٍ الترجمة…", "Translation is not available right now": "الترجمة غير متاحة الآن", "Nothing here yet": "لا يوجد شيء بعد", "Add what the family needs to know before coming: internet and SIM cards, money and cash, visa and passports, weather and clothes, power plugs, emergency numbers.": "أضف ما تحتاج العائلة معرفته قبل السفر: الإنترنت وشرائح الاتصال، المال والكاش، التأشيرة والجوازات، الطقس والملابس، القوابس الكهربائية، أرقام الطوارئ.", "Add the first card": "أضف أول بطاقة", "Before you travel & trip info": "قبل السفر ومعلومات الرحلة", "Before you travel": "قبل السفر", "Write \"Before you travel\" (internet, money, visa…)": "اكتب \"قبل السفر\" (الإنترنت، المال، التأشيرة…)"});
+Object.assign(AR, {"📊 Overview": "📊 نظرة عامة", "🧾 Bills": "🧾 الفواتير", "⚖️ Balances": "⚖️ الأرصدة", "🤝 Settle up": "🤝 التسوية", "Search bills…": "ابحث في الفواتير…", "Add every bill: who paid, how they paid, and who it was for. The app works out who owes whom.": "أضف كل فاتورة: من دفع، وكيف دفع، ولمن كانت. التطبيق يحسب من يدين لمن.", "Green = gets money back. Red = still has to pay. Tap a person to see their full statement.": "الأخضر = له مال. الأحمر = عليه أن يدفع. اضغط على الشخص لرؤية كشف حسابه.", "Send a reminder": "أرسل تذكيراً", "Copy all": "نسخ الكل", "The fewest payments that settle everyone. Tap ✓ when a payment is made, or 🔔 to send a reminder.": "أقل عدد من الدفعات لتسوية الجميع. اضغط ✓ عند الدفع، أو 🔔 لإرسال تذكير.", "Trip total": "مجموع الرحلة", "Per person": "للشخص", "Bills": "فواتير", "Spent today": "مصروف اليوم", "Budget": "الميزانية", "Set a budget": "حدد ميزانية", "of": "من", "Over budget by {a}": "تجاوزنا الميزانية بـ {a}", "{a} left": "متبقٍ {a}", "Set a total budget (and per category if you like) to see how much is left at a glance.": "حدد ميزانية إجمالية (ولكل فئة إن أردت) لترى المتبقي بلمحة.", "No budget set yet.": "لم تُحدد ميزانية بعد.", "Where the money goes": "أين تذهب الأموال", "Spending by day": "المصروف حسب اليوم", "Before": "قبل", "After": "بعد", "Who paid so far": "من دفع حتى الآن", "Trip budget": "ميزانية الرحلة", "Total budget": "الميزانية الإجمالية", "Per category (optional)": "لكل فئة (اختياري)", "Hi {a}, a friendly reminder from the {trip} app: please pay {b} {c}. Thank you!": "مرحباً {a}، تذكير لطيف من تطبيق {trip}: الرجاء دفع {c} لـ {b}. شكراً!", "Copied. Paste it in WhatsApp.": "تم النسخ. الصقه في واتساب.", "Food": "طعام", "Transport": "مواصلات", "Tickets": "تذاكر", "Hotel": "فندق", "Flights": "طيران", "Shopping": "تسوق", "Other": "أخرى"});
 /* ----- guidance & joy ----- */
 const HINTS = {
   home: 'This is your trip home. The day brief, your to-dos, your groups and news from the organizer all show up here.',
@@ -738,11 +739,15 @@ function moneyView() {
     <div class="small muted">${mine.net > 0.005 ? t('You are owed') : mine.net < -0.005 ? t('You owe') : t('All settled')}</div></div>
     <button class="btn sec sm" data-a="statement" data-k="${me()}">${t('Statement')}</button></div>
     <div class="row small muted" style="margin-top:8px;gap:16px"><span>${t('Total paid')}: <b>${money(fromBase(mine.paid))}</b></span><span>${t('Total share')}: <b>${money(fromBase(mine.share))}</b></span></div></div>`;
-  const segs = all ? [['expenses', 'Expenses'], ['balances', 'Balances'], ['settle', 'Settle up']] : [['expenses', 'Expenses']];
-  if (!segs.find(s => s[0] === S.moneyTab)) S.moneyTab = 'expenses';
+  const segs = all ? [['overview', '📊 Overview'], ['expenses', '🧾 Bills'], ['balances', '⚖️ Balances'], ['settle', '🤝 Settle up']] : [['expenses', '🧾 Bills']];
+  if (!segs.find(s => s[0] === S.moneyTab)) S.moneyTab = segs[0][0];
   let body = '';
-  if (S.moneyTab === 'expenses') {
-    const ex = D().expenses.filter(e => (!S.fPayer || e.paid_by === S.fPayer) && (!S.fMethod || e.method === S.fMethod));
+  if (S.moneyTab === 'overview') body = moneyOverview();
+  else if (S.moneyTab === 'expenses') {
+    const q = (S.q || '').trim().toLowerCase();
+    const ex = D().expenses.filter(e => (!S.fPayer || e.paid_by === S.fPayer) && (!S.fMethod || e.method === S.fMethod) && (!S.fCat || e.category === S.fCat) && (!q || (e.title + ' ' + (e.note || '')).toLowerCase().includes(q)));
+    body += `<input class="i" style="margin-top:8px" data-a2="q" type="search" value="${esc(S.q || '')}" placeholder="🔎 ${t('Search bills…')}">
+      <div class="chips" style="margin-top:6px"><span class="chip ${!S.fCat ? 'on' : ''}" data-a="fcat" data-k="">${t('All')}</span>${Object.entries(CATS).map(([k, e]) => `<span class="chip ${S.fCat === k ? 'on' : ''}" data-a="fcat" data-k="${k}">${e} ${t(k[0].toUpperCase() + k.slice(1))}</span>`).join('')}</div>`;
     const tot = ex.reduce((a, e) => a + toBase(e.amount, e.currency), 0);
     body += `<div class="row wrap-r" style="gap:6px;margin-top:4px"><select class="i" style="width:auto;flex:1" data-a2="fpayer"><option value="">${t('Paid by')}: ${t('Everyone')}</option>${D().members.map(m => `<option value="${m.id}" ${S.fPayer === m.id ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select>
       <select class="i" style="width:auto;flex:1" data-a2="fmethod"><option value="">${t('Payment method')}: ${t('All')}</option>${Object.entries(METHODS).map(([k, [ic, l]]) => `<option value="${k}" ${S.fMethod === k ? 'selected' : ''}>${ic} ${t(l)}</option>`).join('')}</select></div>
@@ -756,7 +761,7 @@ function moneyView() {
         <div class="grow"><b>${esc(e.title)}</b><div class="small muted">${t('paid')}: ${esc(nameOf(e.paid_by))}${e.method && METHODS[e.method] ? ' ' + METHODS[e.method][0] : ''}${e.receipt ? ' 🧾' : ''} · ${Object.keys(e.shares).length} ${t('people')}</div></div>
         <div style="text-align:end"><div class="amount">${money(e.amount, e.currency)}</div>${my ? `<div class="small muted">${t('your share')}: ${money(my, e.currency)}</div>` : ''}</div>
       </div></div>`;
-    }).join('') : `<div class="empty"><div class="e">🧾</div>${t('No expenses yet.')}</div>`;
+    }).join('') : emptyState('🧾', t('No expenses yet.'), t('Add every bill: who paid, how they paid, and who it was for. The app works out who owes whom.'), can('add_expense') ? `<button class="btn" data-a="expenseform">${ico('plus', 16)} ${t('Add expense')}</button>` : '');
     if (!all) body += `<p class="small muted">${t('Ask the organizer who to pay at the end of the trip.')}</p>`;
   } else if (S.moneyTab === 'balances') {
     const g = grouped(b); const max = Math.max(0.01, ...Object.values(g).map(Math.abs));
@@ -764,15 +769,18 @@ function moneyView() {
     <div class="card list">${Object.entries(g).sort((a, c) => c[1] - a[1]).map(([k, v]) => `<div class="li ${S.byHouse ? '' : 'tap'}" ${S.byHouse ? '' : `data-a="statement" data-k="${k}"`} style="cursor:pointer">
       ${S.byHouse ? `<span class="avatar" style="background:hsl(${hue(k)} 45% 45%)">${esc(labelOf(k).charAt(0))}</span>` : avatar(k)}
       <div class="grow"><b>${esc(labelOf(k))}</b><div class="bar" style="margin-top:4px"><i style="width:${Math.abs(v) / max * 100}%;background:${v >= 0 ? 'var(--good)' : 'var(--bad)'}"></i></div></div>
-      <span class="amount ${v > 0.005 ? 'good' : v < -0.005 ? 'bad' : 'muted'}">${v > 0.005 ? '+' : v < -0.005 ? '−' : ''}${money(Math.abs(fromBase(v)))}</span></div>`).join('')}</div>`;
+      <span class="amount ${v > 0.005 ? 'good' : v < -0.005 ? 'bad' : 'muted'}">${Math.abs(v) <= 0.005 ? '✅ ' : v > 0.005 ? '+' : '−'}${money(Math.abs(fromBase(v)))}</span></div>`).join('')}</div>
+    <p class="small muted">${t('Green = gets money back. Red = still has to pay. Tap a person to see their full statement.')}</p>`;
   } else {
     const tr = transfers(grouped(b));
     body = `<label class="row" style="margin:8px 0"><input type="checkbox" class="switch" data-a2="byhouse" ${S.byHouse ? 'checked' : ''}> ${t('Group by family')}</label>
-    <h2>${t('Suggested payments')}</h2>
+    <div class="row between"><h2>${t('Suggested payments')}</h2>${tr.length && isAdmin() ? `<button class="btn ghost sm" data-a="remindall">📋 ${t('Copy all')}</button>` : ''}</div>
+    <p class="small muted" style="margin-top:-4px">${t('The fewest payments that settle everyone. Tap ✓ when a payment is made, or 🔔 to send a reminder.')}</p>
     ${tr.length ? `<div class="card list">${tr.map(x => `<div class="li">
       <div class="grow"><b>${esc(labelOf(x.from))}</b> <span class="muted">${t('pays')}</span> <b>${esc(labelOf(x.to))}</b>
         <div class="small muted">${money(fromBase(x.amount, 'JOD'), 'JOD')} · ${money(fromBase(x.amount, 'EGP'), 'EGP')}</div></div>
       <span class="amount">${money(fromBase(x.amount))}</span>
+      <button class="btn sec sm" data-a="remind" data-from="${x.from}" data-to="${x.to}" data-amt="${fromBase(x.amount).toFixed(2)}" title="${t('Send a reminder')}">🔔</button>
       ${isAdmin() || [personOf(x.from), personOf(x.to)].includes(me()) || (S.byHouse && [x.from, x.to].includes(houseKey(me()))) ? `<button class="btn sm" data-a="settle" data-from="${personOf(x.from)}" data-to="${personOf(x.to)}" data-amt="${fromBase(x.amount).toFixed(2)}">✓</button>` : ''}
     </div>`).join('')}</div>` : `<div class="empty card"><div class="e">🎉</div>${t('Everyone is settled up.')}</div>`}
     <div class="row between"><h2>${t('Payment history')}</h2><button class="btn ghost sm" data-a="settle">${ico('plus', 16)} ${t('Record payment')}</button></div>
@@ -781,6 +789,53 @@ function moneyView() {
   }
   return curChips + summary + (segs.length > 1 ? `<div class="seg">${segs.map(([k, l]) => `<button class="${S.moneyTab === k ? 'on' : ''}" data-a="mtab" data-k="${k}">${t(l)}</button>`).join('')}</div>` : '') + body +
     (can('add_expense') ? `<button class="btn fab" data-a="expenseform">${ico('plus', 18)} ${t('Add expense')}</button>` : '');
+}
+
+const budget = () => Object.assign({ total: 0, currency: 'JOD', cats: {} }, D()?.settings?.budget);
+function moneyOverview() {
+  const ex = D().expenses; const b = budget();
+  const total = ex.reduce((a, e) => a + toBase(e.amount, e.currency), 0);
+  const people = D().members.length || 1;
+  const byCat = {}; ex.forEach(e => byCat[e.category] = (byCat[e.category] || 0) + toBase(e.amount, e.currency));
+  const days = tripDays(); const byDay = {}; ex.forEach(e => { const k = e.spent_on < days[0] ? 'before' : e.spent_on > days.at(-1) ? 'after' : e.spent_on; byDay[k] = (byDay[k] || 0) + toBase(e.amount, e.currency); });
+  const payers = {}; ex.forEach(e => payers[e.paid_by] = (payers[e.paid_by] || 0) + toBase(e.amount, e.currency));
+  const todayAmt = ex.filter(e => e.spent_on === today()).reduce((a, e) => a + toBase(e.amount, e.currency), 0);
+  const bTotal = b.total ? toBase(b.total, b.currency) : 0; const pct = bTotal ? total / bTotal * 100 : 0;
+  const bar = (v, max, col) => `<div class="bar" style="height:10px;margin-top:4px"><i style="width:${Math.min(100, v / Math.max(max, 0.0001) * 100)}%;background:${col}"></i></div>`;
+  const pcol = p => p > 100 ? 'var(--bad)' : p > 85 ? 'var(--warn)' : 'var(--good)';
+  const maxCat = Math.max(0, ...Object.values(byCat)); const dayKeys = [byDay.before ? 'before' : null, ...days, byDay.after ? 'after' : null].filter(Boolean); const maxDay = Math.max(0.01, ...Object.values(byDay));
+  return `<div class="stats">
+      <div class="stat"><span>💰</span><b>${money(fromBase(total))}</b><small>${t('Trip total')}</small></div>
+      <div class="stat"><span>👤</span><b>${money(fromBase(total / people))}</b><small>${t('Per person')}</small></div>
+      <div class="stat"><span>🧾</span><b>${ex.length}</b><small>${t('Bills')}</small></div>
+      <div class="stat"><span>📅</span><b>${money(fromBase(todayAmt))}</b><small>${t('Spent today')}</small></div></div>
+    <div class="card"><div class="row between"><b>🎯 ${t('Budget')}</b>${isAdmin() ? `<button class="btn ghost sm" data-a="budget">${b.total ? t('Edit') : t('Set a budget')}</button>` : ''}</div>
+      ${b.total ? `<div class="row between small" style="margin-top:6px"><span>${money(fromBase(total))} ${t('of')} ${money(fromBase(bTotal))}</span><b style="color:${pcol(pct)}">${Math.round(pct)}%</b></div>${bar(total, bTotal, pcol(pct))}
+        <div class="small muted" style="margin-top:6px">${pct > 100 ? '⚠️ ' + t('Over budget by {a}', { a: money(fromBase(total - bTotal)) }) : t('{a} left', { a: money(fromBase(bTotal - total)) })}</div>
+        ${Object.entries(b.cats || {}).filter(([, v]) => +v > 0).map(([k, v]) => { const lim = toBase(v, b.currency), sp = byCat[k] || 0, pp = sp / lim * 100; return `<div style="margin-top:10px"><div class="row between small"><span>${CATS[k] || '💸'} ${t(k[0].toUpperCase() + k.slice(1))}</span><span>${money(fromBase(sp))} / ${money(fromBase(lim))}</span></div>${bar(sp, lim, pcol(pp))}</div>`; }).join('')}`
+      : `<p class="small muted" style="margin:6px 0 0">${isAdmin() ? t('Set a total budget (and per category if you like) to see how much is left at a glance.') : t('No budget set yet.')}</p>`}</div>
+    <div class="card"><b>🗂️ ${t('Where the money goes')}</b>
+      ${Object.keys(byCat).length ? Object.entries(byCat).sort((a, c) => c[1] - a[1]).map(([k, v]) => `<div style="margin-top:10px"><div class="row between small"><span>${CATS[k] || '💸'} ${t(k[0].toUpperCase() + k.slice(1))}</span><span><b>${money(fromBase(v))}</b> · ${Math.round(v / total * 100)}%</span></div>${bar(v, maxCat, 'var(--brand)')}</div>`).join('') : `<p class="small muted">${t('No expenses yet.')}</p>`}</div>
+    <div class="card"><b>📅 ${t('Spending by day')}</b>
+      <div class="daychart">${dayKeys.map(k => `<div class="dc ${k === today() ? 'today' : ''}" title="${money(fromBase(byDay[k] || 0))}"><i style="height:${(byDay[k] || 0) / maxDay * 100}%"></i><small>${k === 'before' ? t('Before') : k === 'after' ? t('After') : fmtDay(k, { day: 'numeric' })}</small></div>`).join('')}</div></div>
+    <div class="card"><b>🙌 ${t('Who paid so far')}</b><div class="list" style="margin-top:6px">${Object.entries(payers).sort((a, c) => c[1] - a[1]).map(([id, v]) => `<div class="li tap" data-a="statement" data-k="${id}" style="cursor:pointer">${avatar(id)}<b class="grow">${esc(nameOf(id))}</b><span class="amount">${money(fromBase(v))}</span></div>`).join('') || `<p class="small muted">—</p>`}</div></div>`;
+}
+function budgetSheet() {
+  const b = budget(); F = { total: b.total || '', currency: b.currency || 'JOD', cats: Object.assign({}, b.cats) };
+  openSheet(() => `${sheetHead('🎯 ' + t('Trip budget'))}
+    <div class="two">${field(t('Total budget'), inp('total', F.total, 'type="number" inputmode="decimal" placeholder="0"'))}
+    ${field(t('Currency'), `<select class="i" data-bind="currency">${CURS.map(c => `<option ${F.currency === c ? 'selected' : ''}>${c}</option>`).join('')}</select>`)}</div>
+    <h3 style="margin-top:16px">${t('Per category (optional)')}</h3>
+    ${Object.entries(CATS).map(([k, e]) => field(`${e} ${t(k[0].toUpperCase() + k.slice(1))}`, inp('cats.' + k, F.cats[k] || '', 'type="number" inputmode="decimal" placeholder="—"'))).join('')}
+    <div class="actions"><button class="btn" data-a="savebudget">${t('Save')}</button></div>`);
+}
+function remindText(from, to, amt) {
+  const f = S.byHouse && from.startsWith('h:') ? houseName(from) : nameOf(from), tt = S.byHouse && to.startsWith('h:') ? houseName(to) : nameOf(to);
+  return t('Hi {a}, a friendly reminder from the {trip} app: please pay {b} {c}. Thank you!', { a: f, trip: trip().name, b: tt, c: money(+amt) });
+}
+async function shareText(text) {
+  try { if (navigator.share) { await navigator.share({ text }); return; } } catch { return; }
+  try { await navigator.clipboard.writeText(text); toast(t('Copied. Paste it in WhatsApp.')); } catch { window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank'); }
 }
 
 /* ----- More ----- */
@@ -1261,7 +1316,12 @@ const H = {
   pseg: el => { S.placesSeg = el.dataset.k; render(); },
   city: el => { S.city = el.dataset.k; render(); },
   isort: el => { S.ideasSort = el.dataset.k; render(); },
-  mtab: el => { S.moneyTab = el.dataset.k; render(); },
+  mtab: el => { S.moneyTab = el.dataset.k; S.anim = true; render(); },
+  fcat: el => { S.fCat = el.dataset.k; render(); },
+  budget: () => budgetSheet(),
+  savebudget: el => busy(el, async () => { const cats = {}; for (const k in F.cats) if (num(F.cats[k]) > 0) cats[k] = num(F.cats[k]); await act('save_setting', { key: 'budget', value: { total: num(F.total) || 0, currency: F.currency, cats } }, 'Saved'); closeSheet(); }),
+  remind: el => shareText(remindText(el.dataset.from, el.dataset.to, el.dataset.amt)),
+  remindall: () => { const tr = transfers(grouped(balances())); shareText('💰 ' + trip().name + '\n' + tr.map(x => `• ${labelOf(x.from)} → ${labelOf(x.to)}: ${money(fromBase(x.amount))}`).join('\n')); },
   cur: el => { S.cur = el.dataset.k; LS.set('cur', S.cur); render(); },
   toggleidea: el => { const k = el.dataset.k; S.openIdeas.has(k) ? S.openIdeas.delete(k) : S.openIdeas.add(k); render(); },
   vote: el => { const s = D().suggestions.find(x => x.id === el.dataset.k); const v = +el.dataset.v; act('vote', { id: s.id, value: (s.votes || {})[me()] === v ? 0 : v }).catch(() => {}); },
@@ -1401,6 +1461,7 @@ document.addEventListener('change', ev => {
   }
   if (el.dataset.a2 === 'byhouse') { S.byHouse = el.checked; LS.set('byHouse', S.byHouse); render(); }
   if (el.dataset.a2 === 'istatus') act('set_suggestion_status', { id: el.dataset.k, status: el.value }, 'Saved').catch(() => {});
+  if (el.dataset.a2 === 'q') { S.q = el.value; render(); const i = document.querySelector('[data-a2=q]'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
   if (el.dataset.a2 === 'fpayer') { S.fPayer = el.value; render(); }
   if (el.dataset.a2 === 'fmethod') { S.fMethod = el.value; render(); }
   if (el.dataset.a2 === 'orgtoggle') { const id = el.dataset.k; act('save_member', { id, role: el.checked ? 'admin' : 'member' }, el.checked ? '⭐ ' + t('Co-organizer added') : 'Saved').then(() => rerenderSheet()).catch(() => rerenderSheet()); }
