@@ -639,6 +639,8 @@ begin
                 coalesce(trim(d->>'email'),''), coalesce(d->'perms','{}'::jsonb));
     else
       if (d->>'id')::uuid = me.id and coalesce(d->>'role','admin') <> 'admin' then raise exception 'cannot_demote_self'; end if;
+      if (d->>'id')::uuid = (select id from members where role = 'admin' order by created_at limit 1) and (d->>'id')::uuid <> me.id
+         and coalesce(nullif(d->>'role',''),'admin') <> 'admin' then raise exception 'cannot_change_main_organizer'; end if;
       update members set name = coalesce(nullif(trim(d->>'name'),''), name),
           household = coalesce(trim(d->>'household'), household),
           role = coalesce(nullif(d->>'role',''), role),
@@ -657,6 +659,7 @@ begin
   if p_action = 'delete_member' then
     v_id := (d->>'id')::uuid;
     if v_id = me.id then raise exception 'cannot_delete_self'; end if;
+    if v_id = (select id from members where role = 'admin' order by created_at limit 1) then raise exception 'cannot_change_main_organizer'; end if;
     if exists (select 1 from expenses where paid_by = v_id or shares ? v_id::text)
        or exists (select 1 from settlements where from_member = v_id or to_member = v_id) then
       raise exception 'member_has_expenses';

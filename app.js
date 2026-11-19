@@ -57,7 +57,7 @@ const ERR = {
   bad_login: 'Wrong username or password', password_too_short: 'Need at least 6 characters', username_taken: 'That username is taken',
   not_allowed: 'You do not have permission for this', admin_only: 'Only the organizer can do this', shares_do_not_add_up: 'The split does not add up to the total',
   no_people: 'Choose who shares this', bad_amount: 'Enter an amount', missing_title: 'Add a title', member_has_expenses: 'This person has expenses. Delete those first.',
-  photo_too_big: 'Photo is too big', cannot_demote_self: 'You cannot remove your own organizer role', missing_name: 'Fill in name and username', already_set_up: 'Already set up. Please log in.'
+  photo_too_big: 'Photo is too big', cannot_demote_self: 'You cannot remove your own organizer role', cannot_change_main_organizer: 'The main organizer cannot be removed', missing_name: 'Fill in name and username', already_set_up: 'Already set up. Please log in.'
 };
 Object.assign(AR, { 'Wrong username or password':'اسم المستخدم أو كلمة المرور غير صحيحة','That username is taken':'اسم المستخدم مستخدم','You do not have permission for this':'ليس لديك صلاحية','Only the organizer can do this':'فقط المنظم يستطيع ذلك','The split does not add up to the total':'التقسيم لا يساوي المجموع','Choose who shares this':'اختر من يشارك','Enter an amount':'أدخل المبلغ','Add a title':'أضف عنواناً','This person has expenses. Delete those first.':'لهذا الشخص مصاريف. احذفها أولاً.','Photo is too big':'الصورة كبيرة جداً','Fill in name and username':'أدخل الاسم واسم المستخدم' });
 
@@ -106,6 +106,8 @@ const ICON = {
   ideas: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
   money: '<rect x="2.5" y="6" width="19" height="13" rx="3"/><path d="M2.5 10h19M16 15h2"/>',
   more: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.2-3.6 4-5 7-5s5.8 1.4 7 5"/>',
+  photos: '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+  organize: '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
   refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>',
   plus: '<path d="M12 5v14M5 12h14"/>', edit: '<path d="M4 20h4L19 9l-4-4L4 16v4z"/>', x: '<path d="M6 6l12 12M18 6 6 18"/>',
   cam: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>', map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>'
@@ -285,11 +287,11 @@ function applyTheme() {
 /* ---------------- render ---------------- */
 function tabs() {
   const list = [['home', 'Home']];
-  if (can('view_plan')) list.push(['plan', 'Plan']);
-  if (can('view_places') || can('view_photos')) list.push(['places', 'Places']);
+  if (can('view_plan') || can('view_places')) list.push(['plan', 'Plan']);
+  if (can('view_photos')) list.push(['photos', 'Photos']);
   if (can('view_ideas')) list.push(['ideas', 'Ideas']);
   if (can('view_money')) list.push(['money', 'Money']);
-  list.push(['more', 'More']);
+  list.push(['more', isAdmin() ? 'Organize' : 'Me']);
   return list;
 }
 function unseenAnnouncements() { const seen = LS.get('seenAnn', ''); return D().announcements.filter(a => a.created_at > seen && a.author !== me()); }
@@ -300,7 +302,8 @@ function render() {
   if (!CFG.supabaseUrl || !CFG.supabaseAnonKey) { app.innerHTML = notConfigured(); return; }
   if (!S.token || !D()) { app.innerHTML = loginView(); if (!S.status) checkStatus(); return; }
   const tl = tabs(); if (!tl.find(x => x[0] === S.tab)) S.tab = 'home';
-  const views = { home: homeView, plan: planView, places: placesView, ideas: ideasView, money: moneyView, more: moreView };
+  const views = { home: homeView, plan: planView, photos: photosView, ideas: ideasView, money: moneyView, more: moreView };
+  const enter = S.anim ? ' enter' : ''; S.anim = false;
   const unseen = unseenAnnouncements().length;
   app.innerHTML = `
   <header class="top"><div class="in">
@@ -309,11 +312,12 @@ function render() {
     <button class="icon-btn" data-a="lang" title="${t('Language')}" style="font-weight:800">${S.lang === 'ar' ? 'EN' : 'ع'}</button>
     <button class="icon-btn" data-a="refresh" title="${t('Refresh')}">${ico('refresh')}</button>
   </div></header>
-  <main class="wrap">${views[S.tab]()}</main>
+  <main class="wrap${enter}">${tabHint()}${views[S.tab]()}</main>
   <nav class="tabs"><div class="in" style="--n:${tl.length}">
-    ${tl.map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''}" data-a="tab" data-k="${k}">${ico(k === 'places' ? 'places' : k, 24)}<span>${t(l)}</span>${k === 'home' && unseen && S.tab !== 'home' ? '<i class="dot"></i>' : ''}</button>`).join('')}
+    ${tl.map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''}" data-a="tab" data-k="${k}"><span class="ti">${ico(k === 'more' && isAdmin() ? 'organize' : k, 24)}</span><span>${t(l)}</span>${k === 'home' && unseen && S.tab !== 'home' ? '<i class="dot"></i>' : ''}</button>`).join('')}
   </div></nav>`;
   hydratePhotos(app);
+  celebrate();
   if (S.tab === 'home' && unseen) setTimeout(() => LS.set('seenAnn', D().announcements.reduce((m, a) => a.created_at > m ? a.created_at : m, LS.get('seenAnn', ''))), 4000);
 }
 
@@ -340,6 +344,85 @@ function loginView() {
     ${S.status?.error ? `<p class="bad small" style="text-align:center">${esc(S.status.error)}</p>` : ''}
   </form></div>`;
 }
+
+Object.assign(AR, {"Photos": "الصور", "Organize": "التنظيم", "Me": "حسابي", "Got it": "فهمت", "This is your trip home. The day brief, your to-dos, your groups and news from the organizer all show up here.": "هذه صفحة الرحلة الرئيسية. ملخص اليوم ومهامك ومجموعاتك وأخبار المنظم تظهر هنا.", "The day-by-day schedule. Each day has a brief: when and where we meet, what to wear and what to bring.": "برنامج الرحلة يوماً بيوم. لكل يوم ملخص: متى وأين نتجمع، ماذا نلبس وماذا نحضر.", "Tap ✏️ on a day to write its brief, then \"Add activity\" to add times. Everyone sees it right away.": "اضغط ✏️ على اليوم لكتابة الملخص، ثم \"إضافة نشاط\" لإضافة الأوقات. الجميع يراه فوراً.", "Every place we will visit, with address, hours, prices and tips. Tap a place to see everything.": "كل الأماكن التي سنزورها مع العنوان والمواعيد والأسعار والنصائح. اضغط على المكان لرؤية كل شيء.", "Who rides in which car, who sleeps in which room, and who joins which activity. Look for your name.": "من يركب في أي سيارة، ومن ينام في أي غرفة، ومن يشارك في أي نشاط. ابحث عن اسمك.", "Things to get done before and during the trip. Flip the switch when you finish one.": "أشياء يجب إنجازها قبل الرحلة وخلالها. فعّل المفتاح عندما تنهي واحدة.", "Share your trip photos with the whole family. Tap a photo to see it big.": "شارك صور الرحلة مع كل العائلة. اضغط على الصورة لتكبيرها.", "Want to go somewhere? Suggest it here. Tap ❤️ on the ideas you love so the organizer sees what is popular.": "تريد الذهاب لمكان؟ اقترحه هنا. اضغط ❤️ على الأفكار التي تحبها ليعرف المنظم ما يحبه الجميع.", "Every bill, who paid and what each person owes. \"Settle up\" shows the easiest way to pay each other back.": "كل فاتورة، من دفع، وكم على كل شخص. \"التسوية\" تعرض أسهل طريقة لتسديد المبالغ.", "Your profile, photo, password and language.": "ملفك الشخصي وصورتك وكلمة المرور واللغة.", "Everything you control as the organizer is here. Follow the steps at the top, then use the big buttons below.": "كل ما تتحكم به كمنظم موجود هنا. اتبع الخطوات في الأعلى ثم استخدم الأزرار الكبيرة بالأسفل.", "Good morning": "صباح الخير", "Good afternoon": "مساء الخير", "Good evening": "مساء الخير", "Start here": "ابدأ من هنا", "All set! Your trip is ready 🎉": "كل شيء جاهز! رحلتك جاهزة 🎉", "{a} of {b} done. Tap a step to do it.": "تم {a} من {b}. اضغط على خطوة لتنفيذها.", "Hide": "إخفاء", "Next": "التالي", "Name the trip, set the dates and colours": "سمِّ الرحلة وحدد التواريخ والألوان", "Add your family members": "أضف أفراد العائلة", "Plan the days": "خطط الأيام", "Add the places you will visit": "أضف الأماكن التي ستزورونها", "Split people into cars and rooms": "وزّع الناس على السيارات والغرف", "Add trip info (flights, hotels, phone numbers)": "أضف معلومات الرحلة (الطيران، الفنادق، الأرقام)", "Send your first announcement": "أرسل أول إعلان", "Tell the family what is coming up. You choose who sees each one.": "أخبر العائلة بما هو قادم. أنت تختار من يرى كل إعلان.", "News from the organizer will show up here.": "أخبار المنظم ستظهر هنا.", "Days": "الأيام", "Groups": "المجموعات", "To-dos": "المهام", "Make groups for each car ride, hotel rooms or an activity. Everyone will see which group they are in.": "اعمل مجموعات لكل مشوار سيارة أو غرف الفندق أو نشاط. كل شخص سيرى مجموعته.", "Make the first groups": "اعمل أول مجموعات", "For example: renew passports, bring sunscreen, pay the hotel deposit.": "مثلاً: تجديد الجوازات، إحضار واقي الشمس، دفع عربون الفندق.", "Add the first to-do": "أضف أول مهمة", "No places yet.": "لا توجد أماكن بعد.", "Add the hotels, beaches and sights you will visit, with address, hours, prices and tips.": "أضف الفنادق والشواطئ والمعالم مع العنوان والمواعيد والأسعار والنصائح.", "Add the first place": "أضف أول مكان", "Snap the fun moments and share them with the whole family.": "صوّر اللحظات الحلوة وشاركها مع العائلة.", "Tell us a place you would love to visit and why.": "أخبرنا عن مكان تحب زيارته ولماذا.", "Organize the trip": "نظّم الرحلة", "People": "الأشخاص", "Add a family member": "أضف فرداً من العائلة", "Co-organizers": "المنظمون المشاركون", "organizers": "منظمين", "Cars, rooms & groups": "السيارات والغرف والمجموعات", "groupings": "توزيعات", "to-dos": "مهام", "Days & activities": "الأيام والأنشطة", "activities": "أنشطة", "places": "أماكن", "Trip info": "معلومات الرحلة", "cards": "بطاقات", "photos": "صور", "Talk to the family": "تواصل مع العائلة", "sent": "مرسلة", "Ideas inbox": "صندوق الاقتراحات", "waiting for you": "بانتظارك", "Add a bill": "أضف فاتورة", "bills": "فواتير", "Trip": "الرحلة", "Name, dates, colours, cover": "الاسم والتواريخ والألوان والغلاف", "My account": "حسابي", "Co-organizers have the same powers as you: they can add members, edit the plan, places, groups, bills and announcements. Switch someone on to make them a co-organizer.": "المنظم المشارك له نفس صلاحياتك: يضيف أعضاء ويعدل البرنامج والأماكن والمجموعات والفواتير والإعلانات. فعّل المفتاح لتجعل شخصاً منظماً مشاركاً.", "Organizer": "منظم", "You": "أنت", "Co-organizer added": "تمت إضافة منظم مشارك", "Tips on each screen": "نصائح في كل صفحة", "Show tips again": "أظهر النصائح مجدداً", "Tips are back on every screen": "عادت النصائح لكل الصفحات", "You can find the steps in the Organize tab": "تجد الخطوات في تبويب التنظيم", "Role": "الدور", "Family member": "فرد من العائلة", "Sees what you allow below": "يرى ما تسمح به بالأسفل", "Co-organizer": "منظم مشارك", "Same powers as you": "نفس صلاحياتك", "Co-organizers can do everything you can, except remove you.": "المنظم المشارك يستطيع فعل كل ما تفعله، إلا حذفك."});
+/* ----- guidance & joy ----- */
+const HINTS = {
+  home: 'This is your trip home. The day brief, your to-dos, your groups and news from the organizer all show up here.',
+  'plan-days': 'The day-by-day schedule. Each day has a brief: when and where we meet, what to wear and what to bring.',
+  'plan-days-org': 'Tap ✏️ on a day to write its brief, then "Add activity" to add times. Everyone sees it right away.',
+  'plan-places': 'Every place we will visit, with address, hours, prices and tips. Tap a place to see everything.',
+  'plan-groups': 'Who rides in which car, who sleeps in which room, and who joins which activity. Look for your name.',
+  'plan-todo': 'Things to get done before and during the trip. Flip the switch when you finish one.',
+  photos: 'Share your trip photos with the whole family. Tap a photo to see it big.',
+  ideas: 'Want to go somewhere? Suggest it here. Tap ❤️ on the ideas you love so the organizer sees what is popular.',
+  money: 'Every bill, who paid and what each person owes. "Settle up" shows the easiest way to pay each other back.',
+  more: 'Your profile, photo, password and language.',
+  'more-org': 'Everything you control as the organizer is here. Follow the steps at the top, then use the big buttons below.'
+};
+function tabHint() {
+  let k = S.tab;
+  if (k === 'plan') k = 'plan-' + planSeg();
+  if (isAdmin() && HINTS[k + '-org']) k += '-org';
+  if (!HINTS[k] || LS.get('hints', {})[k]) return '';
+  return `<div class="hint"><span class="he">💡</span><div class="grow small">${t(HINTS[k])}</div><button class="btn ghost sm" data-a="hint" data-k="${k}">${t('Got it')}</button></div>`;
+}
+const emptyState = (e, title, sub = '', btn = '') => `<div class="empty card"><div class="e bob">${e}</div><b>${title}</b>${sub ? `<p class="small muted" style="margin:6px auto 12px;max-width:340px">${sub}</p>` : ''}${btn}</div>`;
+function confetti(n = 90) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const box = document.createElement('div'); box.className = 'confetti';
+  const em = ['🎉', '🌴', '☀️', '🐪', '⭐', '💛', '🏝️', '🐬'], cols = ['#f59e0b', '#0ea5e9', '#ef4444', '#22c55e', '#a855f7', '#eab308', '#ec4899'];
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('i');
+    if (i % 5 === 0) { s.textContent = em[i % em.length]; s.className = 'em'; } else s.style.background = cols[i % cols.length];
+    s.style.left = Math.random() * 100 + 'vw'; s.style.animationDelay = Math.random() * .5 + 's'; s.style.animationDuration = 1.8 + Math.random() * 1.6 + 's';
+    s.style.setProperty('--x', (Math.random() * 200 - 100) + 'px'); s.style.setProperty('--r', (Math.random() * 900 - 450) + 'deg');
+    box.appendChild(s);
+  }
+  document.body.appendChild(box); setTimeout(() => box.remove(), 4200);
+}
+function celebrate() {
+  // once a day near the trip, and once when the organizer finishes the setup steps
+  const p = tripPhase(), key = today();
+  if (S.tab === 'home' && ((p.phase === 'before' && [100, 60, 30, 14, 7, 3, 2, 1].includes(p.days)) || p.phase === 'during') && LS.get('party', '') !== key) { LS.set('party', key); setTimeout(() => confetti(), 400); }
+  if (isAdmin()) { const st = setupSteps(); if (st.every(x => x[4]) && !LS.get('setupParty', false)) { LS.set('setupParty', true); setTimeout(() => { confetti(140); toast(t('All set! Your trip is ready 🎉')); }, 400); } }
+}
+function greet() { const h = new Date().getHours(); return h < 12 ? t('Good morning') : h < 18 ? t('Good afternoon') : t('Good evening'); }
+function setupSteps() {
+  const d = D();
+  return [
+    ['🎨', 'Name the trip, set the dates and colours', 'tripsettings', '', !!(d.settings?.trip?.name && d.settings.trip.name !== 'Family Trip')],
+    ['👨‍👩‍👧', 'Add your family members', 'member', '', d.members.length > 1],
+    ['🗓️', 'Plan the days', 'planseg', 'days', d.days.length > 0 || d.itinerary.length > 0],
+    ['📍', 'Add the places you will visit', 'planseg', 'places', d.places.length > 0],
+    ['🚐', 'Split people into cars and rooms', 'planseg', 'groups', d.arrangements.length > 0],
+    ['📌', 'Add trip info (flights, hotels, phone numbers)', 'editinfo', '', d.info.length > 0],
+    ['📣', 'Send your first announcement', 'announce', '', d.announcements.length > 0]
+  ];
+}
+function startHere(full) {
+  if (!isAdmin()) return '';
+  const st = setupSteps(); const done = st.filter(x => x[4]).length; const all = done === st.length;
+  if (!full && (all || LS.get('hideStart', false))) return '';
+  const next = st.find(x => !x[4]);
+  return `<div class="card start">
+    <div class="row between"><div><b style="font-size:18px">🚀 ${t('Start here')}</b><div class="small muted">${all ? t('All set! Your trip is ready 🎉') : t('{a} of {b} done. Tap a step to do it.', { a: done, b: st.length })}</div></div>
+    ${!full ? `<button class="btn ghost sm" data-a="hidestart">${t('Hide')}</button>` : ''}</div>
+    <div class="progress"><i style="width:${Math.round(done / st.length * 100)}%"></i></div>
+    ${st.map(x => `<div class="step tap ${x[4] ? 'ok' : ''} ${x === next ? 'next' : ''}" data-a="${x[2]}" ${x[3] ? `data-k="${x[3]}"` : ''}><span class="se">${x[4] ? '✅' : x[0]}</span><span class="grow">${t(x[1])}</span>${x === next ? `<span class="badge brand">${t('Next')}</span>` : x[4] ? '' : '<span class="muted">›</span>'}</div>`).join('')}
+  </div>`;
+}
+const EGYPT = `<svg class="scene" viewBox="0 0 400 200" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset=".65" stop-color="#fde68a"/><stop offset="1" stop-color="#fdba74"/></linearGradient></defs>
+  <rect width="400" height="200" fill="url(#sky)"/>
+  <circle class="sun" cx="320" cy="58" r="26" fill="#fde047"/>
+  <g class="cloud" fill="#fff" opacity=".85"><ellipse cx="80" cy="40" rx="26" ry="9"/><ellipse cx="98" cy="34" rx="16" ry="9"/></g>
+  <path d="M120 150 175 82 230 150Z" fill="#d97706"/><path d="M175 82 230 150H190Z" fill="#b45309"/>
+  <path d="M215 150 250 108 285 150Z" fill="#f59e0b"/><path d="M250 108 285 150H262Z" fill="#d97706"/>
+  <path d="M0 150Q60 138 120 150T240 150T400 148V200H0Z" fill="#fcd34d"/>
+  <path class="wave" d="M0 172Q25 164 50 172T100 172T150 172T200 172T250 172T300 172T350 172T400 172T450 172V200H0Z" fill="#0ea5e9"/>
+  <g transform="translate(372 112)"><path d="M6 46C8 30 8 18 4 6" stroke="#78350f" stroke-width="4" fill="none"/><path d="M4 6C-10 0-20 6-24 12M4 6C16-2 26 2 30 8M4 6C-4-6-2-14 2-18M4 6C12-4 20-6 26-4" stroke="#16a34a" stroke-width="5" fill="none" stroke-linecap="round"/></g>
+</svg>`;
 
 /* ----- Home ----- */
 function tripPhase() {
@@ -391,8 +474,10 @@ function homeView() {
       <div class="small muted">${n > 0.01 ? t('You are owed') : n < -0.01 ? t('You owe') : t('All settled')}</div></div>`;
   }
   return `
-  <div class="hero">${th.cover ? pimg(th.cover) : ''}<div class="shade"></div>
-    <div class="txt"><div class="big">${esc(big)}</div><div style="font-weight:700;font-size:18px">${esc(sub)}</div>
+  <div class="greet"><b>${greet()}, ${esc(D().me.name.split(' ')[0])} 👋</b></div>
+  ${startHere(false)}
+  <div class="hero tap" data-a="party">${th.cover ? pimg(th.cover) : EGYPT}<div class="shade"></div>
+    <div class="txt"><div class="big ${p.phase === 'before' ? 'count' : ''}">${esc(big)}</div><div style="font-weight:700;font-size:18px">${esc(sub)}</div>
     <p class="small">${fmtDay(trip().start, { day: 'numeric', month: 'long' })} – ${fmtDay(trip().end, { day: 'numeric', month: 'long', year: 'numeric' })}</p></div></div>
   ${th.welcome ? `<div class="card"><div class="row"><span style="font-size:24px">👋</span><div class="grow pre">${linkify(th.welcome)}</div></div></div>` : ''}
   ${!D().me.avatar ? `<div class="card tap" data-a="myavatar"><div class="row">${avatar(me(), 'lg')}<div class="grow"><b>📸 ${t('Add your photo')}</b><div class="small muted">${t('So the family can see who is who.')}</div></div><span class="btn sm">${t('Add')}</span></div></div>` : ''}
@@ -408,7 +493,7 @@ function homeView() {
       ${a.body ? `<div class="pre" style="margin-top:4px">${linkify(a.body)}</div>` : ''}
       <div class="row between" style="margin-top:8px"><span class="small muted">${esc(nameOf(a.author))} · ${ago(a.created_at)}${(a.audience || []).length ? ` · 👁️ ${(a.audience || []).length} ${t('people')}` : ''}</span>
       ${can('announce') ? `<button class="btn ghost sm" data-a="announce" data-k="${a.id}">${t('Edit')}</button>` : ''}</div></div>`).join('')
-    : `<div class="empty card"><div class="e">📣</div>${t('No announcements yet.')}</div>`}
+    : emptyState('📣', t('No announcements yet.'), can('announce') ? t('Tell the family what is coming up. You choose who sees each one.') : t('News from the organizer will show up here.'), can('announce') ? `<button class="btn" data-a="announce">${ico('plus', 16)} ${t('New announcement')}</button>` : '')}
   <h2>${t('Who is coming')} <span class="muted small">${D().members.length} ${t('people')}</span></h2>
   <div class="card"><div class="row wrap-r" style="gap:12px">${D().members.map(m => `<div style="text-align:center;width:62px">${avatar(m.id, 'lg')}<div class="small" style="margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.name.split(' ')[0])}</div></div>`).join('')}</div></div>`;
 }
@@ -532,18 +617,26 @@ function dayBlock(day) {
     </div>
   </div>`;
 }
+function planSeg() {
+  let seg = S.planSeg || 'days';
+  if (seg === 'places' && !can('view_places')) seg = 'days';
+  if (seg !== 'places' && !can('view_plan')) seg = 'places';
+  return seg;
+}
 function planView() {
-  const seg = S.planSeg || 'days';
-  const head = `<div class="seg"><button class="${seg === 'days' ? 'on' : ''}" data-a="planseg" data-k="days">🗓️ ${t('Days')}</button><button class="${seg === 'groups' ? 'on' : ''}" data-a="planseg" data-k="groups">👥 ${t('Groups')}</button><button class="${seg === 'todo' ? 'on' : ''}" data-a="planseg" data-k="todo">✅ ${t('To-dos')}</button></div>`;
+  const seg = planSeg();
+  const segs = [can('view_plan') && ['days', '🗓️', 'Days'], can('view_places') && ['places', '📍', 'Places'], can('view_plan') && ['groups', '👥', 'Groups'], can('view_plan') && ['todo', '✅', 'To-dos']].filter(Boolean);
+  const head = `<div class="seg seg4">${segs.map(([k, e, l]) => `<button class="${seg === k ? 'on' : ''}" data-a="planseg" data-k="${k}"><span>${e}</span>${t(l)}</button>`).join('')}</div>`;
+  if (seg === 'places') return head + placesPart();
   if (seg === 'groups') {
     const list = D().arrangements;
-    return head + (can('edit_plan') ? `<button class="btn block" data-a="editarr">${ico('plus', 18)} ${t('New grouping (cars, rooms, activity)')}</button>` : '') +
-      (list.length ? list.map(ar => arrangementCard(ar)).join('') : `<div class="empty"><div class="e">🚐</div>${t('No groups yet.')}</div>`);
+    return head + (can('edit_plan') && list.length ? `<button class="btn block" data-a="editarr">${ico('plus', 18)} ${t('New grouping (cars, rooms, activity)')}</button>` : '') +
+      (list.length ? list.map(ar => arrangementCard(ar)).join('') : emptyState('🚐', t('No groups yet.'), t('Make groups for each car ride, hotel rooms or an activity. Everyone will see which group they are in.'), can('edit_plan') ? `<button class="btn" data-a="editarr">${ico('plus', 18)} ${t('Make the first groups')}</button>` : ''));
   }
   if (seg === 'todo') {
     const list = can('edit_plan') ? D().tasks : myTasks();
-    return head + (can('edit_plan') ? `<button class="btn block" data-a="edittask">${ico('plus', 18)} ${t('New to-do for the family')}</button>` : '') +
-      (list.length ? `<div class="card list">${list.map(taskRow).join('')}</div>` : `<div class="empty"><div class="e">✅</div>${t('Nothing to do yet.')}</div>`);
+    return head + (can('edit_plan') && list.length ? `<button class="btn block" data-a="edittask">${ico('plus', 18)} ${t('New to-do for the family')}</button>` : '') +
+      (list.length ? `<div class="card list">${list.map(taskRow).join('')}</div>` : emptyState('✅', t('Nothing to do yet.'), t('For example: renew passports, bring sunscreen, pay the hotel deposit.'), can('edit_plan') ? `<button class="btn" data-a="edittask">${ico('plus', 18)} ${t('Add the first to-do')}</button>` : ''));
   }
   const days = tripDays(); const sel = S.planDay;
   return head + `<div class="chips">
@@ -552,18 +645,17 @@ function planView() {
   </div>${(sel === 'all' ? days : [sel]).map(dayBlock).join('')}`;
 }
 
-/* ----- Places ----- */
-function placesView() {
-  const seg = can('view_places') ? S.placesSeg : 'photos';
-  const head = can('view_places') && can('view_photos') ? `<div class="seg"><button class="${seg === 'places' ? 'on' : ''}" data-a="pseg" data-k="places">${t('Places')}</button><button class="${seg === 'photos' ? 'on' : ''}" data-a="pseg" data-k="photos">${t('Photos')} (${D().photos.length})</button></div>` : '<div style="height:12px"></div>';
-  if (seg === 'photos') {
-    return head + (can('add_photos') ? `<button class="btn block sec" data-a="addphotos">${ico('cam', 18)} ${t('Add photos')}</button>` : '') +
-      (D().photos.length ? `<div class="gallery" style="margin-top:12px">${D().photos.map((p, i) => `<div class="g" data-a="lightbox" data-list="all" data-i="${i}">${pimg(p.id)}</div>`).join('')}</div>`
-        : `<div class="empty"><div class="e">📷</div>${t('No photos yet.')}</div>`);
-  }
+/* ----- Photos & places ----- */
+function photosView() {
+  return `<div style="height:12px"></div>` + (can('add_photos') ? `<button class="btn block" data-a="addphotos">${ico('cam', 18)} ${t('Add photos')}</button>` : '') +
+    (D().photos.length ? `<div class="gallery" style="margin-top:12px">${D().photos.map((p, i) => `<div class="g" data-a="lightbox" data-list="all" data-i="${i}">${pimg(p.id)}</div>`).join('')}</div>`
+      : emptyState('📷', t('No photos yet.'), t('Snap the fun moments and share them with the whole family.')));
+}
+function placesPart() {
+  if (!D().places.length) return emptyState('🏝️', t('No places yet.'), t('Add the hotels, beaches and sights you will visit, with address, hours, prices and tips.'), can('edit_places') ? `<button class="btn" data-a="editplace">${ico('plus', 18)} ${t('Add the first place')}</button>` : '');
   const cities = [...new Set(D().places.map(p => p.city).filter(Boolean))];
   const list = D().places.filter(p => S.city === 'all' || p.city === S.city);
-  return head + `<div class="row between"><div class="chips grow">
+  return `<div class="row between"><div class="chips grow">
       <span class="chip ${S.city === 'all' ? 'on' : ''}" data-a="city" data-k="all">${t('All')}</span>
       ${cities.map(c => `<span class="chip ${S.city === c ? 'on' : ''}" data-a="city" data-k="${esc(c)}">${esc(c)}</span>`).join('')}</div>
       ${can('edit_places') ? `<button class="btn sm" data-a="editplace">${ico('plus', 16)} ${t('New place')}</button>` : ''}</div>
@@ -611,7 +703,7 @@ function ideasView() {
           ${c.author === me() || isAdmin() ? `<button class="btn danger sm" style="float:inline-end;min-height:0;padding:0 4px" data-a="delcomment" data-k="${c.id}">×</button>` : ''}<div class="pre">${linkify(c.body)}</div></div>`).join('')}
         ${can('comment') ? `<form class="row" style="margin-top:8px" data-form="comment" data-k="${s.id}"><input class="i grow" name="body" placeholder="${t('Write a comment…')}" required><button class="btn sm">${t('Send')}</button></form>` : ''}</div>` : ''}
     </div>`;
-  }).join('') : `<div class="empty"><div class="e">💡</div>${t('No ideas yet. Be the first!')}</div>`}
+  }).join('') : emptyState('💡', t('No ideas yet. Be the first!'), t('Tell us a place you would love to visit and why.'))}
   ${can('suggest') ? `<button class="btn fab" data-a="newidea">${ico('plus', 18)} ${t('Suggest a place')}</button>` : ''}`;
 }
 
@@ -671,9 +763,51 @@ function moneyView() {
 }
 
 /* ----- More ----- */
+const tile = (e, label, sub, a, k, c) => `<button class="tile" data-a="${a}" ${k ? `data-k="${k}"` : ''} style="--c:${c}"><span class="te">${e}</span><b>${t(label)}</b>${sub ? `<span class="small muted">${sub}</span>` : ''}</button>`;
+function organizeHub() {
+  const d = D(); const openIdeas = d.suggestions.filter(x => x.status === 'open').length;
+  const orgs = d.members.filter(x => x.role === 'admin').length;
+  return `<h2 style="margin-top:14px">🧭 ${t('Organize the trip')}</h2>
+  ${startHere(true)}
+  <h3 class="sec-h">👨‍👩‍👧 ${t('People')}</h3>
+  <div class="tiles">
+    ${tile('➕', 'Add a family member', d.members.length + ' ' + t('people'), 'member', '', '#0ea5e9')}
+    ${tile('⭐', 'Co-organizers', orgs + ' ' + t('organizers'), 'organizers', '', '#eab308')}
+    ${tile('🚐', 'Cars, rooms & groups', d.arrangements.length + ' ' + t('groupings'), 'planseg', 'groups', '#8b5cf6')}
+    ${tile('✅', 'To-dos', d.tasks.length + ' ' + t('to-dos'), 'planseg', 'todo', '#22c55e')}
+  </div>
+  <h3 class="sec-h">🗓️ ${t('Plan')}</h3>
+  <div class="tiles">
+    ${tile('🗓️', 'Days & activities', d.itinerary.length + ' ' + t('activities'), 'planseg', 'days', '#f97316')}
+    ${tile('📍', 'Places', d.places.length + ' ' + t('places'), 'planseg', 'places', '#ef4444')}
+    ${tile('📌', 'Trip info', d.info.length + ' ' + t('cards'), 'editinfo', '', '#14b8a6')}
+    ${tile('📷', 'Photos', d.photos.length + ' ' + t('photos'), 'tab', 'photos', '#ec4899')}
+  </div>
+  <h3 class="sec-h">💬 ${t('Talk to the family')}</h3>
+  <div class="tiles">
+    ${tile('📣', 'New announcement', d.announcements.length + ' ' + t('sent'), 'announce', '', '#f59e0b')}
+    ${tile('💡', 'Ideas inbox', openIdeas + ' ' + t('waiting for you'), 'tab', 'ideas', '#a855f7')}
+  </div>
+  <h3 class="sec-h">💰 ${t('Money')}</h3>
+  <div class="tiles">
+    ${tile('🧾', 'Add a bill', d.expenses.length + ' ' + t('bills'), 'expenseform', '', '#16a34a')}
+    ${tile('📧', 'Final statements', '', 'finalbills', '', '#0284c7')}
+    ${tile('💱', 'Exchange rates', '', 'rates', '', '#64748b')}
+    ${tile('📄', 'Export CSV', '', 'csv', '', '#78716c')}
+  </div>
+  <h3 class="sec-h">⚙️ ${t('Trip')}</h3>
+  <div class="tiles">${tile('🎨', 'Trip settings', t('Name, dates, colours, cover'), 'tripsettings', '', '#db2777')}</div>
+  <h2>👤 ${t('My account')}</h2>`;
+}
+function organizersSheet() {
+  openSheet(() => `${sheetHead('⭐ ' + t('Co-organizers'))}
+    <p class="small muted">${t('Co-organizers have the same powers as you: they can add members, edit the plan, places, groups, bills and announcements. Switch someone on to make them a co-organizer.')}</p>
+    <div class="card list">${D().members.map(x => `<label class="li">${avatar(x.id)}<div class="grow"><b>${esc(x.name)}</b><div class="small muted">${x.role === 'admin' ? '⭐ ' + t('Organizer') : t('Member')}</div></div>
+      ${x.id === me() ? `<span class="badge brand">${t('You')}</span>` : `<input type="checkbox" class="switch" data-a2="orgtoggle" data-k="${x.id}" ${x.role === 'admin' ? 'checked' : ''}>`}</label>`).join('')}</div>`);
+}
 function moreView() {
   const m = D().me; const ap = LS.get('appearance', 'auto');
-  return `<div class="card" style="margin-top:14px"><div class="row"><button class="avatar-btn" data-a="myavatar" title="${t('Change photo')}">${avatar(m.id, 'lg')}<span class="cam">${ico('cam', 14)}</span></button><div class="grow"><h3>${esc(m.name)}</h3><div class="small muted">@${esc(m.username)}${m.household ? ' · ' + esc(m.household) : ''} · ${m.role === 'admin' ? t('Organizer (full access)') : t('Member')}</div></div></div>
+  return `${isAdmin() ? organizeHub() : ''}<div class="card" style="margin-top:14px"><div class="row"><button class="avatar-btn" data-a="myavatar" title="${t('Change photo')}">${avatar(m.id, 'lg')}<span class="cam">${ico('cam', 14)}</span></button><div class="grow"><h3>${esc(m.name)}</h3><div class="small muted">@${esc(m.username)}${m.household ? ' · ' + esc(m.household) : ''} · ${m.role === 'admin' ? t('Organizer (full access)') : t('Member')}</div></div></div>
     <div class="row wrap-r" style="margin-top:12px;gap:6px">
       <button class="btn sec sm" data-a="myavatar">📸 ${m.avatar ? t('Change photo') : t('Add your photo')}</button>
       <button class="btn sec sm" data-a="profile">${t('Profile')}</button>
@@ -681,18 +815,11 @@ function moreView() {
       <button class="btn danger sm" data-a="logout">${t('Log out')}</button></div></div>
   <div class="card"><div class="row between"><b>${t('Language')}</b><div class="chips" style="padding:0"><span class="chip ${S.lang === 'en' ? 'on' : ''}" data-a="setlang" data-k="en">English</span><span class="chip ${S.lang === 'ar' ? 'on' : ''}" data-a="setlang" data-k="ar">العربية</span></div></div>
     <div class="row between" style="margin-top:10px"><b>${t('Appearance')}</b><div class="chips" style="padding:0">${['auto', 'light', 'dark'].map(k => `<span class="chip ${ap === k ? 'on' : ''}" data-a="appearance" data-k="${k}">${t(k[0].toUpperCase() + k.slice(1))}</span>`).join('')}</div></div></div>
+  <div class="card"><div class="row between"><b>💡 ${t('Tips on each screen')}</b><button class="btn sec sm" data-a="resethints">${t('Show tips again')}</button></div></div>
   <div class="card"><b>📲 ${t('Install on your phone')}</b><p class="small muted" style="margin:4px 0 0">${t('Tap Share then "Add to Home Screen" on iPhone, or the menu then "Install app" on Android.')}</p></div>
   <h2>${t('Family')}</h2>
   <div class="card list">${D().members.map(x => `<div class="li">${avatar(x.id)}<div class="grow"><b>${esc(x.name)}</b>${x.role === 'admin' ? ' <span class="badge brand">★</span>' : ''}<div class="small muted">${esc(x.household || '')}</div></div>
     ${isAdmin() ? `<button class="btn ghost sm" data-a="member" data-k="${x.id}">${t('Edit')}</button>` : ''}</div>`).join('')}</div>
-  ${isAdmin() ? `<h2>${t('Organizer tools')}</h2>
-  <div class="card list">
-    <div class="li tap" data-a="member" style="cursor:pointer"><span style="font-size:22px">➕</span><b class="grow">${t('Add member')}</b></div>
-    <div class="li tap" data-a="tripsettings" style="cursor:pointer"><span style="font-size:22px">🎨</span><b class="grow">${t('Trip settings')}</b></div>
-    <div class="li tap" data-a="rates" style="cursor:pointer"><span style="font-size:22px">💱</span><b class="grow">${t('Exchange rates')}</b></div>
-    <div class="li tap" data-a="finalbills" style="cursor:pointer"><span style="font-size:22px">📧</span><b class="grow">${t('Final statements')}</b></div>
-    <div class="li tap" data-a="csv" style="cursor:pointer"><span style="font-size:22px">📄</span><b class="grow">${t('Export CSV')}</b></div>
-  </div>` : ''}
   <p class="small muted" style="text-align:center;margin-top:24px">${esc(trip().name)} · v1</p>`;
 }
 
@@ -1038,8 +1165,9 @@ function memberSheet(id) {
     ${field(t('Email'), inp('email', F.email, 'type="email" autocapitalize="none"'))}
     ${field(t('Family / household'), inp('household', F.household, 'list="houses" placeholder="e.g. Abu Ahmad family"'))}
     <datalist id="houses">${houses.map(h => `<option value="${esc(h)}">`).join('')}</datalist>
-    ${field('Role', `<select class="i" data-bind="role"><option value="member" ${F.role === 'member' ? 'selected' : ''}>${t('Member')}</option><option value="admin" ${F.role === 'admin' ? 'selected' : ''}>${t('Organizer (full access)')}</option></select>`)}
-    ${F.role === 'admin' ? `<p class="small muted">${t('Organizer (full access)')} · ${t('Everything')}</p>` : `<h3 style="margin-top:16px">🔐 ${t('Permissions')}</h3>
+    <label class="f"><span>${t('Role')}</span></label>
+    <div class="two">${[['member', '🙂', 'Family member', 'Sees what you allow below'], ['admin', '⭐', 'Co-organizer', 'Same powers as you']].map(([k, e, l, sub]) => `<div class="card tap opt ${F.role === k ? 'on' : ''}" data-a="setrole" data-k="${k}" style="margin:0"><div style="font-size:26px">${e}</div><b>${t(l)}</b><div class="small muted">${t(sub)}</div></div>`).join('')}</div>
+    ${F.role === 'admin' ? `<p class="small muted">⭐ ${t('Co-organizers can do everything you can, except remove you.')}</p>` : `<h3 style="margin-top:16px">🔐 ${t('Permissions')}</h3>
       <div class="card" style="padding:4px 14px">${PERMS.map(([k, l]) => `<label class="perm"><span class="grow">${t(l)}</span><input type="checkbox" class="switch" data-bind="perms.${k}" ${F.perms[k] ? 'checked' : ''}></label>`).join('')}</div>`}
     <div class="actions">${id && id !== me() ? `<button class="btn danger" data-a="delmember">${t('Delete')}</button>` : ''}<button class="btn" data-a="savemember">${t('Save')}</button></div>`);
 }
@@ -1084,7 +1212,13 @@ function exportCsv() {
 /* ---------------- events ---------------- */
 async function busy(btn, fn) { if (btn) { btn.disabled = true; } try { await fn(); } catch (e) { /* toast already shown */ } finally { if (btn) btn.disabled = false; } }
 const H = {
-  tab: el => { S.tab = el.dataset.k; LS.set('tab', S.tab); render(); scrollTo(0, 0); },
+  tab: el => { closeSheet(); S.tab = el.dataset.k; S.anim = true; LS.set('tab', S.tab); render(); scrollTo(0, 0); },
+  hint: el => { const h = LS.get('hints', {}); h[el.dataset.k] = 1; LS.set('hints', h); render(); },
+  resethints: () => { LS.set('hints', {}); LS.del('hideStart'); toast('💡 ' + t('Tips are back on every screen')); render(); },
+  hidestart: () => { LS.set('hideStart', true); toast(t('You can find the steps in the Organize tab')); render(); },
+  party: () => confetti(),
+  organizers: () => organizersSheet(),
+  setrole: el => { F.role = el.dataset.k; rerenderSheet(); },
   lang: () => { S.lang = S.lang === 'ar' ? 'en' : 'ar'; LS.set('lang', S.lang); render(); rerenderSheet(); },
   setlang: el => { S.lang = el.dataset.k; LS.set('lang', S.lang); render(); },
   appearance: el => { LS.set('appearance', el.dataset.k); render(); },
@@ -1092,7 +1226,7 @@ const H = {
   logout: async () => { try { await api('logout'); } catch {} logoutLocal(); },
   goday: el => { S.tab = 'plan'; S.planDay = el.dataset.k; render(); scrollTo(0, 0); },
   planday: el => { S.planDay = el.dataset.k; render(); },
-  planseg: el => { S.tab = 'plan'; S.planSeg = el.dataset.k; render(); scrollTo(0, 0); },
+  planseg: el => { closeSheet(); S.tab = 'plan'; S.planSeg = el.dataset.k; S.anim = true; render(); scrollTo(0, 0); },
   pseg: el => { S.placesSeg = el.dataset.k; render(); },
   city: el => { S.city = el.dataset.k; render(); },
   isort: el => { S.ideasSort = el.dataset.k; render(); },
@@ -1100,7 +1234,7 @@ const H = {
   cur: el => { S.cur = el.dataset.k; LS.set('cur', S.cur); render(); },
   toggleidea: el => { const k = el.dataset.k; S.openIdeas.has(k) ? S.openIdeas.delete(k) : S.openIdeas.add(k); render(); },
   vote: el => { const s = D().suggestions.find(x => x.id === el.dataset.k); const v = +el.dataset.v; act('vote', { id: s.id, value: (s.votes || {})[me()] === v ? 0 : v }).catch(() => {}); },
-  like: el => { const s = D().suggestions.find(x => x.id === el.dataset.k); act('vote', { id: s.id, value: (s.votes || {})[me()] === 1 ? 0 : 1 }).catch(() => {}); },
+  like: el => { const s = D().suggestions.find(x => x.id === el.dataset.k); const v = (s.votes || {})[me()] === 1 ? 0 : 1; if (v) confetti(30); act('vote', { id: s.id, value: v }).catch(() => {}); },
   ifilter: el => { S.ideasFilter = el.dataset.k; render(); },
   ideaopt: el => { F[el.dataset.k] = el.dataset.v; rerenderSheet(); },
   ideareply: el => ideaReplySheet(el.dataset.k),
@@ -1110,7 +1244,7 @@ const H = {
   delcomment: el => confirmSheet(t('Delete') + '?', () => act('delete_comment', { id: el.dataset.k }, 'Deleted')),
   idea2plan: el => { const s = D().suggestions.find(x => x.id === el.dataset.k); itemSheet(null, { title: s.title, details: s.body, day: s.day || trip().start }); F.__idea = s.id; },
   newidea: () => ideaSheet(),
-  saveidea: el => busy(el, async () => { if (!F.title.trim()) { toast(t('Write the name of the place')); return; } await act('add_suggestion', F, 'Saved'); closeSheet(); }),
+  saveidea: el => busy(el, async () => { if (!F.title.trim()) { toast(t('Write the name of the place')); return; } await act('add_suggestion', F, 'Saved'); closeSheet(); confetti(50); }),
   announce: el => announceSheet(el.dataset.k),
   saveann: el => busy(el, async () => { await act('save_announcement', F, 'Saved'); closeSheet(); }),
   delann: () => { const id = F.id; confirmSheet(t('Delete') + '?', () => act('delete_announcement', { id }, 'Deleted')); },
@@ -1154,7 +1288,7 @@ const H = {
   statement: el => statementSheet(el.dataset.k),
   finalbills: () => finalBillsSheet(),
   settle: el => settleSheet(el.dataset.from, el.dataset.to, el.dataset.amt),
-  savesettle: el => busy(el, async () => { await act('add_settlement', F, 'Saved'); closeSheet(); }),
+  savesettle: el => busy(el, async () => { await act('add_settlement', F, 'Saved'); closeSheet(); confetti(); }),
   delsettle: el => confirmSheet(t('Delete') + '?', () => act('delete_settlement', { id: el.dataset.k }, 'Deleted')),
   member: el => memberSheet(el.dataset.k),
   savemember: el => busy(el, async () => { await act('save_member', F, 'Saved'); closeSheet(); }),
@@ -1238,7 +1372,8 @@ document.addEventListener('change', ev => {
   if (el.dataset.a2 === 'istatus') act('set_suggestion_status', { id: el.dataset.k, status: el.value }, 'Saved').catch(() => {});
   if (el.dataset.a2 === 'fpayer') { S.fPayer = el.value; render(); }
   if (el.dataset.a2 === 'fmethod') { S.fMethod = el.value; render(); }
-  if (el.dataset.a2 === 'tasktoggle') act('toggle_task', { id: el.dataset.k, member_id: el.dataset.m || '', done: el.checked }).then(() => rerenderSheet()).catch(() => {});
+  if (el.dataset.a2 === 'orgtoggle') { const id = el.dataset.k; act('save_member', { id, role: el.checked ? 'admin' : 'member' }, el.checked ? '⭐ ' + t('Co-organizer added') : 'Saved').then(() => rerenderSheet()).catch(() => rerenderSheet()); }
+  if (el.dataset.a2 === 'tasktoggle') { if (el.checked) confetti(30); act('toggle_task', { id: el.dataset.k, member_id: el.dataset.m || '', done: el.checked }).then(() => rerenderSheet()).catch(() => {}); }
   if (el.dataset.a2 === 'pplbox') { const k = el.dataset.k; F.people = el.checked ? [...new Set([...F.people, k])] : F.people.filter(i => i !== k); $('#preview').innerHTML = previewHtml(); }
 });
 document.addEventListener('submit', async ev => {
