@@ -14,7 +14,7 @@ const LS = {
 const S = {
   token: LS.get('token', null), lang: LS.get('lang', 'en'), tab: LS.get('tab', 'home'), data: null,
   cur: LS.get('cur', 'JOD'), moneyTab: 'overview', q: '', ideasSort: 'top', city: 'all', placesSeg: 'places',
-  byHouse: LS.get('byHouse', false), trOn: new Set(), planDay: 'all', openIdeas: new Set(), mode: 'login', status: null
+  byHouse: LS.get('byHouse', false), trOn: new Set(), openAnn: new Set(), preview: false, planDay: 'all', openIdeas: new Set(), mode: 'login', status: null
 };
 let F = null;            // the form currently open in a sheet
 let sheetRender = null;  // function that renders the open sheet
@@ -87,8 +87,9 @@ const avatar = (id, cls = '') => { const n = nameOf(id); const ph = member(id)?.
   return `<span class="avatar ${cls}" style="background:hsl(${hue(id)} 55% 45%)" title="${esc(n)}">${ph ? `<img data-photo="${esc(ph)}" alt="${esc(n)}">` : esc(n.trim().charAt(0).toUpperCase())}</span>`; };
 const DEF_ON = ['view_plan', 'view_places', 'view_ideas', 'view_money', 'view_photos', 'money_all', 'suggest', 'comment', 'add_photos'];
 const canM = (m, k) => { if (!m) return false; if (m.role === 'admin') return true; const v = (m.perms || {})[k]; return v == null ? DEF_ON.includes(k) : !!v; };
-const can = k => canM(D()?.me, k);
-const isAdmin = () => D()?.me?.role === 'admin';
+const realAdmin = () => D()?.me?.role === 'admin';
+const can = k => S.preview && realAdmin() ? canM({ role: 'member', perms: {} }, k) : canM(D()?.me, k);
+const isAdmin = () => realAdmin() && !S.preview;
 const me = () => D().me.id;
 const money = (x, cur = S.cur) => {
   const n = new Intl.NumberFormat(locale(), { minimumFractionDigits: cur === 'EGP' ? 0 : 2, maximumFractionDigits: 2 }).format(Math.abs(x) < 0.005 ? 0 : x);
@@ -311,6 +312,7 @@ function render() {
     <button class="icon-btn" data-a="lang" title="${t('Language')}" style="font-weight:800">${S.lang === 'ar' ? 'EN' : 'ع'}</button>
     <button class="icon-btn" data-a="refresh" title="${t('Refresh')}">${ico('refresh')}</button>
   </div></header>
+  ${S.preview ? `<div class="preview-bar"><span>👁️ ${t('You are seeing the app like a family member')}</span><button class="btn sm" data-a="preview">${t('Back to organizer')}</button></div>` : ''}
   <main class="wrap${enter}">${tabHint()}${views[S.tab]()}</main>
   <nav class="tabs"><div class="in" style="--n:${tl.length}">
     ${tl.map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''}" data-a="tab" data-k="${k}"><span class="ti">${ico(k === 'more' && isAdmin() ? 'organize' : k, 24)}</span><span>${t(l)}</span>${k === 'home' && unseen && S.tab !== 'home' ? '<i class="dot"></i>' : ''}</button>`).join('')}
@@ -367,6 +369,7 @@ async function translateText(x, to) {
 
 Object.assign(AR, {"Show original": "عرض النص الأصلي", "Translate": "ترجمة", "Translating…": "جارٍ الترجمة…", "Translation is not available right now": "الترجمة غير متاحة الآن", "Nothing here yet": "لا يوجد شيء بعد", "Add what the family needs to know before coming: internet and SIM cards, money and cash, visa and passports, weather and clothes, power plugs, emergency numbers.": "أضف ما تحتاج العائلة معرفته قبل السفر: الإنترنت وشرائح الاتصال، المال والكاش، التأشيرة والجوازات، الطقس والملابس، القوابس الكهربائية، أرقام الطوارئ.", "Add the first card": "أضف أول بطاقة", "Before you travel & trip info": "قبل السفر ومعلومات الرحلة", "Before you travel": "قبل السفر", "Write \"Before you travel\" (internet, money, visa…)": "اكتب \"قبل السفر\" (الإنترنت، المال، التأشيرة…)"});
 Object.assign(AR, {"📊 Overview": "📊 نظرة عامة", "🧾 Bills": "🧾 الفواتير", "⚖️ Balances": "⚖️ الأرصدة", "🤝 Settle up": "🤝 التسوية", "Search bills…": "ابحث في الفواتير…", "Add every bill: who paid, how they paid, and who it was for. The app works out who owes whom.": "أضف كل فاتورة: من دفع، وكيف دفع، ولمن كانت. التطبيق يحسب من يدين لمن.", "Green = gets money back. Red = still has to pay. Tap a person to see their full statement.": "الأخضر = له مال. الأحمر = عليه أن يدفع. اضغط على الشخص لرؤية كشف حسابه.", "Send a reminder": "أرسل تذكيراً", "Copy all": "نسخ الكل", "The fewest payments that settle everyone. Tap ✓ when a payment is made, or 🔔 to send a reminder.": "أقل عدد من الدفعات لتسوية الجميع. اضغط ✓ عند الدفع، أو 🔔 لإرسال تذكير.", "Trip total": "مجموع الرحلة", "Per person": "للشخص", "Bills": "فواتير", "Spent today": "مصروف اليوم", "Budget": "الميزانية", "Set a budget": "حدد ميزانية", "of": "من", "Over budget by {a}": "تجاوزنا الميزانية بـ {a}", "{a} left": "متبقٍ {a}", "Set a total budget (and per category if you like) to see how much is left at a glance.": "حدد ميزانية إجمالية (ولكل فئة إن أردت) لترى المتبقي بلمحة.", "No budget set yet.": "لم تُحدد ميزانية بعد.", "Where the money goes": "أين تذهب الأموال", "Spending by day": "المصروف حسب اليوم", "Before": "قبل", "After": "بعد", "Who paid so far": "من دفع حتى الآن", "Trip budget": "ميزانية الرحلة", "Total budget": "الميزانية الإجمالية", "Per category (optional)": "لكل فئة (اختياري)", "Hi {a}, a friendly reminder from the {trip} app: please pay {b} {c}. Thank you!": "مرحباً {a}، تذكير لطيف من تطبيق {trip}: الرجاء دفع {c} لـ {b}. شكراً!", "Copied. Paste it in WhatsApp.": "تم النسخ. الصقه في واتساب.", "Food": "طعام", "Transport": "مواصلات", "Tickets": "تذاكر", "Hotel": "فندق", "Flights": "طيران", "Shopping": "تسوق", "Other": "أخرى"});
+Object.assign(AR, {"You are seeing the app like a family member": "أنت ترى التطبيق كفرد من العائلة", "Back to organizer": "العودة للمنظم", "This is what your family sees": "هذا ما تراه عائلتك", "See the app like a family member": "شاهد التطبيق كفرد من العائلة", "Check exactly what your family sees, then come back.": "تحقق مما تراه عائلتك بالضبط ثم ارجع.", "See it as family": "شاهده كالعائلة", "Preview the member view": "معاينة واجهة الأعضاء", "You will get money back": "سيُعاد لك مال", "You need to pay": "عليك أن تدفع", "You are all settled 🎉": "حسابك مسوّى 🎉", "Your share": "حصتك", "You paid": "دفعت", "My full statement": "كشف حسابي الكامل", "What to do": "ماذا تفعل", "Pay": "ادفع لـ", "pays you": "يدفع لك", "Your bills": "فواتيرك", "No bills yet.": "لا توجد فواتير بعد.", "When the organizer adds a bill you are part of, it shows up here with your share.": "عندما يضيف المنظم فاتورة تخصك ستظهر هنا مع حصتك.", "Your share of every bill and who you need to pay. Tap a bill to see the details.": "حصتك من كل فاتورة ولمن تدفع. اضغط على الفاتورة لرؤية التفاصيل."});
 /* ----- guidance & joy ----- */
 const HINTS = {
   home: 'This is your trip home. The day brief, your to-dos, your groups and news from the organizer all show up here.',
@@ -377,6 +380,7 @@ const HINTS = {
   'plan-todo': 'Things to get done before and during the trip. Flip the switch when you finish one.',
   photos: 'Share your trip photos with the whole family. Tap a photo to see it big.',
   ideas: 'Want to go somewhere? Suggest it here. Tap ❤️ on the ideas you love so the organizer sees what is popular.',
+  'money-member': 'Your share of every bill and who you need to pay. Tap a bill to see the details.',
   money: 'Every bill, who paid and what each person owes. "Settle up" shows the easiest way to pay each other back.',
   more: 'Your profile, photo, password and language.',
   'more-org': 'Everything you control as the organizer is here. Follow the steps at the top, then use the big buttons below.'
@@ -385,6 +389,7 @@ function tabHint() {
   let k = S.tab;
   if (k === 'plan') k = 'plan-' + planSeg();
   if (isAdmin() && HINTS[k + '-org']) k += '-org';
+  if (k === 'money' && !isAdmin() && !can('add_expense')) k = 'money-member';
   if (!HINTS[k] || LS.get('hints', {})[k]) return '';
   return `<div class="hint"><span class="he">💡</span><div class="grow small">${t(HINTS[k])}</div><button class="btn ghost sm" data-a="hint" data-k="${k}">${t('Got it')}</button></div>`;
 }
@@ -445,6 +450,17 @@ const EGYPT = `<svg class="scene" viewBox="0 0 400 200" preserveAspectRatio="xMi
   <g transform="translate(372 112)"><path d="M6 46C8 30 8 18 4 6" stroke="#78350f" stroke-width="4" fill="none"/><path d="M4 6C-10 0-20 6-24 12M4 6C16-2 26 2 30 8M4 6C-4-6-2-14 2-18M4 6C12-4 20-6 26-4" stroke="#16a34a" stroke-width="5" fill="none" stroke-linecap="round"/></g>
 </svg>`;
 
+function annSection() {
+  const anns = D().announcements, seen = LS.get('seenAnn', '');
+  return `<div class="row between"><h2>📣 ${t('Announcements')}</h2>${can('announce') ? `<button class="btn sm" data-a="announce">${ico('plus', 16)} ${t('New announcement')}</button>` : ''}</div>
+  ${anns.length ? anns.map(a => `<div class="card">
+      <div class="row between"><h3>${a.pinned ? '📌 ' : ''}${esc(trT(a.title))}</h3>${a.created_at > seen && a.author !== me() ? `<span class="badge new">${t('NEW')}</span>` : ''}</div>
+      ${a.body ? `<div class="pre" style="margin-top:4px">${linkify(trT(a.body))}</div>` : ''}${trBtn(a.title, a.body)}
+      <div class="row between" style="margin-top:8px"><span class="small muted">${esc(nameOf(a.author))} · ${ago(a.created_at)}${(a.audience || []).length ? ` · 👁️ ${(a.audience || []).length} ${t('people')}` : ''}</span>
+      ${can('announce') ? `<button class="btn ghost sm" data-a="announce" data-k="${a.id}">${t('Edit')}</button>` : ''}</div>
+      ${annReactions(a)}</div>`).join('')
+    : emptyState('📣', t('No announcements yet.'), can('announce') ? t('Tell the family what is coming up. You choose who sees each one.') : t('News from the organizer will show up here.'), can('announce') ? `<button class="btn" data-a="announce">${ico('plus', 16)} ${t('New announcement')}</button>` : '')}`;
+}
 /* ----- Home ----- */
 function tripPhase() {
   const td = today(), s = trip().start, e = trip().end;
@@ -503,22 +519,28 @@ function homeView() {
   ${th.welcome ? `<div class="card"><div class="row"><span style="font-size:24px">👋</span><div class="grow"><div class="pre">${linkify(trT(th.welcome))}</div>${trBtn(th.welcome)}</div></div></div>` : ''}
   ${!D().me.avatar ? `<div class="card tap" data-a="myavatar"><div class="row">${avatar(me(), 'lg')}<div class="grow"><b>📸 ${t('Add your photo')}</b><div class="small muted">${t('So the family can see who is who.')}</div></div><span class="btn sm">${t('Add')}</span></div></div>` : ''}
   ${briefs}
+  ${!isAdmin() ? annSection() : ''}
   ${(() => { const open = myTasks().filter(tk => !tk.done[me()]); return open.length ? `<div class="row between"><h2>✅ ${t('Your to-dos')}</h2><button class="btn ghost sm" data-a="planseg" data-k="todo">${t('See all')}</button></div><div class="card list">${open.slice(0, 4).map(taskRow).join('')}</div>` : ''; })()}
   ${(() => { const up = D().arrangements.filter(a => myGroup(a) && (!a.day || a.day >= today())).slice(0, 3); return up.length ? `<div class="row between"><h2>👥 ${t('Your groups')}</h2><button class="btn ghost sm" data-a="planseg" data-k="groups">${t('See all')}</button></div>${up.map(a => arrangementCard(a, true)).join('')}` : ''; })()}
   ${D().info.length || can('announce') ? `<div class="row between"><h2>🧳 ${t('Before you travel & trip info')}</h2>${can('announce') ? `<button class="btn sm" data-a="editinfo">${ico('plus', 16)} ${t('Add')}</button>` : ''}</div>
     ${D().info.map(ic => `<details class="card" ${S.trOn.has(hashS([ic.title, ic.body].filter(x => x && String(x).trim()).join('\u0001'))) ? 'open' : ''}><summary class="row" style="cursor:pointer;list-style:none"><span style="font-size:22px">${esc(ic.icon)}</span><b class="grow">${esc(trT(ic.title))}</b>${can('announce') ? `<button class="btn ghost sm" data-a="editinfo" data-k="${ic.id}">${t('Edit')}</button>` : '›'}</summary><div class="pre" style="margin-top:8px">${linkify(trT(ic.body))}</div>${trBtn(ic.title, ic.body)}</details>`).join('') || (can('announce') ? emptyState('🧳', t('Nothing here yet'), t('Add what the family needs to know before coming: internet and SIM cards, money and cash, visa and passports, weather and clothes, power plugs, emergency numbers.'), `<button class="btn" data-a="editinfo">${ico('plus', 16)} ${t('Add the first card')}</button>`) : '')}` : ''}
   ${bal}
-  <div class="row between"><h2>${t('Announcements')}</h2>${can('announce') ? `<button class="btn sm" data-a="announce">${ico('plus', 16)} ${t('New announcement')}</button>` : ''}</div>
-  ${anns.length ? anns.map(a => `<div class="card">
-      <div class="row between"><h3>${a.pinned ? '📌 ' : ''}${esc(trT(a.title))}</h3>${a.created_at > seen && a.author !== me() ? `<span class="badge new">${t('NEW')}</span>` : ''}</div>
-      ${a.body ? `<div class="pre" style="margin-top:4px">${linkify(trT(a.body))}</div>` : ''}${trBtn(a.title, a.body)}
-      <div class="row between" style="margin-top:8px"><span class="small muted">${esc(nameOf(a.author))} · ${ago(a.created_at)}${(a.audience || []).length ? ` · 👁️ ${(a.audience || []).length} ${t('people')}` : ''}</span>
-      ${can('announce') ? `<button class="btn ghost sm" data-a="announce" data-k="${a.id}">${t('Edit')}</button>` : ''}</div></div>`).join('')
-    : emptyState('📣', t('No announcements yet.'), can('announce') ? t('Tell the family what is coming up. You choose who sees each one.') : t('News from the organizer will show up here.'), can('announce') ? `<button class="btn" data-a="announce">${ico('plus', 16)} ${t('New announcement')}</button>` : '')}
+  ${isAdmin() ? annSection() : ''}
   <h2>${t('Who is coming')} <span class="muted small">${D().members.length} ${t('people')}</span></h2>
   <div class="card"><div class="row wrap-r" style="gap:12px">${D().members.map(m => `<div style="text-align:center;width:62px">${avatar(m.id, 'lg')}<div class="small" style="margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(m.name.split(' ')[0])}</div></div>`).join('')}</div></div>`;
 }
 
+const REACTS = ['❤️', '👍', '😂', '😮', '🙏', '🎉'];
+function annReactions(a) {
+  const r = a.reactions || {}, mine = r[me()], cs = a.comments || [], open = S.openAnn.has(a.id);
+  const counts = {}; Object.values(r).forEach(e => counts[e] = (counts[e] || 0) + 1);
+  return `<div class="reacts">${REACTS.map(e => `<button class="react ${mine === e ? 'on' : ''}" data-a="annreact" data-k="${a.id}" data-v="${e}">${e}${counts[e] ? `<b>${counts[e]}</b>` : ''}</button>`).join('')}
+    <button class="react cm" data-a="anncomments" data-k="${a.id}">💬 ${cs.length || ''}</button></div>
+    ${Object.keys(r).length && can('announce') ? `<div class="small muted" style="margin-top:4px">${Object.entries(r).map(([id, e]) => `${e} ${esc(nameOf(id).split(' ')[0])}`).join(' · ')}</div>` : ''}
+    ${open ? `<div>${cs.map(c => `<div class="comment row" style="align-items:flex-start">${avatar(c.author, 'sm')}<div class="grow"><b>${esc(nameOf(c.author))}</b> <span class="muted small">${ago(c.created_at)}</span><div class="pre">${linkify(trT(c.body))}</div></div>
+        ${c.author === me() || can('announce') ? `<button class="btn danger sm" style="min-height:0;padding:0 4px" data-a="delanncomment" data-k="${c.id}">×</button>` : ''}</div>`).join('')}
+      <form class="row" style="margin-top:8px" data-form="anncomment" data-k="${a.id}"><input class="i grow" name="body" placeholder="${t('Write a comment…')}" required><button class="btn sm">${t('Send')}</button></form></div>` : ''}`;
+}
 /* ----- groups, to-dos, info helpers ----- */
 const KINDS = { car: ['🚐', 'Cars'], room: ['🏨', 'Hotel rooms'], activity: ['🎯', 'Activity'], other: ['👥', 'Other'] };
 function myGroup(ar) { return (ar.groups || []).find(g => (g.members || []).includes(me())); }
@@ -634,7 +656,7 @@ function dayBlock(day) {
     ${photos.length ? `<div class="gallery" style="margin-top:10px">${photos.slice(0, 6).map((p, ix) => `<div class="g" data-a="lightbox" data-list="day:${day}" data-i="${ix}">${pimg(p.id)}</div>`).join('')}</div>` : ''}
     <div class="row" style="margin-top:8px;gap:6px">
       ${can('edit_plan') ? `<button class="btn sec sm" data-a="edititem" data-day="${day}">${ico('plus', 16)} ${t('Add activity')}</button>` : ''}
-      ${can('add_photos') ? `<button class="btn sec sm" data-a="addphotos" data-day="${day}">${ico('cam', 16)} ${t('Add photos')}</button>` : ''}
+      ${can('edit_plan') ? `<button class="btn sec sm" data-a="addphotos" data-day="${day}">${ico('cam', 16)} ${t('Add photos')}</button>` : ''}
     </div>
   </div>`;
 }
@@ -729,7 +751,27 @@ function ideasView() {
 }
 
 /* ----- Money ----- */
+function memberMoney() {
+  const b = balances(); const mine = b[me()] || { paid: 0, share: 0, net: 0 };
+  const tr = transfers(Object.fromEntries(Object.entries(b).map(([k, v]) => [k, v.net])));
+  const pay = tr.filter(x => x.from === me()), get = tr.filter(x => x.to === me());
+  const ex = D().expenses.filter(e => e.shares[me()] != null || e.paid_by === me());
+  let lastDay = '';
+  return `<div class="row between" style="margin-top:12px"><span class="small muted">${t('Display currency')}</span><div class="chips" style="padding:0">${CURS.map(c => `<span class="chip ${S.cur === c ? 'on' : ''}" data-a="cur" data-k="${c}">${c}</span>`).join('')}</div></div>
+  <div class="card mybal ${mine.net > 0.005 ? 'good' : mine.net < -0.005 ? 'bad' : 'ok'}"><div class="muted small">${t('Your balance')}</div>
+    <div class="money-big">${mine.net < -0.005 || mine.net > 0.005 ? money(Math.abs(fromBase(mine.net))) : '✅'}</div>
+    <b>${mine.net > 0.005 ? t('You will get money back') : mine.net < -0.005 ? t('You need to pay') : t('You are all settled 🎉')}</b>
+    <div class="row small muted" style="margin-top:8px;gap:16px"><span>${t('Your share')}: <b>${money(fromBase(mine.share))}</b></span><span>${t('You paid')}: <b>${money(fromBase(mine.paid))}</b></span></div>
+    <button class="btn sec sm" style="margin-top:10px" data-a="statement" data-k="${me()}">📄 ${t('My full statement')}</button></div>
+  ${pay.length || get.length ? `<h2>🤝 ${t('What to do')}</h2><div class="card list">${pay.map(x => `<div class="li">${avatar(x.to)}<div class="grow">${t('Pay')} <b>${esc(nameOf(x.to))}</b></div><span class="amount bad">${money(fromBase(x.amount))}</span></div>`).join('')}${get.map(x => `<div class="li">${avatar(x.from)}<div class="grow"><b>${esc(nameOf(x.from))}</b> ${t('pays you')}</div><span class="amount good">${money(fromBase(x.amount))}</span></div>`).join('')}</div>` : ''}
+  <h2>🧾 ${t('Your bills')} <span class="muted small">${ex.length}</span></h2>
+  ${ex.length ? ex.map(e => { const head = e.spent_on !== lastDay ? `<h3 class="muted small" style="margin:12px 0 0">${fmtDay(e.spent_on, { weekday: 'long', day: 'numeric', month: 'short' })}</h3>` : ''; lastDay = e.spent_on; const my = e.shares[me()];
+    return head + `<div class="card tap" data-a="expense" data-k="${e.id}" style="margin:6px 0"><div class="row"><span style="font-size:24px">${CATS[e.category] || '💸'}</span><div class="grow"><b>${esc(e.title)}</b><div class="small muted">${t('paid')}: ${esc(nameOf(e.paid_by))}</div></div>
+      <div style="text-align:end"><div class="small muted">${t('your share')}</div><div class="amount">${my ? money(my, e.currency) : '—'}</div></div></div></div>`; }).join('')
+    : emptyState('🧾', t('No bills yet.'), t('When the organizer adds a bill you are part of, it shows up here with your share.'))}`;
+}
 function moneyView() {
+  if (!isAdmin() && !can('add_expense') && !can('edit_plan')) return memberMoney();
   const all = can('money_all');
   const b = balances(); const mine = b[me()] || { paid: 0, share: 0, net: 0 };
   const curChips = `<div class="row between" style="margin-top:12px"><span class="small muted">${t('Display currency')}</span><div class="chips" style="padding:0">${CURS.map(c => `<span class="chip ${S.cur === c ? 'on' : ''}" data-a="cur" data-k="${c}">${c}</span>`).join('')}</div></div>`;
@@ -870,7 +912,7 @@ function organizeHub() {
     ${tile('📄', 'Export CSV', '', 'csv', '', '#78716c')}
   </div>
   <h3 class="sec-h">⚙️ ${t('Trip')}</h3>
-  <div class="tiles">${tile('🎨', 'Trip settings', t('Name, dates, colours, cover'), 'tripsettings', '', '#db2777')}</div>
+  <div class="tiles">${tile('🎨', 'Trip settings', t('Name, dates, colours, cover'), 'tripsettings', '', '#db2777')}${tile('👁️', 'See it as family', t('Preview the member view'), 'preview', '', '#0891b2')}</div>
   <h2>👤 ${t('My account')}</h2>`;
 }
 function organizersSheet() {
@@ -889,11 +931,12 @@ function moreView() {
       <button class="btn danger sm" data-a="logout">${t('Log out')}</button></div></div>
   <div class="card"><div class="row between"><b>${t('Language')}</b><div class="chips" style="padding:0"><span class="chip ${S.lang === 'en' ? 'on' : ''}" data-a="setlang" data-k="en">English</span><span class="chip ${S.lang === 'ar' ? 'on' : ''}" data-a="setlang" data-k="ar">العربية</span></div></div>
     <div class="row between" style="margin-top:10px"><b>${t('Appearance')}</b><div class="chips" style="padding:0">${['auto', 'light', 'dark'].map(k => `<span class="chip ${ap === k ? 'on' : ''}" data-a="appearance" data-k="${k}">${t(k[0].toUpperCase() + k.slice(1))}</span>`).join('')}</div></div></div>
-  <div class="card"><div class="row between"><b>💡 ${t('Tips on each screen')}</b><button class="btn sec sm" data-a="resethints">${t('Show tips again')}</button></div></div>
+  ${realAdmin() ? `<div class="card tap" data-a="preview"><div class="row"><span style="font-size:26px">👁️</span><div class="grow"><b>${S.preview ? t('Back to organizer') : t('See the app like a family member')}</b><div class="small muted">${t('Check exactly what your family sees, then come back.')}</div></div><span class="muted">›</span></div></div>` : ''}
+  ${isAdmin() ? '' : '<!--'}<div class="card"><div class="row between"><b>💡 ${t('Tips on each screen')}</b><button class="btn sec sm" data-a="resethints">${t('Show tips again')}</button></div></div>${isAdmin() ? '' : '-->'}
   <div class="card"><b>📲 ${t('Install on your phone')}</b><p class="small muted" style="margin:4px 0 0">${t('Tap Share then "Add to Home Screen" on iPhone, or the menu then "Install app" on Android.')}</p></div>
-  <h2>${t('Family')}</h2>
+  ${isAdmin() ? `<h2>${t('Family')}</h2>
   <div class="card list">${D().members.map(x => `<div class="li">${avatar(x.id)}<div class="grow"><b>${esc(x.name)}</b>${x.role === 'admin' ? ' <span class="badge brand">★</span>' : ''}<div class="small muted">${esc(x.household || '')}</div></div>
-    ${isAdmin() ? `<button class="btn ghost sm" data-a="member" data-k="${x.id}">${t('Edit')}</button>` : ''}</div>`).join('')}</div>
+    <button class="btn ghost sm" data-a="member" data-k="${x.id}">${t('Edit')}</button></div>`).join('')}</div>` : ''}
   <p class="small muted" style="text-align:center;margin-top:24px">${esc(trip().name)} · v1</p>`;
 }
 
@@ -1297,6 +1340,12 @@ const H = {
     } catch { toast(t('Translation is not available right now')); }
     render(); rerenderSheet();
   },
+  preview: () => { S.preview = !S.preview; S.tab = 'home'; S.anim = true; closeSheet(); render(); scrollTo(0, 0); if (S.preview) toast('👁️ ' + t('This is what your family sees')); },
+  annreact: el => { const a = D().announcements.find(x => x.id === el.dataset.k); const cur = (a.reactions || {})[me()]; const v = cur === el.dataset.v ? '' : el.dataset.v;
+    a.reactions = Object.assign({}, a.reactions); if (v) a.reactions[me()] = v; else delete a.reactions[me()]; render();
+    act('react_announcement', { id: a.id, emoji: v }).catch(() => {}); },
+  anncomments: el => { const k = el.dataset.k; S.openAnn.has(k) ? S.openAnn.delete(k) : S.openAnn.add(k); render(); },
+  delanncomment: el => { act('delete_ann_comment', { id: el.dataset.k }).catch(() => {}); },
   hint: el => { const h = LS.get('hints', {}); h[el.dataset.k] = 1; LS.set('hints', h); render(); },
   resethints: () => { LS.set('hints', {}); LS.del('hideStart'); toast('💡 ' + t('Tips are back on every screen')); render(); },
   hidestart: () => { LS.set('hideStart', true); toast(t('You can find the steps in the Organize tab')); render(); },
@@ -1475,6 +1524,7 @@ document.addEventListener('submit', async ev => {
       catch (e) { toast(errText(e)); if (e.message === 'already_set_up') { S.mode = 'login'; render(); } }
     });
   }
+  if (kind === 'anncomment') busy(btn, async () => { await act('comment_announcement', { id: f.dataset.k, body: fd.body }); });
   if (kind === 'comment') busy(btn, async () => { await act('comment', { id: f.dataset.k, body: fd.body }); });
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && sheetRender) closeSheet(); });

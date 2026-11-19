@@ -156,6 +156,22 @@ create table if not exists public.task_done (
 );
 alter table public.expenses add column if not exists method text not null default '';   -- cash, card, cliq, transfer, instapay, other
 alter table public.expenses add column if not exists receipt uuid;                        -- photos.id (kind 'receipt')
+create table if not exists public.ann_reactions (
+  announcement_id uuid not null references public.announcements(id) on delete cascade,
+  member_id uuid not null references public.members(id) on delete cascade,
+  emoji text not null,
+  primary key (announcement_id, member_id)
+);
+create table if not exists public.ann_comments (
+  id uuid primary key default gen_random_uuid(),
+  announcement_id uuid not null references public.announcements(id) on delete cascade,
+  author uuid references public.members(id) on delete set null,
+  body text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.ann_reactions enable row level security;
+alter table public.ann_comments enable row level security;
+revoke all on public.ann_reactions, public.ann_comments from anon, authenticated;
 alter table public.announcements add column if not exists audience jsonb not null default '[]'::jsonb;  -- member ids; empty = everyone
 create table if not exists public.arrangements (
   id uuid primary key default gen_random_uuid(),
@@ -286,7 +302,10 @@ begin
               'perms', case when me.role = 'admin' or id = me.id then perms else '{}'::jsonb end) order by name) from members), '[]'),
       'itinerary', case when _can(me,'view_plan') then coalesce((select jsonb_agg(to_jsonb(i) order by day, nullif(time,'') nulls first, created_at) from itinerary i), '[]') else '[]' end,
       'days', case when _can(me,'view_plan') then coalesce((select jsonb_agg(to_jsonb(dd) order by day) from days dd), '[]') else '[]' end,
-      'announcements', coalesce((select jsonb_agg(to_jsonb(a) order by pinned desc, created_at desc) from announcements a
+      'announcements', coalesce((select jsonb_agg(to_jsonb(a) || jsonb_build_object(
+            'reactions', coalesce((select jsonb_object_agg(r.member_id, r.emoji) from ann_reactions r where r.announcement_id = a.id), '{}'),
+            'comments', coalesce((select jsonb_agg(jsonb_build_object('id', c.id, 'author', c.author, 'body', c.body, 'created_at', c.created_at) order by c.created_at) from ann_comments c where c.announcement_id = a.id), '[]'))
+          order by pinned desc, created_at desc) from announcements a
           where a.audience = '[]'::jsonb or a.audience ? me.id::text or a.author = me.id or _can(me,'announce')), '[]'),
       'arrangements', coalesce((select jsonb_agg(to_jsonb(ar) order by ar.day nulls last, ar.created_at) from arrangements ar), '[]'),
       'suggestions', case when _can(me,'view_ideas') then coalesce((select jsonb_agg(to_jsonb(s) || jsonb_build_object(
@@ -398,6 +417,29 @@ begin
       insert into votes(suggestion_id, member_id, value) values ((d->>'id')::uuid, me.id, sign((d->>'value')::int))
         on conflict (suggestion_id, member_id) do update set value = excluded.value;
     end if;
+    return '{}'::jsonb;
+  end if;
+
+  -- everyone who can see an announcement may react to it and comment on it
+  if p_action in ('react_announcement','comment_announcement') then
+    if not exists (select 1 from announcements a where a.id = (d->>'id')::uuid
+        and (a.audience = '[]'::jsonb or a.audience ? me.id::text or a.author = me.id or _can(me,'announce'))) then raise exception 'not_allowed'; end if;
+    if p_action = 'react_announcement' then
+      if coalesce(d->>'emoji','') = '' then
+        delete from ann_reactions where announcement_id = (d->>'id')::uuid and member_id = me.id;
+      else
+        insert into ann_reactions(announcement_id, member_id, emoji) values ((d->>'id')::uuid, me.id, left(d->>'emoji', 16))
+          on conflict (announcement_id, member_id) do update set emoji = excluded.emoji;
+      end if;
+    else
+      if coalesce(trim(d->>'body'),'') = '' then raise exception 'missing_text'; end if;
+      insert into ann_comments(announcement_id, author, body) values ((d->>'id')::uuid, me.id, left(trim(d->>'body'), 2000));
+    end if;
+    return '{}'::jsonb;
+  end if;
+
+  if p_action = 'delete_ann_comment' then
+    delete from ann_comments where id = (d->>'id')::uuid and (author = me.id or _can(me,'announce'));
     return '{}'::jsonb;
   end if;
 

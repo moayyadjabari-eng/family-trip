@@ -203,3 +203,14 @@ nav.tabs button.on .ti{background:color-mix(in srgb,var(--brand) 16%,transparent
 .dc i{display:block;width:100%;max-width:34px;min-height:3px;border-radius:8px 8px 3px 3px;background:linear-gradient(to top,var(--brand),color-mix(in srgb,var(--brand) 55%,#f59e0b));transition:height .6s ease}
 .dc small{font-size:11px;color:var(--muted);white-space:nowrap}
 .dc.today i{background:linear-gradient(to top,#f59e0b,#facc15)}
+.reacts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.react{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:4px 10px;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:transform .15s}
+.react b{font-size:12px;color:var(--muted)}
+.react.on{background:color-mix(in srgb,var(--brand) 18%,var(--card));border-color:var(--brand);animation:pop .3s ease}
+.react:active{transform:scale(.9)}
+.react.cm{font-size:14px;font-weight:700;color:var(--muted)}
+.preview-bar{display:flex;align-items:center;gap:8px;justify-content:space-between;background:#0891b2;color:#fff;padding:8px 16px;font-weight:700;font-size:14px}
+.preview-bar .btn{background:#fff;color:#0891b2}
+.mybal{text-align:center;padding:20px}
+.mybal.good{background:color-mix(in srgb,var(--good) 10%,var(--card))}.mybal.bad{background:color-mix(in srgb,var(--bad) 8%,var(--card))}
+.mybal.good .money-big{color:var(--good)}.mybal.bad .money-big{color:var(--bad)}
