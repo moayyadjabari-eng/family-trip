@@ -288,7 +288,6 @@ function applyTheme() {
 function tabs() {
   const list = [['home', 'Home']];
   if (can('view_plan') || can('view_places')) list.push(['plan', 'Plan']);
-  if (can('view_photos')) list.push(['photos', 'Photos']);
   if (can('view_ideas')) list.push(['ideas', 'Ideas']);
   if (can('view_money')) list.push(['money', 'Money']);
   list.push(['more', isAdmin() ? 'Organize' : 'Me']);
@@ -857,7 +856,6 @@ function organizeHub() {
     ${tile('🗓️', 'Days & activities', d.itinerary.length + ' ' + t('activities'), 'planseg', 'days', '#f97316')}
     ${tile('📍', 'Places', d.places.length + ' ' + t('places'), 'planseg', 'places', '#ef4444')}
     ${tile('🧳', 'Before you travel', d.info.length + ' ' + t('cards'), 'editinfo', '', '#14b8a6')}
-    ${tile('📷', 'Photos', d.photos.length + ' ' + t('photos'), 'tab', 'photos', '#ec4899')}
   </div>
   <h3 class="sec-h">💬 ${t('Talk to the family')}</h3>
   <div class="tiles">
