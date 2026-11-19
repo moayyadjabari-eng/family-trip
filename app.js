@@ -787,7 +787,7 @@ function moneyView() {
     <div class="card list">${D().settlements.map(s => `<div class="li"><div class="grow"><b>${esc(nameOf(s.from_member))}</b> → <b>${esc(nameOf(s.to_member))}</b><div class="small muted">${ago(s.created_at)}${s.note ? ' · ' + esc(s.note) : ''}</div></div>
       <span class="amount">${money(s.amount, s.currency)}</span>${isAdmin() || [s.from_member, s.to_member, s.created_by].includes(me()) ? `<button class="btn danger sm" data-a="delsettle" data-k="${s.id}">×</button>` : ''}</div>`).join('') || `<div class="muted small">—</div>`}</div>`;
   }
-  return curChips + summary + (segs.length > 1 ? `<div class="seg">${segs.map(([k, l]) => `<button class="${S.moneyTab === k ? 'on' : ''}" data-a="mtab" data-k="${k}">${t(l)}</button>`).join('')}</div>` : '') + body +
+  return curChips + summary + (segs.length > 1 ? `<div class="seg seg4">${segs.map(([k, l]) => { const [e, ...w] = t(l).split(' '); return `<button class="${S.moneyTab === k ? 'on' : ''}" data-a="mtab" data-k="${k}"><span>${e}</span>${w.join(' ')}</button>`; }).join('')}</div>` : '') + body +
     (can('add_expense') ? `<button class="btn fab" data-a="expenseform">${ico('plus', 18)} ${t('Add expense')}</button>` : '');
 }
 
