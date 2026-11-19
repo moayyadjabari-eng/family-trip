@@ -194,3 +194,4 @@ nav.tabs button.on .ti{background:color-mix(in srgb,var(--brand) 16%,transparent
 @keyframes fall{to{transform:translate(var(--x),110vh) rotate(var(--r))}}
 .toast{border-radius:999px;font-weight:700;padding:12px 20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.trbtn{border:0;background:none;color:var(--brand);font-weight:700;font-size:13px;padding:6px 0 0;cursor:pointer;display:inline-flex;gap:4px}

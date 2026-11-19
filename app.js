@@ -14,7 +14,7 @@ const LS = {
 const S = {
   token: LS.get('token', null), lang: LS.get('lang', 'en'), tab: LS.get('tab', 'home'), data: null,
   cur: LS.get('cur', 'JOD'), moneyTab: 'expenses', ideasSort: 'top', city: 'all', placesSeg: 'places',
-  byHouse: LS.get('byHouse', false), planDay: 'all', openIdeas: new Set(), mode: 'login', status: null
+  byHouse: LS.get('byHouse', false), trOn: new Set(), planDay: 'all', openIdeas: new Set(), mode: 'login', status: null
 };
 let F = null;            // the form currently open in a sheet
 let sheetRender = null;  // function that renders the open sheet
@@ -346,6 +346,27 @@ function loginView() {
 }
 
 Object.assign(AR, {"Photos": "الصور", "Organize": "التنظيم", "Me": "حسابي", "Got it": "فهمت", "This is your trip home. The day brief, your to-dos, your groups and news from the organizer all show up here.": "هذه صفحة الرحلة الرئيسية. ملخص اليوم ومهامك ومجموعاتك وأخبار المنظم تظهر هنا.", "The day-by-day schedule. Each day has a brief: when and where we meet, what to wear and what to bring.": "برنامج الرحلة يوماً بيوم. لكل يوم ملخص: متى وأين نتجمع، ماذا نلبس وماذا نحضر.", "Tap ✏️ on a day to write its brief, then \"Add activity\" to add times. Everyone sees it right away.": "اضغط ✏️ على اليوم لكتابة الملخص، ثم \"إضافة نشاط\" لإضافة الأوقات. الجميع يراه فوراً.", "Every place we will visit, with address, hours, prices and tips. Tap a place to see everything.": "كل الأماكن التي سنزورها مع العنوان والمواعيد والأسعار والنصائح. اضغط على المكان لرؤية كل شيء.", "Who rides in which car, who sleeps in which room, and who joins which activity. Look for your name.": "من يركب في أي سيارة، ومن ينام في أي غرفة، ومن يشارك في أي نشاط. ابحث عن اسمك.", "Things to get done before and during the trip. Flip the switch when you finish one.": "أشياء يجب إنجازها قبل الرحلة وخلالها. فعّل المفتاح عندما تنهي واحدة.", "Share your trip photos with the whole family. Tap a photo to see it big.": "شارك صور الرحلة مع كل العائلة. اضغط على الصورة لتكبيرها.", "Want to go somewhere? Suggest it here. Tap ❤️ on the ideas you love so the organizer sees what is popular.": "تريد الذهاب لمكان؟ اقترحه هنا. اضغط ❤️ على الأفكار التي تحبها ليعرف المنظم ما يحبه الجميع.", "Every bill, who paid and what each person owes. \"Settle up\" shows the easiest way to pay each other back.": "كل فاتورة، من دفع، وكم على كل شخص. \"التسوية\" تعرض أسهل طريقة لتسديد المبالغ.", "Your profile, photo, password and language.": "ملفك الشخصي وصورتك وكلمة المرور واللغة.", "Everything you control as the organizer is here. Follow the steps at the top, then use the big buttons below.": "كل ما تتحكم به كمنظم موجود هنا. اتبع الخطوات في الأعلى ثم استخدم الأزرار الكبيرة بالأسفل.", "Good morning": "صباح الخير", "Good afternoon": "مساء الخير", "Good evening": "مساء الخير", "Start here": "ابدأ من هنا", "All set! Your trip is ready 🎉": "كل شيء جاهز! رحلتك جاهزة 🎉", "{a} of {b} done. Tap a step to do it.": "تم {a} من {b}. اضغط على خطوة لتنفيذها.", "Hide": "إخفاء", "Next": "التالي", "Name the trip, set the dates and colours": "سمِّ الرحلة وحدد التواريخ والألوان", "Add your family members": "أضف أفراد العائلة", "Plan the days": "خطط الأيام", "Add the places you will visit": "أضف الأماكن التي ستزورونها", "Split people into cars and rooms": "وزّع الناس على السيارات والغرف", "Add trip info (flights, hotels, phone numbers)": "أضف معلومات الرحلة (الطيران، الفنادق، الأرقام)", "Send your first announcement": "أرسل أول إعلان", "Tell the family what is coming up. You choose who sees each one.": "أخبر العائلة بما هو قادم. أنت تختار من يرى كل إعلان.", "News from the organizer will show up here.": "أخبار المنظم ستظهر هنا.", "Days": "الأيام", "Groups": "المجموعات", "To-dos": "المهام", "Make groups for each car ride, hotel rooms or an activity. Everyone will see which group they are in.": "اعمل مجموعات لكل مشوار سيارة أو غرف الفندق أو نشاط. كل شخص سيرى مجموعته.", "Make the first groups": "اعمل أول مجموعات", "For example: renew passports, bring sunscreen, pay the hotel deposit.": "مثلاً: تجديد الجوازات، إحضار واقي الشمس، دفع عربون الفندق.", "Add the first to-do": "أضف أول مهمة", "No places yet.": "لا توجد أماكن بعد.", "Add the hotels, beaches and sights you will visit, with address, hours, prices and tips.": "أضف الفنادق والشواطئ والمعالم مع العنوان والمواعيد والأسعار والنصائح.", "Add the first place": "أضف أول مكان", "Snap the fun moments and share them with the whole family.": "صوّر اللحظات الحلوة وشاركها مع العائلة.", "Tell us a place you would love to visit and why.": "أخبرنا عن مكان تحب زيارته ولماذا.", "Organize the trip": "نظّم الرحلة", "People": "الأشخاص", "Add a family member": "أضف فرداً من العائلة", "Co-organizers": "المنظمون المشاركون", "organizers": "منظمين", "Cars, rooms & groups": "السيارات والغرف والمجموعات", "groupings": "توزيعات", "to-dos": "مهام", "Days & activities": "الأيام والأنشطة", "activities": "أنشطة", "places": "أماكن", "Trip info": "معلومات الرحلة", "cards": "بطاقات", "photos": "صور", "Talk to the family": "تواصل مع العائلة", "sent": "مرسلة", "Ideas inbox": "صندوق الاقتراحات", "waiting for you": "بانتظارك", "Add a bill": "أضف فاتورة", "bills": "فواتير", "Trip": "الرحلة", "Name, dates, colours, cover": "الاسم والتواريخ والألوان والغلاف", "My account": "حسابي", "Co-organizers have the same powers as you: they can add members, edit the plan, places, groups, bills and announcements. Switch someone on to make them a co-organizer.": "المنظم المشارك له نفس صلاحياتك: يضيف أعضاء ويعدل البرنامج والأماكن والمجموعات والفواتير والإعلانات. فعّل المفتاح لتجعل شخصاً منظماً مشاركاً.", "Organizer": "منظم", "You": "أنت", "Co-organizer added": "تمت إضافة منظم مشارك", "Tips on each screen": "نصائح في كل صفحة", "Show tips again": "أظهر النصائح مجدداً", "Tips are back on every screen": "عادت النصائح لكل الصفحات", "You can find the steps in the Organize tab": "تجد الخطوات في تبويب التنظيم", "Role": "الدور", "Family member": "فرد من العائلة", "Sees what you allow below": "يرى ما تسمح به بالأسفل", "Co-organizer": "منظم مشارك", "Same powers as you": "نفس صلاحياتك", "Co-organizers can do everything you can, except remove you.": "المنظم المشارك يستطيع فعل كل ما تفعله، إلا حذفك."});
+/* ----- translation (organizer writes in English, anyone can read it in Arabic) ----- */
+const TR = LS.get('tr', {}); const TRQ = {};
+function hashS(x) { let h = 0; for (const c of x) h = (h * 31 + c.codePointAt(0)) | 0; return 'h' + (h >>> 0).toString(36) + x.length; }
+function trT(x) { if (!x) return x; const k = hashS(x); return S.trOn.has(k) && TR[k] ? TR[k] : x; }
+function trBtn(...texts) {
+  const list = texts.filter(x => x && String(x).trim()); if (!list.length) return '';
+  const g = hashS(list.join('\u0001')); TRQ[g] = list; const on = S.trOn.has(g);
+  return `<button class="trbtn" data-a="translate" data-k="${g}">🌐 ${on ? t('Show original') : t('Translate')}</button>`;
+}
+const isArabic = x => (x.match(/[\u0600-\u06FF]/g) || []).length > (x.match(/[A-Za-z]/g) || []).length;
+async function translateText(x, to) {
+  try {
+    const r = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=' + to + '&dt=t&q=' + encodeURIComponent(x));
+    if (!r.ok) throw 0; const j = await r.json(); return j[0].map(y => y[0]).join('');
+  } catch {
+    const r = await fetch('https://api.mymemory.translated.net/get?langpair=' + (to === 'ar' ? 'en|ar' : 'ar|en') + '&q=' + encodeURIComponent(x.slice(0, 480)));
+    const j = await r.json(); return j.responseData.translatedText;
+  }
+}
+
+Object.assign(AR, {"Show original": "عرض النص الأصلي", "Translate": "ترجمة", "Translating…": "جارٍ الترجمة…", "Translation is not available right now": "الترجمة غير متاحة الآن", "Nothing here yet": "لا يوجد شيء بعد", "Add what the family needs to know before coming: internet and SIM cards, money and cash, visa and passports, weather and clothes, power plugs, emergency numbers.": "أضف ما تحتاج العائلة معرفته قبل السفر: الإنترنت وشرائح الاتصال، المال والكاش، التأشيرة والجوازات، الطقس والملابس، القوابس الكهربائية، أرقام الطوارئ.", "Add the first card": "أضف أول بطاقة", "Before you travel & trip info": "قبل السفر ومعلومات الرحلة", "Before you travel": "قبل السفر", "Write \"Before you travel\" (internet, money, visa…)": "اكتب \"قبل السفر\" (الإنترنت، المال، التأشيرة…)"});
 /* ----- guidance & joy ----- */
 const HINTS = {
   home: 'This is your trip home. The day brief, your to-dos, your groups and news from the organizer all show up here.',
@@ -396,7 +417,7 @@ function setupSteps() {
     ['🗓️', 'Plan the days', 'planseg', 'days', d.days.length > 0 || d.itinerary.length > 0],
     ['📍', 'Add the places you will visit', 'planseg', 'places', d.places.length > 0],
     ['🚐', 'Split people into cars and rooms', 'planseg', 'groups', d.arrangements.length > 0],
-    ['📌', 'Add trip info (flights, hotels, phone numbers)', 'editinfo', '', d.info.length > 0],
+    ['🧳', 'Write "Before you travel" (internet, money, visa…)', 'editinfo', '', d.info.length > 0],
     ['📣', 'Send your first announcement', 'announce', '', d.announcements.length > 0]
   ];
 }
@@ -438,12 +459,12 @@ function briefCard(day, label) {
   return `<div class="card brief tap" data-a="goday" data-k="${day}">
     <div class="row between"><span class="badge brand">${esc(label)}</span><span class="muted small">${t('Day')} ${n} · ${fmtDay(day)}</span></div>
     ${d.cover ? `<div class="day-cover" style="margin-top:10px">${pimg(d.cover)}</div>` : ''}
-    <h3 style="margin-top:8px;font-size:18px">${esc(d.title || items[0]?.title || '')}</h3>
-    ${d.brief ? `<div class="pre">${linkify(d.brief)}</div>` : ''}
+    <h3 style="margin-top:8px;font-size:18px">${esc(trT(d.title || items[0]?.title || ''))}</h3>
+    ${d.brief ? `<div class="pre">${linkify(trT(d.brief))}</div>` : ''}
     <div class="grid">
       ${d.meet_time || d.meet_place ? `<div><div class="k">${t('Meet at')}</div><b>${esc(d.meet_time)}</b> ${esc(d.meet_place)}</div>` : ''}
-      ${d.wear ? `<div><div class="k">${t('Wear')}</div>${esc(d.wear)}</div>` : ''}
-      ${d.bring ? `<div style="grid-column:1/-1"><div class="k">${t('Bring')}</div>${esc(d.bring)}</div>` : ''}
+      ${d.wear ? `<div><div class="k">${t('Wear')}</div>${esc(trT(d.wear))}</div>` : ''}
+      ${d.bring ? `<div style="grid-column:1/-1"><div class="k">${t('Bring')}</div>${esc(trT(d.bring))}</div>` : ''}
     </div>
     ${items.length ? `<div class="timeline">${items.map(i => `<div class="tl" style="padding-bottom:4px"><span class="time">${esc(i.time)}</span> ${esc(i.title)}</div>`).join('')}</div>` : ''}
   </div>`;
@@ -479,18 +500,18 @@ function homeView() {
   <div class="hero tap" data-a="party">${th.cover ? pimg(th.cover) : EGYPT}<div class="shade"></div>
     <div class="txt"><div class="big ${p.phase === 'before' ? 'count' : ''}">${esc(big)}</div><div style="font-weight:700;font-size:18px">${esc(sub)}</div>
     <p class="small">${fmtDay(trip().start, { day: 'numeric', month: 'long' })} – ${fmtDay(trip().end, { day: 'numeric', month: 'long', year: 'numeric' })}</p></div></div>
-  ${th.welcome ? `<div class="card"><div class="row"><span style="font-size:24px">👋</span><div class="grow pre">${linkify(th.welcome)}</div></div></div>` : ''}
+  ${th.welcome ? `<div class="card"><div class="row"><span style="font-size:24px">👋</span><div class="grow"><div class="pre">${linkify(trT(th.welcome))}</div>${trBtn(th.welcome)}</div></div></div>` : ''}
   ${!D().me.avatar ? `<div class="card tap" data-a="myavatar"><div class="row">${avatar(me(), 'lg')}<div class="grow"><b>📸 ${t('Add your photo')}</b><div class="small muted">${t('So the family can see who is who.')}</div></div><span class="btn sm">${t('Add')}</span></div></div>` : ''}
   ${briefs}
   ${(() => { const open = myTasks().filter(tk => !tk.done[me()]); return open.length ? `<div class="row between"><h2>✅ ${t('Your to-dos')}</h2><button class="btn ghost sm" data-a="planseg" data-k="todo">${t('See all')}</button></div><div class="card list">${open.slice(0, 4).map(taskRow).join('')}</div>` : ''; })()}
   ${(() => { const up = D().arrangements.filter(a => myGroup(a) && (!a.day || a.day >= today())).slice(0, 3); return up.length ? `<div class="row between"><h2>👥 ${t('Your groups')}</h2><button class="btn ghost sm" data-a="planseg" data-k="groups">${t('See all')}</button></div>${up.map(a => arrangementCard(a, true)).join('')}` : ''; })()}
-  ${D().info.length || can('announce') ? `<div class="row between"><h2>📌 ${t('Trip info')}</h2>${can('announce') ? `<button class="btn sm" data-a="editinfo">${ico('plus', 16)} ${t('Add')}</button>` : ''}</div>
-    ${D().info.map(ic => `<details class="card"><summary class="row" style="cursor:pointer;list-style:none"><span style="font-size:22px">${esc(ic.icon)}</span><b class="grow">${esc(ic.title)}</b>${can('announce') ? `<button class="btn ghost sm" data-a="editinfo" data-k="${ic.id}">${t('Edit')}</button>` : '›'}</summary><div class="pre" style="margin-top:8px">${linkify(ic.body)}</div></details>`).join('') || `<p class="small muted">${t('Add flights, hotel addresses, emergency numbers and anything the family should be able to find quickly.')}</p>`}` : ''}
+  ${D().info.length || can('announce') ? `<div class="row between"><h2>🧳 ${t('Before you travel & trip info')}</h2>${can('announce') ? `<button class="btn sm" data-a="editinfo">${ico('plus', 16)} ${t('Add')}</button>` : ''}</div>
+    ${D().info.map(ic => `<details class="card" ${S.trOn.has(hashS([ic.title, ic.body].filter(x => x && String(x).trim()).join('\u0001'))) ? 'open' : ''}><summary class="row" style="cursor:pointer;list-style:none"><span style="font-size:22px">${esc(ic.icon)}</span><b class="grow">${esc(trT(ic.title))}</b>${can('announce') ? `<button class="btn ghost sm" data-a="editinfo" data-k="${ic.id}">${t('Edit')}</button>` : '›'}</summary><div class="pre" style="margin-top:8px">${linkify(trT(ic.body))}</div>${trBtn(ic.title, ic.body)}</details>`).join('') || (can('announce') ? emptyState('🧳', t('Nothing here yet'), t('Add what the family needs to know before coming: internet and SIM cards, money and cash, visa and passports, weather and clothes, power plugs, emergency numbers.'), `<button class="btn" data-a="editinfo">${ico('plus', 16)} ${t('Add the first card')}</button>`) : '')}` : ''}
   ${bal}
   <div class="row between"><h2>${t('Announcements')}</h2>${can('announce') ? `<button class="btn sm" data-a="announce">${ico('plus', 16)} ${t('New announcement')}</button>` : ''}</div>
   ${anns.length ? anns.map(a => `<div class="card">
-      <div class="row between"><h3>${a.pinned ? '📌 ' : ''}${esc(a.title)}</h3>${a.created_at > seen && a.author !== me() ? `<span class="badge new">${t('NEW')}</span>` : ''}</div>
-      ${a.body ? `<div class="pre" style="margin-top:4px">${linkify(a.body)}</div>` : ''}
+      <div class="row between"><h3>${a.pinned ? '📌 ' : ''}${esc(trT(a.title))}</h3>${a.created_at > seen && a.author !== me() ? `<span class="badge new">${t('NEW')}</span>` : ''}</div>
+      ${a.body ? `<div class="pre" style="margin-top:4px">${linkify(trT(a.body))}</div>` : ''}${trBtn(a.title, a.body)}
       <div class="row between" style="margin-top:8px"><span class="small muted">${esc(nameOf(a.author))} · ${ago(a.created_at)}${(a.audience || []).length ? ` · 👁️ ${(a.audience || []).length} ${t('people')}` : ''}</span>
       ${can('announce') ? `<button class="btn ghost sm" data-a="announce" data-k="${a.id}">${t('Edit')}</button>` : ''}</div></div>`).join('')
     : emptyState('📣', t('No announcements yet.'), can('announce') ? t('Tell the family what is coming up. You choose who sees each one.') : t('News from the organizer will show up here.'), can('announce') ? `<button class="btn" data-a="announce">${ico('plus', 16)} ${t('New announcement')}</button>` : '')}
@@ -510,7 +531,7 @@ function taskRow(tk) {
     ${assigned ? `<input type="checkbox" class="switch" data-a2="tasktoggle" data-k="${tk.id}" ${mineDone ? 'checked' : ''}>` : '<span style="width:44px"></span>'}
     <div class="grow ${can('edit_plan') ? 'tap' : ''}" ${can('edit_plan') ? `data-a="edittask" data-k="${tk.id}" style="cursor:pointer"` : ''}>
       <b style="${mineDone ? 'text-decoration:line-through;opacity:.6' : ''}">${esc(tk.title)}</b>
-      ${tk.notes ? `<div class="small muted pre">${linkify(tk.notes)}</div>` : ''}
+      ${tk.notes ? `<div class="small muted pre">${linkify(trT(tk.notes))}</div>${trBtn(tk.notes)}` : ''}
       <div class="small ${overdue ? 'bad' : 'muted'}">${tk.due ? '⏰ ' + fmtDay(tk.due) + ' · ' : ''}${doneN}/${ppl.length} ${t('done')}</div>
       ${can('edit_plan') ? `<div class="bar" style="margin-top:4px"><i style="width:${ppl.length ? doneN / ppl.length * 100 : 0}%"></i></div>` : ''}
     </div></div>`;
@@ -577,7 +598,7 @@ function arrangementCard(ar, compact = false) {
   return `<div class="card">
     <div class="row between"><div class="grow"><span class="badge brand">${icon} ${t(kindName)}</span>${ar.day ? ` <span class="small muted">${fmtDay(ar.day)}</span>` : ''}<h3 style="margin-top:6px">${esc(ar.title)}</h3></div>
       ${can('edit_plan') ? `<button class="icon-btn" data-a="editarr" data-k="${ar.id}">${ico('edit', 18)}</button>` : ''}</div>
-    ${ar.notes ? `<div class="small pre muted">${linkify(ar.notes)}</div>` : ''}
+    ${ar.notes ? `<div class="small pre muted">${linkify(trT(ar.notes))}</div>${trBtn(ar.notes)}` : ''}
     ${mine ? `<div class="comment" style="border-inline-start:4px solid var(--brand);margin-top:8px"><b>⭐ ${t('You are in')}: ${esc(mine.name)}</b>${mine.note ? `<div class="small pre">${linkify(mine.note)}</div>` : ''}</div>` : ''}
     ${compact ? '' : (ar.groups || []).map(g => `<div style="margin-top:10px"><div class="row between"><b>${esc(g.name)}</b><span class="small muted">${(g.members || []).length} ${t('people')}</span></div>
       ${g.note ? `<div class="small muted pre">${linkify(g.note)}</div>` : ''}
@@ -595,19 +616,19 @@ function dayBlock(day) {
     <div class="row between"><div><span class="badge ${isToday ? 'good' : 'brand'}">${n > 0 ? t('Day') + ' ' + n : ''}</span> <b>${fmtDay(day, { weekday: 'long', day: 'numeric', month: 'short' })}</b></div>
     ${can('edit_plan') ? `<button class="icon-btn" data-a="editday" data-k="${day}" title="${t('Edit day')}">${ico('edit', 18)}</button>` : ''}</div>
     ${d.cover ? `<div class="day-cover" style="margin-top:10px">${pimg(d.cover)}</div>` : ''}
-    ${d.title ? `<h3 style="margin-top:8px;font-size:18px">${esc(d.title)}</h3>` : ''}
-    ${d.brief ? `<div class="pre">${linkify(d.brief)}</div>` : ''}
+    ${d.title ? `<h3 style="margin-top:8px;font-size:18px">${esc(trT(d.title))}</h3>` : ''}
+    ${d.brief ? `<div class="pre">${linkify(trT(d.brief))}</div>` : ''}${trBtn(d.title, d.brief, d.wear, d.bring, ...items.map(i => i.title), ...items.map(i => i.details))}
     ${d.meet_time || d.meet_place || d.wear || d.bring ? `<div class="grid">
       ${d.meet_time || d.meet_place ? `<div><div class="k">${t('Meet at')}</div><b>${esc(d.meet_time)}</b> ${esc(d.meet_place)}</div>` : ''}
-      ${d.wear ? `<div><div class="k">${t('Wear')}</div>${esc(d.wear)}</div>` : ''}
-      ${d.bring ? `<div style="grid-column:1/-1"><div class="k">${t('Bring')}</div>${esc(d.bring)}</div>` : ''}</div>` : ''}
+      ${d.wear ? `<div><div class="k">${t('Wear')}</div>${esc(trT(d.wear))}</div>` : ''}
+      ${d.bring ? `<div style="grid-column:1/-1"><div class="k">${t('Bring')}</div>${esc(trT(d.bring))}</div>` : ''}</div>` : ''}
     ${D().arrangements.filter(a => a.day === day).map(ar => { const g = myGroup(ar); const [ic] = KINDS[ar.kind] || KINDS.other;
       return `<div class="comment tap" data-a="planseg" data-k="groups" style="margin-top:8px">${ic} <b>${esc(ar.title)}</b>${g ? ` · ${t('You are in')} <b>${esc(g.name)}</b>` : ''}</div>`; }).join('')}
     <div class="timeline">${items.map(i => {
       const pl = i.place_id && D().places.find(p => p.id === i.place_id);
-      return `<div class="tl"><div class="row between"><div class="grow"><span class="time">${esc(i.time)}</span> <b>${esc(i.title)}</b></div>
+      return `<div class="tl"><div class="row between"><div class="grow"><span class="time">${esc(i.time)}</span> <b>${esc(trT(i.title))}</b></div>
         ${can('edit_plan') ? `<button class="btn ghost sm" data-a="edititem" data-k="${i.id}">${t('Edit')}</button>` : ''}</div>
-        ${i.details ? `<div class="small pre">${linkify(i.details)}</div>` : ''}
+        ${i.details ? `<div class="small pre">${linkify(trT(i.details))}</div>` : ''}
         ${pl ? `<button class="chip" style="margin-top:6px" data-a="place" data-k="${pl.id}">📍 ${esc(pl.name)}</button>` : i.place ? `<div class="small muted">📍 ${esc(i.place)}</div>` : ''}</div>`;
     }).join('') || `<div class="muted small">${t('Nothing planned yet.')}</div>`}</div>
     ${photos.length ? `<div class="gallery" style="margin-top:10px">${photos.slice(0, 6).map((p, ix) => `<div class="g" data-a="lightbox" data-list="day:${day}" data-i="${ix}">${pimg(p.id)}</div>`).join('')}</div>` : ''}
@@ -689,8 +710,8 @@ function ideasView() {
         <span class="badge">${s.mode === 'alone' ? '🧍 ' + t('Alone') : '👨‍👩‍👧 ' + t('With a group')}</span>
         ${priv ? `<span class="badge bad">🔒 ${t('Only the organizer sees this')}</span>` : `<span class="badge brand">👥 ${t('Shared with everyone')}</span>`}
         ${s.day ? `<span class="badge">🗓️ ${fmtDay(s.day)}</span>` : ''}</div>
-      ${s.body ? `<div class="small muted" style="font-weight:700">${t('Why')}</div><div class="pre">${linkify(s.body)}</div>` : ''}
-      ${s.reply ? `<div class="comment" style="border-inline-start:4px solid var(--brand)"><b>💬 ${t('Organizer reply')}</b><div class="pre">${linkify(s.reply)}</div></div>` : ''}
+      ${s.body ? `<div class="small muted" style="font-weight:700">${t('Why')}</div><div class="pre">${linkify(trT(s.body))}</div>` : ''}
+      ${s.reply ? `<div class="comment" style="border-inline-start:4px solid var(--brand)"><b>💬 ${t('Organizer reply')}</b><div class="pre">${linkify(trT(s.reply))}</div></div>` : ''}${trBtn(s.body, s.reply)}
       <div class="row" style="margin-top:8px">${avatar(s.author)}<span class="small muted grow">${esc(nameOf(s.author))} · ${ago(s.created_at)}</span></div>
       <div class="row wrap-r" style="gap:4px;margin-top:8px">
         ${!priv ? `<button class="btn ${liked ? '' : 'sec'} sm" data-a="like" data-k="${s.id}">${liked ? '❤️' : '🤍'} ${t('Support')} · ${likers.length}</button>` : ''}
@@ -780,7 +801,7 @@ function organizeHub() {
   <div class="tiles">
     ${tile('🗓️', 'Days & activities', d.itinerary.length + ' ' + t('activities'), 'planseg', 'days', '#f97316')}
     ${tile('📍', 'Places', d.places.length + ' ' + t('places'), 'planseg', 'places', '#ef4444')}
-    ${tile('📌', 'Trip info', d.info.length + ' ' + t('cards'), 'editinfo', '', '#14b8a6')}
+    ${tile('🧳', 'Before you travel', d.info.length + ' ' + t('cards'), 'editinfo', '', '#14b8a6')}
     ${tile('📷', 'Photos', d.photos.length + ' ' + t('photos'), 'tab', 'photos', '#ec4899')}
   </div>
   <h3 class="sec-h">💬 ${t('Talk to the family')}</h3>
@@ -907,11 +928,11 @@ function placeSheet(id) {
     return `${sheetHead(esc(p.name))}
       ${cover ? `<div class="day-cover" style="height:220px;margin:0" data-a="lightbox" data-list="place:${id}" data-i="${Math.max(0, photos.findIndex(x => x.id === cover))}">${pimg(cover)}</div>` : ''}
       <p class="muted small" style="margin:10px 0 0">📍 ${esc(p.city)}</p>
-      ${p.summary ? `<p style="font-size:17px">${linkify(p.summary)}</p>` : ''}
+      ${p.summary ? `<p style="font-size:17px">${linkify(trT(p.summary))}</p>` : ''}${trBtn(p.summary, p.info)}
       ${(() => { const dt = p.details || {}; const rows = PLACE_FIELDS.filter(([k]) => (dt[k] || '').trim()).map(([k, ic, l]) => `<div class="li" style="align-items:flex-start"><span style="font-size:20px">${ic}</span><div class="grow"><div class="small muted" style="font-weight:700">${t(l)}</div><div class="pre">${detailValue(k, dt[k])}</div></div></div>`);
         (dt.fields || []).filter(f => (f.label || f.value)).forEach(f => rows.push(`<div class="li" style="align-items:flex-start"><span style="font-size:20px">▪️</span><div class="grow"><div class="small muted" style="font-weight:700">${esc(f.label)}</div><div class="pre">${linkify(f.value)}</div></div></div>`));
         return rows.length ? `<div class="card list">${rows.join('')}</div>` : ''; })()}
-      ${p.info ? `<div class="card"><b>💡 ${t('Good to know')}</b><div class="pre" style="margin-top:4px">${linkify(p.info)}</div></div>` : ''}
+      ${p.info ? `<div class="card"><b>💡 ${t('Good to know')}</b><div class="pre" style="margin-top:4px">${linkify(trT(p.info))}</div></div>` : ''}
       ${(p.details?.links || []).filter(l => l.url).length ? `<div class="card"><b>🔗 ${t('Links')}</b>${p.details.links.filter(l => l.url).map(l => `<div style="margin-top:6px"><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label || l.url)}</a></div>`).join('')}</div>` : ''}
       ${when.length ? `<div class="card"><b>🗓️ ${t('When we go')}</b>${when.map(i => `<div class="small" style="margin-top:4px">${fmtDay(i.day)} ${esc(i.time)} · ${esc(i.title)}</div>`).join('')}</div>` : ''}
       <div class="row wrap-r" style="gap:6px;margin:10px 0">
@@ -1213,6 +1234,16 @@ function exportCsv() {
 async function busy(btn, fn) { if (btn) { btn.disabled = true; } try { await fn(); } catch (e) { /* toast already shown */ } finally { if (btn) btn.disabled = false; } }
 const H = {
   tab: el => { closeSheet(); S.tab = el.dataset.k; S.anim = true; LS.set('tab', S.tab); render(); scrollTo(0, 0); },
+  translate: async el => {
+    const g = el.dataset.k, list = TRQ[g] || [];
+    if (S.trOn.has(g)) { S.trOn.delete(g); list.forEach(x => S.trOn.delete(hashS(x))); render(); rerenderSheet(); return; }
+    el.disabled = true; el.textContent = '🌐 ' + t('Translating…');
+    try {
+      for (const x of list) { const k = hashS(x); if (!TR[k]) TR[k] = await translateText(x, isArabic(x) ? 'en' : 'ar'); S.trOn.add(k); }
+      S.trOn.add(g); LS.set('tr', TR);
+    } catch { toast(t('Translation is not available right now')); }
+    render(); rerenderSheet();
+  },
   hint: el => { const h = LS.get('hints', {}); h[el.dataset.k] = 1; LS.set('hints', h); render(); },
   resethints: () => { LS.set('hints', {}); LS.del('hideStart'); toast('💡 ' + t('Tips are back on every screen')); render(); },
   hidestart: () => { LS.set('hideStart', true); toast(t('You can find the steps in the Organize tab')); render(); },
