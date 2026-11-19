@@ -169,6 +169,15 @@ create table if not exists public.ann_comments (
   body text not null,
   created_at timestamptz not null default now()
 );
+alter table public.announcements add column if not exists poll jsonb;   -- list of option texts; null = no vote
+create table if not exists public.ann_votes (
+  announcement_id uuid not null references public.announcements(id) on delete cascade,
+  member_id uuid not null references public.members(id) on delete cascade,
+  choice int not null,
+  primary key (announcement_id, member_id)
+);
+alter table public.ann_votes enable row level security;
+revoke all on public.ann_votes from anon, authenticated;
 alter table public.ann_reactions enable row level security;
 alter table public.ann_comments enable row level security;
 revoke all on public.ann_reactions, public.ann_comments from anon, authenticated;
@@ -305,6 +314,7 @@ begin
       'days', case when _can(me,'view_plan') then coalesce((select jsonb_agg(to_jsonb(dd) order by day) from days dd), '[]') else '[]' end,
       'announcements', coalesce((select jsonb_agg(to_jsonb(a) || jsonb_build_object(
             'reactions', coalesce((select jsonb_object_agg(r.member_id, r.emoji) from ann_reactions r where r.announcement_id = a.id), '{}'),
+            'votes', coalesce((select jsonb_object_agg(v.member_id, v.choice) from ann_votes v where v.announcement_id = a.id), '{}'),
             'comments', coalesce((select jsonb_agg(jsonb_build_object('id', c.id, 'author', c.author, 'body', c.body, 'created_at', c.created_at) order by c.created_at) from ann_comments c where c.announcement_id = a.id), '[]'))
           order by pinned desc, created_at desc) from announcements a
           where a.audience = '[]'::jsonb or a.audience ? me.id::text or a.author = me.id or _can(me,'announce')), '[]'),
@@ -435,6 +445,19 @@ begin
     else
       if coalesce(trim(d->>'body'),'') = '' then raise exception 'missing_text'; end if;
       insert into ann_comments(announcement_id, author, body) values ((d->>'id')::uuid, me.id, left(trim(d->>'body'), 2000));
+    end if;
+    return '{}'::jsonb;
+  end if;
+
+  if p_action = 'vote_announcement' then
+    if not exists (select 1 from announcements a where a.id = (d->>'id')::uuid and a.poll is not null
+        and (a.audience = '[]'::jsonb or a.audience ? me.id::text or a.author = me.id or _can(me,'announce'))) then raise exception 'not_allowed'; end if;
+    if nullif(d->>'choice','') is null then
+      delete from ann_votes where announcement_id = (d->>'id')::uuid and member_id = me.id;
+    else
+      if (d->>'choice')::int < 0 or (d->>'choice')::int >= (select jsonb_array_length(poll) from announcements where id = (d->>'id')::uuid) then raise exception 'bad_choice'; end if;
+      insert into ann_votes(announcement_id, member_id, choice) values ((d->>'id')::uuid, me.id, (d->>'choice')::int)
+        on conflict (announcement_id, member_id) do update set choice = excluded.choice;
     end if;
     return '{}'::jsonb;
   end if;
@@ -647,11 +670,13 @@ begin
     if not _can(me,'announce') then raise exception 'not_allowed'; end if;
     if coalesce(trim(d->>'title'),'') = '' then raise exception 'missing_title'; end if;
     if nullif(d->>'id','') is null then
-      insert into announcements(title, body, pinned, author, audience)
-        values (trim(d->>'title'), coalesce(d->>'body',''), coalesce((d->>'pinned')::boolean, false), me.id, coalesce(d->'audience','[]'));
+      insert into announcements(title, body, pinned, author, audience, poll)
+        values (trim(d->>'title'), coalesce(d->>'body',''), coalesce((d->>'pinned')::boolean, false), me.id, coalesce(d->'audience','[]'),
+                case when jsonb_typeof(d->'poll') = 'array' and jsonb_array_length(d->'poll') >= 2 then d->'poll' end);
     else
       update announcements set title = trim(d->>'title'), body = coalesce(d->>'body',''),
-          pinned = coalesce((d->>'pinned')::boolean, false), audience = coalesce(d->'audience','[]') where id = (d->>'id')::uuid;
+          pinned = coalesce((d->>'pinned')::boolean, false), audience = coalesce(d->'audience','[]'),
+          poll = case when jsonb_typeof(d->'poll') = 'array' and jsonb_array_length(d->'poll') >= 2 then d->'poll' end where id = (d->>'id')::uuid;
     end if;
     return '{}'::jsonb;
   end if;

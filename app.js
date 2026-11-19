@@ -375,6 +375,7 @@ Object.assign(AR, {"Show original": "عرض النص الأصلي", "Translate":
 Object.assign(AR, {"📊 Overview": "📊 نظرة عامة", "🧾 Bills": "🧾 الفواتير", "⚖️ Balances": "⚖️ الأرصدة", "🤝 Settle up": "🤝 التسوية", "Search bills…": "ابحث في الفواتير…", "Add every bill: who paid, how they paid, and who it was for. The app works out who owes whom.": "أضف كل فاتورة: من دفع، وكيف دفع، ولمن كانت. التطبيق يحسب من يدين لمن.", "Green = gets money back. Red = still has to pay. Tap a person to see their full statement.": "الأخضر = له مال. الأحمر = عليه أن يدفع. اضغط على الشخص لرؤية كشف حسابه.", "Send a reminder": "أرسل تذكيراً", "Copy all": "نسخ الكل", "The fewest payments that settle everyone. Tap ✓ when a payment is made, or 🔔 to send a reminder.": "أقل عدد من الدفعات لتسوية الجميع. اضغط ✓ عند الدفع، أو 🔔 لإرسال تذكير.", "Trip total": "مجموع الرحلة", "Per person": "للشخص", "Bills": "فواتير", "Spent today": "مصروف اليوم", "Budget": "الميزانية", "Set a budget": "حدد ميزانية", "of": "من", "Over budget by {a}": "تجاوزنا الميزانية بـ {a}", "{a} left": "متبقٍ {a}", "Set a total budget (and per category if you like) to see how much is left at a glance.": "حدد ميزانية إجمالية (ولكل فئة إن أردت) لترى المتبقي بلمحة.", "No budget set yet.": "لم تُحدد ميزانية بعد.", "Where the money goes": "أين تذهب الأموال", "Spending by day": "المصروف حسب اليوم", "Before": "قبل", "After": "بعد", "Who paid so far": "من دفع حتى الآن", "Trip budget": "ميزانية الرحلة", "Total budget": "الميزانية الإجمالية", "Per category (optional)": "لكل فئة (اختياري)", "Hi {a}, a friendly reminder from the {trip} app: please pay {b} {c}. Thank you!": "مرحباً {a}، تذكير لطيف من تطبيق {trip}: الرجاء دفع {c} لـ {b}. شكراً!", "Copied. Paste it in WhatsApp.": "تم النسخ. الصقه في واتساب.", "Food": "طعام", "Transport": "مواصلات", "Tickets": "تذاكر", "Hotel": "فندق", "Flights": "طيران", "Shopping": "تسوق", "Other": "أخرى"});
 Object.assign(AR, {"You are seeing the app like a family member": "أنت ترى التطبيق كفرد من العائلة", "Back to organizer": "العودة للمنظم", "This is what your family sees": "هذا ما تراه عائلتك", "See the app like a family member": "شاهد التطبيق كفرد من العائلة", "Check exactly what your family sees, then come back.": "تحقق مما تراه عائلتك بالضبط ثم ارجع.", "See it as family": "شاهده كالعائلة", "Preview the member view": "معاينة واجهة الأعضاء", "You will get money back": "سيُعاد لك مال", "You need to pay": "عليك أن تدفع", "You are all settled 🎉": "حسابك مسوّى 🎉", "Your share": "حصتك", "You paid": "دفعت", "My full statement": "كشف حسابي الكامل", "What to do": "ماذا تفعل", "Pay": "ادفع لـ", "pays you": "يدفع لك", "Your bills": "فواتيرك", "No bills yet.": "لا توجد فواتير بعد.", "When the organizer adds a bill you are part of, it shows up here with your share.": "عندما يضيف المنظم فاتورة تخصك ستظهر هنا مع حصتك.", "Your share of every bill and who you need to pay. Tap a bill to see the details.": "حصتك من كل فاتورة ولمن تدفع. اضغط على الفاتورة لرؤية التفاصيل."});
 Object.assign(AR, {"Four quick questions. It takes less than a minute.": "أربعة أسئلة سريعة. أقل من دقيقة.", "Where do you want to go?": "إلى أين تريد الذهاب؟", "e.g. The kids would love to see the dolphins": "مثلاً: الأطفال سيحبون رؤية الدلافين", "Alone or with a group?": "وحدك أم مع مجموعة؟", "Send my idea": "أرسل اقتراحي", "Sent to the organizer": "تم الإرسال للمنظم", "Idea shared! The family can now like it": "تمت مشاركة الاقتراح! يمكن للعائلة الإعجاب به", "Have an idea? Suggest a place": "عندك فكرة؟ اقترح مكاناً", "Tell us where you want to go. The family can like it.": "أخبرنا أين تريد الذهاب. العائلة تستطيع الإعجاب به.", "Suggest": "اقترح"});
+Object.assign(AR, {"Add a vote": "أضف تصويتاً", "Everyone picks one option. They can change it any time. You see who chose what.": "كل شخص يختار خياراً واحداً ويمكنه تغييره في أي وقت. وأنت ترى من اختار ماذا.", "Option": "خيار", "Add option": "أضف خياراً", "Changing the options keeps the votes by number.": "تغيير الخيارات يحتفظ بالأصوات حسب الرقم.", "A vote needs at least 2 options": "التصويت يحتاج خيارين على الأقل", "Tap your choice": "اضغط على اختيارك", "Your vote is saved. Tap another to change it.": "تم حفظ صوتك. اضغط على خيار آخر لتغييره.", "voted": "صوّتوا", "Not voted yet": "لم يصوّت بعد"});
 /* ----- guidance & joy ----- */
 const HINTS = {
   home: 'This is your trip home. The day brief, your to-dos, your groups and news from the organizer all show up here.',
@@ -465,7 +466,7 @@ function annSection() {
       ${a.body ? `<div class="pre" style="margin-top:4px">${linkify(trT(a.body))}</div>` : ''}${trBtn(a.title, a.body)}
       <div class="row between" style="margin-top:8px"><span class="small muted">${esc(nameOf(a.author))} · ${ago(a.created_at)}${(a.audience || []).length ? ` · 👁️ ${(a.audience || []).length} ${t('people')}` : ''}</span>
       ${can('announce') ? `<button class="btn ghost sm" data-a="announce" data-k="${a.id}">${t('Edit')}</button>` : ''}</div>
-      ${annReactions(a)}</div>`).join('')
+      ${pollBlock(a)}${annReactions(a)}</div>`).join('')
     : emptyState('📣', t('No announcements yet.'), can('announce') ? t('Tell the family what is coming up. You choose who sees each one.') : t('News from the organizer will show up here.'), can('announce') ? `<button class="btn" data-a="announce">${ico('plus', 16)} ${t('New announcement')}</button>` : '')}`;
 }
 /* ----- Home ----- */
@@ -538,6 +539,20 @@ function homeView() {
 }
 
 const ideaCTA = () => can('suggest') ? `<div class="card cta tap" data-a="newidea"><span class="cta-e">💡</span><div class="grow"><b>${t('Have an idea? Suggest a place')}</b><div class="small muted">${t('Tell us where you want to go. The family can like it.')}</div></div><span class="btn sm">${t('Suggest')}</span></div>` : '';
+function pollBlock(a) {
+  if (!a.poll || !a.poll.length) return '';
+  const votes = a.votes || {}, mine = votes[me()], total = Object.keys(votes).length, org = can('announce');
+  const who = i => Object.entries(votes).filter(([, c]) => c === i).map(([id]) => id);
+  const aud = (a.audience || []).length ? a.audience : D().members.map(m => m.id);
+  const missing = aud.filter(id => votes[id] == null);
+  return `<div class="poll"><div class="small muted" style="font-weight:700;margin-bottom:6px">🗳️ ${mine == null ? t('Tap your choice') : t('Your vote is saved. Tap another to change it.')}</div>
+    ${a.poll.map((o, i) => { const n = who(i).length, pc = total ? Math.round(n / total * 100) : 0;
+      return `<button class="popt ${mine === i ? 'on' : ''}" data-a="pollvote" data-k="${a.id}" data-v="${i}"><i style="width:${pc}%"></i>
+        <span class="stepn">${i + 1}</span><span class="grow">${esc(trT(o))}</span>${mine === i ? '✅' : ''}<b>${n ? n + ' · ' + pc + '%' : ''}</b></button>
+        ${org && n ? `<div class="row" style="gap:2px;margin:2px 0 6px 32px">${who(i).map(id => avatar(id, 'sm')).join('')}</div>` : ''}`; }).join('')}
+    <div class="small muted" style="margin-top:6px">${total} ${t('voted')}${org && missing.length ? ` · ${t('Not voted yet')}: ${missing.map(id => esc(nameOf(id).split(' ')[0])).join(', ')}` : ''}</div>
+    ${trBtn(...a.poll)}</div>`;
+}
 const REACTS = ['❤️', '👍', '😂', '😮', '🙏', '🎉'];
 function annReactions(a) {
   const r = a.reactions || {}, mine = r[me()], cs = a.comments || [], open = S.openAnn.has(a.id);
@@ -973,10 +988,14 @@ function setPath(obj, path, val) { const ks = path.split('.'); let o = obj; for 
 /* announcement */
 function announceSheet(id) {
   const a = D().announcements.find(x => x.id === id) || { title: '', body: '', pinned: false };
-  F = { id: a.id || '', title: a.title, body: a.body, pinned: a.pinned, audience: [...(a.audience || [])] };
+  F = { id: a.id || '', title: a.title, body: a.body, pinned: a.pinned, audience: [...(a.audience || [])], poll: a.poll ? [...a.poll] : null };
   openSheet(() => `${sheetHead(id ? t('Edit') : t('New announcement'))}
     ${field(t('Title'), inp('title', F.title))}${field(t('Details'), txt('body', F.body))}
     <label class="row" style="margin-top:12px"><input type="checkbox" class="switch" data-bind="pinned" ${F.pinned ? 'checked' : ''}> ${t('Pinned')}</label>
+    <div class="card" style="margin-top:14px"><label class="row"><input type="checkbox" class="switch" data-a2="polltoggle" ${F.poll ? 'checked' : ''}> <b>🗳️ ${t('Add a vote')}</b></label>
+      ${F.poll ? `<p class="small muted" style="margin:6px 0">${t('Everyone picks one option. They can change it any time. You see who chose what.')}</p>
+        ${F.poll.map((o, i) => `<div class="row" style="margin-top:6px"><span class="stepn">${i + 1}</span><input class="i grow" data-bind="poll.${i}" value="${esc(o)}" placeholder="${t('Option')} ${i + 1}">${F.poll.length > 2 ? `<button class="btn danger sm" data-a="pollrm" data-k="${i}">×</button>` : ''}</div>`).join('')}
+        <button class="btn ghost sm" style="margin-top:6px" data-a="polladd">${ico('plus', 16)} ${t('Add option')}</button>${id ? `<p class="small muted">${t('Changing the options keeps the votes by number.')}</p>` : ''}` : ''}</div>
     <label class="f"><span>👁️ ${t('Who can see this announcement')}</span></label>${audiencePicker('audience')}
     <div class="actions">${id ? `<button class="btn danger" data-a="delann">${t('Delete')}</button>` : ''}<button class="btn" data-a="saveann">${t('Save')}</button></div>`);
 }
@@ -1393,7 +1412,13 @@ const H = {
   newidea: () => ideaSheet(),
   saveidea: el => busy(el, async () => { if (!F.title.trim()) { toast(t('Write the name of the place')); return; } const vis = F.visibility; await act('add_suggestion', F); closeSheet(); confetti(50); toast(vis === 'private' ? '🔒 ' + t('Sent to the organizer') : '🎉 ' + t('Idea shared! The family can now like it')); }),
   announce: el => announceSheet(el.dataset.k),
-  saveann: el => busy(el, async () => { await act('save_announcement', F, 'Saved'); closeSheet(); }),
+  saveann: el => busy(el, async () => { const data = { ...F, poll: F.poll ? F.poll.map(x => String(x || '').trim()).filter(Boolean) : null };
+    if (data.poll && data.poll.length < 2) { toast(t('A vote needs at least 2 options')); return; } await act('save_announcement', data, 'Saved'); closeSheet(); }),
+  polladd: () => { F.poll.push(''); rerenderSheet(); },
+  pollrm: el => { F.poll.splice(+el.dataset.k, 1); rerenderSheet(); },
+  pollvote: el => { const a = D().announcements.find(x => x.id === el.dataset.k); const c = +el.dataset.v; const cur = (a.votes || {})[me()];
+    const v = cur === c ? null : c; a.votes = Object.assign({}, a.votes); if (v == null) delete a.votes[me()]; else a.votes[me()] = v; render(); if (v != null) confetti(25);
+    act('vote_announcement', { id: a.id, choice: v }).catch(() => {}); },
   delann: () => { const id = F.id; confirmSheet(t('Delete') + '?', () => act('delete_announcement', { id }, 'Deleted')); },
   editday: el => daySheet(el.dataset.k),
   saveday: el => busy(el, async () => { await act('save_day', F, 'Saved'); closeSheet(); }),
@@ -1520,6 +1545,7 @@ document.addEventListener('change', ev => {
   if (el.dataset.a2 === 'q') { S.q = el.value; render(); const i = document.querySelector('[data-a2=q]'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
   if (el.dataset.a2 === 'fpayer') { S.fPayer = el.value; render(); }
   if (el.dataset.a2 === 'fmethod') { S.fMethod = el.value; render(); }
+  if (el.dataset.a2 === 'polltoggle') { F.poll = el.checked ? (F.poll && F.poll.length ? F.poll : ['', '', '']) : null; rerenderSheet(); }
   if (el.dataset.a2 === 'orgtoggle') { const id = el.dataset.k; act('save_member', { id, role: el.checked ? 'admin' : 'member' }, el.checked ? '⭐ ' + t('Co-organizer added') : 'Saved').then(() => rerenderSheet()).catch(() => rerenderSheet()); }
   if (el.dataset.a2 === 'tasktoggle') { if (el.checked) confetti(30); act('toggle_task', { id: el.dataset.k, member_id: el.dataset.m || '', done: el.checked }).then(() => rerenderSheet()).catch(() => {}); }
   if (el.dataset.a2 === 'pplbox') { const k = el.dataset.k; F.people = el.checked ? [...new Set([...F.people, k])] : F.people.filter(i => i !== k); $('#preview').innerHTML = previewHtml(); }
